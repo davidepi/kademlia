@@ -40,10 +40,20 @@ Ip::Ip(const char* ip)
     d[i2] = '\0';
     
     Ip::ip = 0x00000000;
-    Ip::ip |= ((unsigned int)fast_atoi(a) << 24);
-    Ip::ip |= ((unsigned int)fast_atoi(b) << 16);
-    Ip::ip |= ((unsigned int)fast_atoi(c) << 8);
-    Ip::ip |= ((unsigned int)fast_atoi(d));
+    Ip::ip |= ((unsigned int)fast_atoi(a));
+    Ip::ip |= ((unsigned int)fast_atoi(b) << 8 );
+    Ip::ip |= ((unsigned int)fast_atoi(c) << 16);
+    Ip::ip |= ((unsigned int)fast_atoi(d) << 24);
+}
+
+Ip::Ip(int h)
+{
+    Ip::ip = h;
+}
+
+Ip::Ip()
+{
+    Ip::ip = 0x100007F;
 }
 
 Ip::~Ip()
@@ -57,10 +67,10 @@ uint32_t Ip::getIp() const
 void Ip::toString(char output[16]) const
 {
     uint8_t a = 0x00, b=0x00, c=0x00, d=0x00;
-    a = Ip::ip >> 24;
-    b = Ip::ip >> 16;
-    c = Ip::ip >> 8;
-    d = Ip::ip;
+    a = Ip::ip;
+    b = Ip::ip >> 8;
+    c = Ip::ip >> 16;
+    d = Ip::ip >> 24;
     sprintf(output,"%d",a);
     strcat(output,".");
     output = strchr(output,'\0');

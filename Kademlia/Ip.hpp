@@ -9,6 +9,8 @@ class Ip
 {
 public:
     Ip(const char* ip);
+    Ip(int host_ordered);
+    Ip();
     ~Ip();
     uint32_t getIp() const;
     void toString(char output[16]) const;

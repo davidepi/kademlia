@@ -1,7 +1,15 @@
 #include "Key.hpp"
 
+//se non c'e' una #define di una funzione di hashing usa SHA1 come default
+#ifndef HASHFN
+#define HASHFN SHA1
+#endif
 #if HASHFN == SHA1
-const unsigned short NBITS = 160;
+#define NBYTE 20
+//TODO: altre funzioni di hash prima dell'else
+#else //funzione di hash non riconosciuta
+#define HASHFN SHA1
+#define NBYTE 20
 #endif
 
 static void sha1(const uint8_t* input, uint8_t * output);
@@ -13,9 +21,14 @@ uint32_t rotl32 (uint32_t value, unsigned int count) //left rotate
     return (value<<count) | (value>>( (-count) & mask ));
 }
 
+Key::Key()
+{
+    Key::key = new uint8_t[NBYTE];
+}
+
 Key::Key(Ip ip, pid_t pid)
 {
-    Key::key = new uint8_t[NBITS/8];
+    Key::key = new uint8_t[NBYTE];
     uint8_t input[9]; //assuming 4 byte pid
     uint32_t ipi = ip.getIp();
     input[0] = ipi >> 24;
@@ -27,12 +40,16 @@ Key::Key(Ip ip, pid_t pid)
     input[6] = pid >> 8;
     input[7] = pid;
     input[8] = '\0';
+#if HASHFN == SHA1
     sha1(input,Key::key);
+#else
+    //TODO: altre funzioni di hash (magari con output piu' corti per testare)
+#endif
 }
 
 Key::Key(const char* name)
 {
-    Key::key = new uint8_t[NBITS/8];
+    Key::key = new uint8_t[NBYTE];
     sha1((uint8_t*)name,Key::key);
 }
 
@@ -44,6 +61,42 @@ Key::~Key()
 const uint8_t* Key::getKey() const
 {
     return key;
+}
+
+bool Key::operator==(const Key& k) const
+{
+#if HASHFN == SHA1
+    return Key::key[0]  && k.key[0]  &&
+           Key::key[1]  && k.key[1]  &&
+           Key::key[2]  && k.key[2]  &&
+           Key::key[3]  && k.key[3]  &&
+           Key::key[4]  && k.key[4]  &&
+           Key::key[5]  && k.key[5]  &&
+           Key::key[6]  && k.key[6]  &&
+           Key::key[7]  && k.key[7]  &&
+           Key::key[8]  && k.key[8]  &&
+           Key::key[9]  && k.key[9]  &&
+           Key::key[10] && k.key[10] &&
+           Key::key[11] && k.key[11] &&
+           Key::key[12] && k.key[12] &&
+           Key::key[13] && k.key[13] &&
+           Key::key[14] && k.key[14] &&
+           Key::key[15] && k.key[15] &&
+           Key::key[16] && k.key[16] &&
+           Key::key[17] && k.key[17] &&
+           Key::key[18] && k.key[18] &&
+           Key::key[19] && k.key[19];
+#else //versione generica per chiavi da NBYTE
+    bool retval = true;
+    for(int i=0;i<NBYTE;i++)
+        retval &= (Key::key[i] && k.key[i]);
+    return retval;
+#endif
+}
+
+bool Key::operator!=(const Key& k) const
+{
+    return !(*this==k);
 }
 
 static void sha1(const uint8_t* input, uint8_t* output)
