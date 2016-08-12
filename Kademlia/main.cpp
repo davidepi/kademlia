@@ -6,7 +6,7 @@
 #include <arpa/inet.h>
 int main(int argc, const char * argv[])
 {
-//    Key c("255.231.221.203",3142354416);
+//    Key c("ciao");
 //    const uint32_t* digest = (uint32_t*)c.getKey();
 //    printf("%#x",digest[0]);
 //    printf("%x",digest[1]);
@@ -14,10 +14,22 @@ int main(int argc, const char * argv[])
 //    printf("%x",digest[3]);
 //    printf("%x\n",digest[4]);
     
-    std::queue<void*>* a;
-    Messenger m(a,3200);
+    std::queue<Message*>* a;
+    Messenger* m = &(Messenger::getInstance());
+    m->init(a, 3400);
     sleep(1);
-    Message msg("It's Raining Men! Hallelujah! - It's Raining Men! Amen!");
-    m.sendMessage("127.0.0.1", 3200, msg);
-    while(1){sleep(3000);}
+    Message msg("Singleton and Makefile! Ole'!");
+    msg.setFlags(RPC_PING);
+    
+    Ip dest("127.0.0.1");
+    char dest_string[16];
+    dest.toString(dest_string);
+    int port_ho_dest = 3400;
+    
+    while(1)
+    {
+        m->sendMessage("127.0.0.1", 3400, msg);
+        std::cout<<"Sended to "<<dest_string<<":"<<port_ho_dest;
+        sleep(1);
+    }
 }

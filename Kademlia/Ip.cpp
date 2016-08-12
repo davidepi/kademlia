@@ -14,31 +14,34 @@ Ip::Ip(const char* ip)
 {
     char a[4], b[4], c[4], d[4];
     int i = 0,i2 = 0;
-    while(ip[i]!='\0' && ip[i]!='.')
-    {
+    while(ip[i]!='\0' && ip[i]!='.') //trova il primo punto
+    {                                //e copia i valori delle 3 cifre in a
         a[i] = ip[i];
         i++;
     }
     a[i++] = '\0';
-    while(ip[i]!='\0' && ip[i]!='.')
+    while(ip[i]!='\0' && ip[i]!='.') //idem per il secondo terzetto
     {
         b[i2++] = ip[i];
         i++;
     }
     b[i2] = '\0';i++;i2=0;
-    while(ip[i]!='\0' && ip[i]!='.')
+    while(ip[i]!='\0' && ip[i]!='.') //idem per il terzo
     {
         c[i2++] = ip[i];
         i++;
     }
     c[i2] = '\0';i++;i2=0;
-    while(ip[i]!='\0' && ip[i]!='.')
+    while(ip[i]!='\0' && ip[i]!='.') //guess what? idem per l'ultimo
     {
         d[i2++] = ip[i];
         i++;
     }
     d[i2] = '\0';
     
+    //shifta i numeri. Io voglio che l'ordine dei bit sia [ a ][ b ][ c ][ d ]
+    //ma essendo qui little endian devo scrivere 0x[ d ][ c ][ b ][ a ].
+    //Oh e' un casino da spiegare sta roba, amen.
     Ip::ip = 0x00000000;
     Ip::ip |= ((unsigned int)fast_atoi(a));
     Ip::ip |= ((unsigned int)fast_atoi(b) << 8 );
@@ -46,14 +49,14 @@ Ip::Ip(const char* ip)
     Ip::ip |= ((unsigned int)fast_atoi(d) << 24);
 }
 
-Ip::Ip(int h)
+Ip::Ip(int ip_host_ordered)
 {
-    Ip::ip = h;
+    Ip::ip = ip_host_ordered;
 }
 
 Ip::Ip()
 {
-    Ip::ip = 0x100007F;
+    Ip::ip = 0x100007F; //assegno 127.0.0.1 come default
 }
 
 Ip::~Ip()

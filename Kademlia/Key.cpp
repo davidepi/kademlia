@@ -110,7 +110,7 @@ static void sha1(const uint8_t* input, uint8_t* output)
     uint64_t len = strlen((char*)input);
     const uint8_t* l = (const uint8_t*) &len;
     
-    char messaggione[(len+9)%64==0?(len+9)/64*64:(len+9)/64*64+64];
+    uint8_t messaggione[(len+9)%64==0?(len+9)/64*64:(len+9)/64*64+64];
     
     //PADDING 0s
     memset(messaggione, 0, sizeof(messaggione));
@@ -136,9 +136,7 @@ static void sha1(const uint8_t* input, uint8_t* output)
     messaggione[sizeof(messaggione)-6] = l[5];
     messaggione[sizeof(messaggione)-7] = l[6];
     messaggione[sizeof(messaggione)-8] = l[7];
-    
     const unsigned long nchu = sizeof(messaggione)/64;
-    
     uint32_t chunks[nchu][80];
     int index = 0;
 
