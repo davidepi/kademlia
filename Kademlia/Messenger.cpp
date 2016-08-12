@@ -37,10 +37,15 @@ static void* listener(void* p)
             char from[16];
             m->getSenderIp().toString(from);
             std::cout<<"\tReceived \""<<m->getText()<<"\" from "<<
-            from<<":"<<m->getSenderPort()<<std::endl;
+            from<<":"<<m->getSenderPort()<<" type "<<m->getFlags()<<std::endl;
+
+
+            if(q->size() < 10000) {
+                q->push(m);
+            }
         }
     }
-    
+
     pthread_exit((void*)0);
 }
 
@@ -61,13 +66,13 @@ void Messenger::init(std::queue<Message*>* q, int port_ho)
         CRITICAL_ERROR
     memset(&(Messenger::my_address), 0, sizeof(Messenger::my_address));
     memset(&(Messenger::dest), 0, sizeof(Messenger::dest));
-    
+
     Messenger::my_address.sin_family      = AF_INET;
     Messenger::my_address.sin_addr.s_addr = INADDR_ANY;
     Messenger::port_ho = port_ho;
     Messenger::my_address.sin_port = htons(Messenger::port_ho);
     Messenger::dest.sin_family = AF_INET;
-    
+
     listener_thread_params* params = (listener_thread_params*)malloc
                                      (sizeof(listener_thread_params));
     params->where_to_write = q;
@@ -124,6 +129,11 @@ Message::Message(const Ip f, uint16_t port_no, short len, uint8_t* data,
 void Message::setFlags(uint8_t flags)
 {
     Message::flags = flags;
+}
+
+short Message::getFlags() const
+{
+    return (short)flags;
 }
 
 const char* Message::getText() const

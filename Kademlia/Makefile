@@ -52,7 +52,13 @@ Ip.o: Ip.cpp
 	@if test -e temp.errors; then echo "$(ERROR_STRING)" && cat temp.log; elif test -s temp.log; then echo "$(WARN_STRING)" && cat temp.log; else echo "$(OK_STRING)"; fi;
 	@rm -f temp.errors temp.log
 
-$(MAIN): main.cpp Messenger.o Key.o Ip.o
+Performer.o: Performer.cpp
+	@printf "Compiling $<... "
+	@$(CC) $(CFLAGS) -c $^ -o $@ $(ERROR_HANDLER)
+	@if test -e temp.errors; then echo "$(ERROR_STRING)" && cat temp.log; elif test -s temp.log; then echo "$(WARN_STRING)" && cat temp.log; else echo "$(OK_STRING)"; fi;
+	@rm -f temp.errors temp.log
+
+$(MAIN): main.cpp Messenger.o Key.o Ip.o Performer.o
 	@printf "Compiling Executable..."
 	@$(CC) $(CFLAGS) $^ -o $@ $(ERROR_HANDLER)
 	@if test -e temp.errors; then echo "$(ERROR_STRING)" && cat temp.log; elif test -s temp.log; then echo "$(WARN_STRING)" && cat temp.log; else echo "$(OK_STRING)"; fi;

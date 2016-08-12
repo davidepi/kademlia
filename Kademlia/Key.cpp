@@ -1,4 +1,5 @@
 #include "Key.hpp"
+#include<climits> //CHAR_BIT
 
 //se non c'e' una #define di una funzione di hashing usa SHA1 come default
 #ifndef HASHFN
@@ -106,26 +107,26 @@ static void sha1(const uint8_t* input, uint8_t* output)
     uint32_t h2 = 0x98BADCFE;
     uint32_t h3 = 0x10325476;
     uint32_t h4 = 0xC3D2E1F0;
-    
+
     uint64_t len = strlen((char*)input);
     const uint8_t* l = (const uint8_t*) &len;
-    
+
     uint8_t messaggione[(len+9)%64==0?(len+9)/64*64:(len+9)/64*64+64];
-    
+
     //PADDING 0s
     memset(messaggione, 0, sizeof(messaggione));
-    
+
     int i=0;
     while(i<len)
     {
         messaggione[i] = input[i];
         i++;
     }
-    
+
     //ADD 1 BIT TO END OF MESSAGE
     messaggione[i++] = 0x1;
-    
-    
+
+
     //APPEND ORIGINAL MESSAGE LENGTH IN BIG ENDIAN
     //lo voglio in big endian quindi aggiungo byte per byte dal fondo
     messaggione[sizeof(messaggione)-1] = l[0];
@@ -150,7 +151,7 @@ static void sha1(const uint8_t* input, uint8_t* output)
             chunks[i][j] |= messaggione[index++] << 8   & 0x0000FF00;
             chunks[i][j] |= messaggione[index++]        & 0x000000FF;
         }
-    
+
     //EXTEND THE WORDS TO 80
     for(int i=0;i<nchu;i++)
         for(int j=16;j<80;j++)
@@ -158,7 +159,7 @@ static void sha1(const uint8_t* input, uint8_t* output)
             chunks[i][j] = rotl32(chunks[i][j-3]  ^ chunks[i][j-8]  ^
                                   chunks[i][j-14] ^ chunks[i][j-16],1);
         }
-    
+
     //MAIN LOOP
     uint32_t a,b,c,d,e,f,k,temp;
     for(int i=0;i<nchu;i++)
@@ -212,14 +213,14 @@ static void sha1(const uint8_t* input, uint8_t* output)
             b = a;
             a = temp;
         }
-        
+
         h0 += a;
         h1 += b;
         h2 += c;
         h3 += d;
         h4 += e;
     }
-    
+
     uint8_t* tmp  = (uint8_t*)&h0;
     output[0]  = tmp[0];
     output[1]  = tmp[1];

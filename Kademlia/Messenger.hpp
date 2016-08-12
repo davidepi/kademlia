@@ -12,15 +12,16 @@
 
 
 #define RPC_PING 0x1
-#define RPC_STORE 0x2
+#define RPC_PONG 0x2
+#define RPC_STORE 0x3
 #define RPC_FIND_NODE 0x4
-#define RPC_FIND_VALUE 0x8
+#define RPC_FIND_VALUE 0x5
 
 class Message;
 class Messenger
 {
     friend class Message;
-    
+
 public:
     static Messenger& getInstance();
     Messenger(Messenger const&)      = delete;
@@ -28,7 +29,7 @@ public:
     void init(std::queue<Message*>* queue, int port_ho);
     void sendMessage(const Ip destination_ip, int destination_port_ho,
                      Message& msg);
-    
+
 private:
     Messenger();
     int sockfd_recv;
@@ -53,13 +54,14 @@ public:
     short getSenderPort() const;
     const Ip& getSenderIp() const;
     void setFlags(uint8_t flags);
+    short getFlags() const;
 private:
     char text[512];
     uint8_t flags;
     short length;
     Ip from;
     int port_ho; //host order
-    
+
 };
 
 #endif
