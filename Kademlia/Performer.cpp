@@ -19,10 +19,12 @@ static void* execute(void* p)
 	while(1) 
 	{
 		Message* top;
-		if ((top = q->front()) != NULL) {
-			q->pop();
-
-			switch(top->getFlags()) {
+		if (q->size() > 0)
+        {
+            top = q->front();
+            q->pop();
+			switch(top->getFlags())
+            {
 				case RPC_PING : 
 					{
 						std::cout << "The message is a ping: " << top->getText() << std::endl;
@@ -45,9 +47,15 @@ static void* execute(void* p)
 					std::cout << "The message is a find value: " << top->getText() << std::endl;
 					break;
 				default:
-					TYPE_ERROR
+                    //qua non possiamo segare il programma se arriva un
+                    //messaggio malformed, perche' qualunque stronzo puo'
+                    //inviarlo via internet e segare la nostra applicazione,
+                    //lo ignoriamo e basta
+                    ;
 			}
-		} else {
+		}
+        else
+        {
 			sleep(5);
 		}
 	}
