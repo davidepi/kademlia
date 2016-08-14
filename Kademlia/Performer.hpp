@@ -9,7 +9,7 @@ class Performer{
 
 	public: 
 		static Performer& getInstance();
-		void init(std::queue<Message*>* q, Messenger* m);
+		void init(std::queue<Message*>* q);
 
 	private:
 		Performer();

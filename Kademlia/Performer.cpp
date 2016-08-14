@@ -3,18 +3,20 @@
 #define TYPE_ERROR {fprintf(stderr,"[%s,line %d]%s\n",__FILE__,__LINE__,\
         strerror(errno));exit(EXIT_FAILURE);}
 
-typedef struct execute_thread_params
-{
-    std::queue<Message*>* where_to_read;
-    Messenger* mess_socket;
-}execute_thread_params;
+void rpc_ping(const Ip di, const short dp){
+	//create message
+	Message response("ACK_PING");
+	response.setFlags(RPC_PONG);
 
+	//send PONG
+	Messenger* m = &(Messenger::getInstance());
+	m->sendMessage(di, dp, response);
+}
 
 static void* execute(void* p) 
 {
-	execute_thread_params* params = (execute_thread_params*)p;
-	std::queue<Message*>* q = params->where_to_read;
-	Messenger* m = params->mess_socket;
+	std::queue<Message*>* q = (std::queue<Message*>*)p;
+	
 	std::cout << "Executing... " << std::endl;
 	while(1) 
 	{
@@ -28,10 +30,7 @@ static void* execute(void* p)
 				case RPC_PING : 
 					{
 						std::cout << "The message is a ping: " << top->getText() << std::endl;
-
-						Message response("ACK_PING");
-						response.setFlags(RPC_PONG);
-						m->sendMessage("127.0.0.1", 3400, response);
+						rpc_ping(top->getSenderIp(), top->getSenderPort());
 					}
 					break; 
 				case RPC_PONG : 
@@ -47,10 +46,7 @@ static void* execute(void* p)
 					std::cout << "The message is a find value: " << top->getText() << std::endl;
 					break;
 				default:
-                    //qua non possiamo segare il programma se arriva un
-                    //messaggio malformed, perche' qualunque stronzo puo'
-                    //inviarlo via internet e segare la nostra applicazione,
-                    //lo ignoriamo e basta
+                    //ignore the packet with wrong type flag
                     ;
 			}
 		}
@@ -74,11 +70,8 @@ Performer::Performer()
 { }
 
 
-void Performer::init(std::queue<Message*>* q, Messenger* m)
+void Performer::init(std::queue<Message*>* q)
 {
-	execute_thread_params* params = (execute_thread_params*)malloc
-                                     (sizeof(execute_thread_params));
-    params->where_to_read = q;
-    params->mess_socket = m;
-	pthread_create(&(Performer::thread_id), NULL, execute, (void*)params);
+	pthread_create(&(Performer::thread_id), NULL, execute, (void*)q);
 }
+

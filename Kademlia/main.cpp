@@ -23,17 +23,12 @@ int main(int argc, const char * argv[])
 
     //creating the thread that performs all the requests
     Performer* p = &(Performer::getInstance());
-    p->init(&a, m);
+    p->init(&a);
 
     
     sleep(1);
     Message msg("Singleton and Makefile! Ole'!");
     msg.setFlags(RPC_PING);
-
-    std::cout << "ping "<< RPC_PING << std::endl;
-    std::cout << "Store "<< RPC_STORE << std::endl;
-    std::cout << "node "<< RPC_FIND_NODE << std::endl;
-    std::cout << "value "<< RPC_FIND_VALUE << std::endl;
 
     Message msg1("Store my ip!");
     msg1.setFlags(RPC_STORE);
