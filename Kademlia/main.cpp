@@ -10,7 +10,7 @@ int main(int argc, char* argv[])
     unsigned short port_host = 0, port_dest = 0;
     Ip gateway;
     bool im_gateway = true;
-    while((c = getopt(argc,argv,"i:p:P:")) != -1)
+    while((c = getopt(argc,argv,"hi:p:P:")) != -1)
     {
         switch(c)
         {
@@ -18,8 +18,9 @@ int main(int argc, char* argv[])
             {
                 fprintf(stdout,"Flags:\n");
                 fprintf(stdout,"-i [char*] The ip to connect to on the remote host\n");
-                fprintf(stdout,"-p [uint] The port to connect to on the remote host\n");
-                fprintf(stdout,"-P [uint] The port to use on this host\n");
+                fprintf(stdout,"-p [ uint] The port to connect to on the remote host\n");
+                fprintf(stdout,"-P [ uint] The port to use on this host\n");
+                fprintf(stdout,"-h [     ] Print this wonderful help :)\n");
                 exit(EXIT_SUCCESS);
                 break;
             }
