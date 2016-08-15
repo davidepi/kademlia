@@ -3,6 +3,7 @@
 #include "Key.hpp"
 #include "Messenger.hpp"
 #include "Performer.hpp"
+#include "Node.hpp"
 #include <unistd.h>
 #include <arpa/inet.h>
 int main(int argc, const char * argv[])
@@ -14,7 +15,12 @@ int main(int argc, const char * argv[])
 //    printf("%x",digest[2]);
 //    printf("%x",digest[3]);
 //    printf("%x\n",digest[4]);
-    
+    Ip ip("127.0.0.1");
+    int port = 3400;
+    Node myself(ip, port);
+
+    (myself.getKBucket(0))->add(myself);
+
     std::queue<Message*> a;
 
     //creating the thread that waits for incoming packets and passes them to the performer one
