@@ -14,6 +14,7 @@ public:
     ~Ip();
     uint32_t getIp() const;
     void toString(char output[16]) const;
+    bool isLocalhost() const;
     
 private:
     uint32_t ip;

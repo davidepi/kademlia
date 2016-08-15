@@ -67,6 +67,11 @@ uint32_t Ip::getIp() const
     return Ip::ip;
 }
 
+bool Ip::isLocalhost()const
+{
+    return Ip::ip == 0x100007F;
+}
+
 void Ip::toString(char output[16]) const
 {
     uint8_t a = 0x00, b=0x00, c=0x00, d=0x00;
