@@ -65,6 +65,9 @@ Distance::Distance()
     //funzioni operator+(...) senza dovergli passare per forza una key
 }
 
+Distance::~Distance()
+{ }
+
 Distance Distance::operator+(const Distance& k)const
 {
     Distance retval;
@@ -211,6 +214,7 @@ bool Distance::operator>=(const Distance& k)const
 {
     return !(k < (*this));
 }
+
 bool Distance::operator==(const Distance& k)const
 {
     return Distance::value[ 0] == k.value[ 0] &&
@@ -234,7 +238,42 @@ bool Distance::operator==(const Distance& k)const
            Distance::value[18] == k.value[18] &&
            Distance::value[19] == k.value[19];
 }
+
 bool Distance::operator!=(const Distance& k)const
 {
     return !((*this) == k);
+}
+
+uint8_t Distance::getDistance() const
+{
+    uint8_t val=0, index=0;
+    while(index < NBYTE)
+        val = Distance::value[index++];
+    
+    if(val == 0) //le chiavi sono uguali
+        return 0;
+    
+    //siccome sono pro lo faccio divide et impera :D
+    if((val & 0xF0) > 0) //il primo bit diverso e' tra i 1 e 4
+        if((val & 0xC0) > 0) //il primo bit diverso e' tra 1 o 2
+            if((val & 0xE0) > 0) //la chiave e' 1xxxxxxx
+                return (8*index)+1;
+            else    //la chiave e' 01xxxxxx
+                return (8*index)+2;
+        else // primo bit diverso e 3 o 4
+            if((val & 0x20) > 0) //la chiave e' 001xxxxx
+                return (8*index)+3;
+            else    //la chiave e' 0001xxxx
+                return (8*index)+4;
+    else //il primo bit diverso e' tra 5 e 8
+        if((val & 0xC) > 0) //il primo bit diverso e' 5 o 6
+            if((val & 0x8) > 0) //la chiave e' 00001xxx
+                return (8*index)+5;
+            else    //la chiave e' 000001xx
+                return (8*index)+6;
+        else //il primo bit diverso e' 7 o 8
+            if((val & 0x2) > 0) //la chiave e' 0000001x
+                return (8*index)+7;
+            else
+                return (8*index)+8; //la chiave e' 00000001
 }

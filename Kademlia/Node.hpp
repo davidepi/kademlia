@@ -14,19 +14,15 @@ public:
     ~Node();
     Ip getIp() const;
     int getPort() const;
-    Key getKey() const;
-    Kbucket getKBucket(int index);
-
-
+    const Key* getKey() const;
 
 private:
     Node();
 
     Ip my_ip;
     int port_ho; //a volte è int, altre short e altre uint16_t... why?
+                 //dipende da come mi alzo :D l'unica sbagliata e' short cmq
     Key* id;
-    Kbucket* kBucketArray;
-    
 };
 
 #endif

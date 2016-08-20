@@ -141,7 +141,7 @@ const char* Message::getText() const
     return (char*)text;
 }
 
-short Message::getSenderPort() const
+uint16_t Message::getSenderPort() const
 {
     return port_ho;
 }

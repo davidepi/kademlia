@@ -1,8 +1,4 @@
 #include "Performer.hpp"
-#include "Node.hpp"
-
-#define TYPE_ERROR {fprintf(stderr,"[%s,line %d]%s\n",__FILE__,__LINE__,\
-        strerror(errno));exit(EXIT_FAILURE);}
 
 void rpc_pong(Node node){
 	//create message
@@ -25,10 +21,10 @@ void rpc_ping(Node node){
 }
 
 
-static void* execute(void* p) 
+static void* execute(void* this_class)
 {
-	std::queue<Message*>* q = (std::queue<Message*>*)p;
-	
+    Performer* p = (Performer*)this_class;
+    std::queue<Message*>* q = p->message_queue;
 	std::cout << "Executing... " << std::endl;
 	while(1) 
 	{
@@ -74,19 +70,14 @@ static void* execute(void* p)
 	pthread_exit((void*)0);
 }
 
-
-Performer& Performer::getInstance()
+Performer::Performer(std::queue<Message*>* q)
 {
-    static Performer instance;
-    return instance;
+    Performer::message_queue = q;
+    kBucketArray = new Kbucket[160];
+    pthread_create(&(Performer::thread_id), NULL, execute, (void*)this);
 }
 
-Performer::Performer()
-{ }
-
-
-void Performer::init(std::queue<Message*>* q)
+Performer::~Performer()
 {
-	pthread_create(&(Performer::thread_id), NULL, execute, (void*)q);
+    delete[] kBucketArray;
 }
-

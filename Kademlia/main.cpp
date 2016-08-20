@@ -71,6 +71,11 @@ int main(int argc, char* argv[])
     }
     
     //creating the thread that performs all the requests
-    Performer* p = &(Performer::getInstance());
-    p->init(&a);
+    Performer p(&a);
+    
+    //wait for input(add key-value, retrieve value)
+    while(true)
+    {
+        sleep(8000);
+    }
 }

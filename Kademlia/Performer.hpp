@@ -4,16 +4,19 @@
 #include <queue>
 #include <unistd.h>
 #include "Messenger.hpp"
+#include "Node.hpp"
 
-class Performer{
+class Performer
+{
 
-	public: 
-		static Performer& getInstance();
-		void init(std::queue<Message*>* q);
+	public:
+		Performer(std::queue<Message*>* q);
+        ~Performer();
+        std::queue<Message*>* message_queue;
 
 	private:
-		Performer();
 		pthread_t thread_id;
+        Kbucket* kBucketArray;
 };
 
 

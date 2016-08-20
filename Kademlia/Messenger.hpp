@@ -51,7 +51,7 @@ public:
             uint8_t flags);
     ~Message();
     const char* getText() const;
-    short getSenderPort() const;
+    uint16_t getSenderPort() const;
     const Ip& getSenderIp() const;
     void setFlags(uint8_t flags);
     short getFlags() const;

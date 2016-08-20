@@ -1,14 +1,16 @@
 #include "Key.hpp"
-#include<climits> //CHAR_BIT
 
 //se non c'e' una #define di una funzione di hashing usa SHA1 come default
 #ifndef HASHFN
 #define HASHFN SHA1
 #endif
 #if HASHFN == SHA1
+#undef NBYTE
 #define NBYTE 20
 //TODO: altre funzioni di hash prima dell'else
 #else //funzione di hash non riconosciuta
+#undef HASHFN
+#undef NBYTE
 #define HASHFN SHA1
 #define NBYTE 20
 #endif
@@ -27,20 +29,18 @@ Key::Key()
     Key::key = new uint8_t[NBYTE];
 }
 
-Key::Key(Ip ip, pid_t pid)
+Key::Key(Ip ip, int port)
 {
     Key::key = new uint8_t[NBYTE];
-    uint8_t input[9]; //assuming 4 byte pid
-    uint32_t ipi = ip.getIp();
+    uint8_t input[7]; //assuming 4 byte pid
+    uint16_t ipi = ip.getIp();
     input[0] = ipi >> 24;
     input[1] = ipi >> 16;
     input[2] = ipi >> 8;
     input[3] = ipi;
-    input[4] = pid >> 24;
-    input[5] = pid >> 16;
-    input[6] = pid >> 8;
-    input[7] = pid;
-    input[8] = '\0';
+    input[4] = port >> 8;
+    input[5] = port;
+    input[6] = '\0';
 #if HASHFN == SHA1
     sha1(input,Key::key);
 #else
