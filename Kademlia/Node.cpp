@@ -14,10 +14,7 @@ Node::Node(Ip ip, int port)
 	Key key(ip, getpid()); //dovremmo mettere la porta penso
 	Node::id = &key;
 
-	for(int i=0; i<160; i++)
-	{
-	 	Node::kBucketArray[i] = new Kbucket();
-	}
+	Node::kBucketArray = new Kbucket[160];
 }
 
 Ip Node::getIp() const
@@ -35,8 +32,13 @@ Key Node::getKey() const
 	return *id;
 }
 
-Kbucket* Node::getKBucket(int index)
+Kbucket Node::getKBucket(int index)
 {
 	return kBucketArray[index];
+}
+
+Node::~Node()
+{
+	delete[] kBucketArray;
 }
 

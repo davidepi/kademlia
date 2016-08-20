@@ -11,10 +11,11 @@ class Node
 
 public:
     Node(Ip ip, int port);
+    ~Node();
     Ip getIp() const;
     int getPort() const;
     Key getKey() const;
-    Kbucket* getKBucket(int index);
+    Kbucket getKBucket(int index);
 
 
 
@@ -24,7 +25,7 @@ private:
     Ip my_ip;
     int port_ho; //a volte è int, altre short e altre uint16_t... why?
     Key* id;
-    Kbucket* kBucketArray[160];
+    Kbucket* kBucketArray;
     
 };
 

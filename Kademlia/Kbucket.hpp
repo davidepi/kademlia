@@ -12,6 +12,7 @@ class Kbucket
 
 	public:
 		Kbucket();
+		~Kbucket();
 		void add(Node n);
 
 	private:
