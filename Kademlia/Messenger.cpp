@@ -34,7 +34,7 @@ static void* listener(void* p)
             Message* m = new Message(*(uint32_t*)buffer,*(uint16_t*)(buffer+4),
                                      (short)count,(uint8_t*)(buffer+12),
                                      *(uint8_t*)(buffer+6));
-            char from[16];
+            //char from[16];
             //m->getSenderIp().toString(from);
             //std::cout<<"\tReceived \""<<m->getText()<<"\" from "<<
             //from<<":"<<m->getSenderPort()<<" type "<<m->getFlags()<<std::endl;
@@ -61,6 +61,20 @@ Messenger::Messenger()
 
 void Messenger::init(std::queue<Message*>* q, int port_ho)
 {
+    char myipstring[16];
+#if defined(__linux__) || defined(__unix__)
+    FILE* fp = popen("hostname -I","r");
+#elif defined(__APPLE__)
+    FILE* fp = popen("ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\\.){3}[0-9]*).*/\\2/p'","r");
+#else
+    fprintf(stderr, "%s\n", "Os not recognized");
+    exit(EXIT_FAILURE);
+#endif
+    
+    fscanf(fp,"%s",myipstring);
+    my_ip = Ip(myipstring);
+    pclose(fp);
+    
     Messenger::sockfd_recv = socket(AF_INET, SOCK_DGRAM, 0);
     Messenger::sockfd_send = socket(AF_INET, SOCK_DGRAM, 0);
     if(Messenger::sockfd_recv < 0 || Messenger::sockfd_send < 0)
@@ -96,6 +110,16 @@ void Messenger::sendMessage(const Node node, Message& msg)
     {
         CRITICAL_ERROR
     }
+}
+
+Ip Messenger::getIp()const
+{
+    return Messenger::my_ip;
+}
+
+uint16_t Messenger::getPort()const
+{
+    return Messenger::port_ho;
 }
 
 //<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>

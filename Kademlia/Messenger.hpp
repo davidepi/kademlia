@@ -29,6 +29,8 @@ public:
     void operator=(Messenger const&) = delete;
     void init(std::queue<Message*>* queue, int port_ho);
     void sendMessage(const Node node, Message& msg);
+    Ip getIp() const;
+    uint16_t getPort() const;
 
 private:
     Messenger();

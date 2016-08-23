@@ -66,7 +66,6 @@ static void* execute(void* this_class)
 			sleep(5);
 		}
 	}
-
 	pthread_exit((void*)0);
 }
 

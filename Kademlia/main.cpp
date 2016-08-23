@@ -7,20 +7,6 @@
 
 int main(int argc, char* argv[])
 {
-
-    char myipstring[16];
-    #ifdef __linux__
-        FILE* fp = popen("hostname -I","r");
-    #elif __APPLE__
-        FILE* fp = popen("ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\\.){3}[0-9]*).*/\\2/p'","r");
-    #else 
-        fprintf(stderr, "%s\n", "Os not recognized");
-        exit(EXIT_FAILURE);
-    #endif
-
-    fscanf(fp,"%s",myipstring);
-    std::cout<<myipstring<<std::endl;
-    pclose(fp);
     
     int c;
     unsigned short port_host = 0, port_dest = 0;
