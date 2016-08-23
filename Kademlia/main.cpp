@@ -7,7 +7,13 @@
 
 int main(int argc, char* argv[])
 {
-
+    char myipstring[16];
+    FILE* fp = popen("ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\\.){3}[0-9]*).*/\\2/p'","r");
+    fscanf(fp,"%s",myipstring);
+    std::cout<<myipstring<<std::endl;
+    pclose(fp);
+    exit(EXIT_SUCCESS);
+    
     int c;
     unsigned short port_host = 0, port_dest = 0;
     Ip gateway;

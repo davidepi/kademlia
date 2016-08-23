@@ -40,7 +40,8 @@ static void* listener(void* p)
             from<<":"<<m->getSenderPort()<<" type "<<m->getFlags()<<std::endl;
 
 
-            if(q->size() < 10000) {
+            if(q->size() < QUEUE_LENGTH)
+            {
                 q->push(m);
             }
         }

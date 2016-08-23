@@ -9,7 +9,7 @@
 #include <sys/socket.h> //socket, AF_INET, SOCK_DGRAM
 #include <netinet/in.h> //sockaddr_in, sostituisce arpa/inet.h in alcuni sistemi
 #include <arpa/inet.h>  //htons, htonl e cosi' via
-
+#include "settings.h"
 
 #define RPC_PING 0x1
 #define RPC_PONG 0x2

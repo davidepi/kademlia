@@ -1,7 +1,6 @@
 #include "Kbucket.hpp"
 
 
-
 Kbucket::Kbucket()
 {
 	Kbucket::nodeList = new std::list<Node>();
@@ -11,7 +10,7 @@ Kbucket::Kbucket()
 void Kbucket::add(Node n)
 {
 	std::cout << "add" << std::endl;
-	if (Kbucket::nodeList->size() < K)
+	if (Kbucket::nodeList->size() < KBUCKET_SIZE)
 	{
 		Kbucket::nodeList->push_front(n);
 	} else {

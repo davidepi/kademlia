@@ -1,6 +1,7 @@
 #include "Performer.hpp"
 
-void rpc_pong(Node node){
+void rpc_pong(Node node)
+{
 	//create message
 	Message response("ACK_PING");
 	response.setFlags(RPC_PONG);
@@ -10,7 +11,8 @@ void rpc_pong(Node node){
 	m->sendMessage(node.getIp(), node.getPort(), response);
 }
 
-void rpc_ping(Node node){
+void rpc_ping(Node node)
+{
 	//create message
 	Message response("PING");
 	response.setFlags(RPC_PING);
@@ -73,11 +75,8 @@ static void* execute(void* this_class)
 Performer::Performer(std::queue<Message*>* q)
 {
     Performer::message_queue = q;
-    kBucketArray = new Kbucket[160];
     pthread_create(&(Performer::thread_id), NULL, execute, (void*)this);
 }
 
 Performer::~Performer()
-{
-    delete[] kBucketArray;
-}
+{ }

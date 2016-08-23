@@ -16,7 +16,7 @@ class Performer
 
 	private:
 		pthread_t thread_id;
-        Kbucket* kBucketArray;
+        Kbucket kBucketArray[NBYTE*8];
 };
 
 

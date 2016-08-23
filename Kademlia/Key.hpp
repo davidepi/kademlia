@@ -4,8 +4,7 @@
 #include <cstdlib> //uint32_t
 #include <climits> //CHAR_BIT
 #include "Ip.hpp"
-#define HASHFN SHA1
-#define NBYTE 20//mi serve qui per la classe Distance
+#include "settings.h"
 
 class Key
 {

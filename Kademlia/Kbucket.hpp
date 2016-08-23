@@ -3,8 +3,7 @@
 
 #include <list>
 #include "Node.hpp"
-
-#define K 20
+#include "settings.h"
 
 class Node;
 class Kbucket 
