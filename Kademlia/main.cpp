@@ -60,7 +60,7 @@ int main(int argc, char* argv[])
         if(gateway.isLocalhost() || port_dest == 0)
         {
             fprintf(stderr, "%s\n", "Missing gateway ip or port");
-            exit(EXIT_FAILURE);
+            //exit(EXIT_FAILURE);
         }
         else
         {
@@ -71,7 +71,8 @@ int main(int argc, char* argv[])
     
     //creating the thread that performs all the requests
     Performer p(&a);
-    
+    Message msg("ACK", RPC_PING); 
+    m->sendMessage(Node(gateway, port_dest), msg);
     //wait for input(add key-value, retrieve value)
     while(true)
     {

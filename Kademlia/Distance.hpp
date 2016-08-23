@@ -2,13 +2,13 @@
 #define __DISTANCE_HPP__
 
 #include "Key.hpp"
-//#include "Node.hpp"
+#include "Node.hpp"
 
 class Distance
 {
 public:
     Distance(Key &k1, Key& k2);
-    //Distance(Node& n1, Node& n2);
+    Distance(Node n1, Node n2);
     ~Distance();
     
     Distance operator+(const Distance&)const;

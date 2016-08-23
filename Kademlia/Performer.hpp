@@ -6,6 +6,7 @@
 #include "Messenger.hpp"
 #include "Node.hpp"
 #include "Kbucket.hpp"
+#include "Distance.hpp"
 
 class Performer
 {

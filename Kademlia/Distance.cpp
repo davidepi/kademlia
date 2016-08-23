@@ -27,15 +27,15 @@ Distance::Distance(Key& k1, Key& k2)
     Distance::value[19] = key1[19] ^ key2[19];
 }
 
-/*
-Distance::Distance(Node& n1, Node& n2)
+
+Distance::Distance(Node n1, Node n2)
 {
     //TODO: non so ancora come sara' la classe node
     //      suppongo ci sara' un metodo getKey() che mi ritorna la chiave
     //      della tupla, e OVVIAMENTE sara' const :)
  
-    const uint8_t* key1 = n1.getKey();
-    const uint8_t* key2 = n2.getKey();
+    const uint8_t* key1 = n1.getKey()->getKey();
+    const uint8_t* key2 = n2.getKey()->getKey();
     Distance::value[0] = key1[0] ^ key2[0];
     Distance::value[1] = key1[1] ^ key2[1];
     Distance::value[2] = key1[2] ^ key2[2];
@@ -57,7 +57,6 @@ Distance::Distance(Node& n1, Node& n2)
     Distance::value[18] = key1[18] ^ key2[18];
     Distance::value[19] = key1[19] ^ key2[19];
 }
- */
 
 Distance::Distance()
 {
@@ -257,23 +256,23 @@ uint8_t Distance::getDistance() const
     if((val & 0xF0) > 0) //il primo bit diverso e' tra i 1 e 4
         if((val & 0xC0) > 0) //il primo bit diverso e' tra 1 o 2
             if((val & 0xE0) > 0) //la chiave e' 1xxxxxxx
-                return (8*index)+1;
+                return (8*index)+0;
             else    //la chiave e' 01xxxxxx
-                return (8*index)+2;
+                return (8*index)+1;
         else // primo bit diverso e 3 o 4
             if((val & 0x20) > 0) //la chiave e' 001xxxxx
-                return (8*index)+3;
+                return (8*index)+2;
             else    //la chiave e' 0001xxxx
-                return (8*index)+4;
+                return (8*index)+3;
     else //il primo bit diverso e' tra 5 e 8
         if((val & 0xC) > 0) //il primo bit diverso e' 5 o 6
             if((val & 0x8) > 0) //la chiave e' 00001xxx
-                return (8*index)+5;
+                return (8*index)+4;
             else    //la chiave e' 000001xx
-                return (8*index)+6;
+                return (8*index)+5;
         else //il primo bit diverso e' 7 o 8
             if((val & 0x2) > 0) //la chiave e' 0000001x
-                return (8*index)+7;
+                return (8*index)+6;
             else
-                return (8*index)+8; //la chiave e' 00000001
+                return (8*index)+7; //la chiave e' 00000001
 }
