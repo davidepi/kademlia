@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include "Messenger.hpp"
 #include "Node.hpp"
+#include "Kbucket.hpp"
 
 class Performer
 {

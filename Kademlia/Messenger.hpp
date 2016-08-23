@@ -4,6 +4,7 @@
 #include <queue>
 #include <pthread.h>
 #include "Ip.hpp"
+#include "Node.hpp"
 #include <string.h>     //memset
 #include <sys/types.h>  //legacy
 #include <sys/socket.h> //socket, AF_INET, SOCK_DGRAM
@@ -27,8 +28,7 @@ public:
     Messenger(Messenger const&)      = delete;
     void operator=(Messenger const&) = delete;
     void init(std::queue<Message*>* queue, int port_ho);
-    void sendMessage(const Ip destination_ip, int destination_port_ho,
-                     Message& msg);
+    void sendMessage(const Node node, Message& msg);
 
 private:
     Messenger();
@@ -45,22 +45,20 @@ class Message
 {
     friend class Messenger;
 public:
-    Message(const char* text);
+    Message(const char* text, uint8_t flags);
     Message(const uint8_t* binary_data, short len);
     Message(const Ip from, uint16_t port_no, short len, uint8_t* data,
             uint8_t flags);
     ~Message();
     const char* getText() const;
-    uint16_t getSenderPort() const;
-    const Ip& getSenderIp() const;
+    Node getSenderNode() const;
     void setFlags(uint8_t flags);
     short getFlags() const;
 private:
     char text[512];
     uint8_t flags;
     short length;
-    Ip from;
-    int port_ho; //host order
+    Node senderNode;
 
 };
 

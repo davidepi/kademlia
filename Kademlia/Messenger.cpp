@@ -35,9 +35,9 @@ static void* listener(void* p)
                                      (short)count,(uint8_t*)(buffer+12),
                                      *(uint8_t*)(buffer+6));
             char from[16];
-            m->getSenderIp().toString(from);
-            std::cout<<"\tReceived \""<<m->getText()<<"\" from "<<
-            from<<":"<<m->getSenderPort()<<" type "<<m->getFlags()<<std::endl;
+            //m->getSenderIp().toString(from);
+            //std::cout<<"\tReceived \""<<m->getText()<<"\" from "<<
+            //from<<":"<<m->getSenderPort()<<" type "<<m->getFlags()<<std::endl;
 
 
             if(q->size() < QUEUE_LENGTH)
@@ -83,10 +83,10 @@ void Messenger::init(std::queue<Message*>* q, int port_ho)
     pthread_create(&(Messenger::thread_id), NULL, listener, (void*)params);
 }
 
-void Messenger::sendMessage(const Ip si, int dp, Message& msg)
+void Messenger::sendMessage(const Node node, Message& msg)
 {
-    Messenger::dest.sin_addr.s_addr = si.getIp();
-    Messenger::dest.sin_port = htons(dp);
+    Messenger::dest.sin_addr.s_addr = node.getIp().getIp(); //get ip of the node and convert into an unsigned network order int
+    Messenger::dest.sin_port = htons(node.getPort());
     *(uint32_t*)(msg.text) = (Messenger::my_ip.getIp());
     *(uint16_t*)(msg.text+4) = htons(Messenger::port_ho);
     *(uint16_t*)(msg.text+6) = msg.flags;
@@ -100,12 +100,13 @@ void Messenger::sendMessage(const Ip si, int dp, Message& msg)
 
 //<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
-Message::Message(const char* text)
+Message::Message(const char* text, uint8_t flags)
 {
     memset(Message::text,0,RESERVED_BYTES);//riservo 12 byte per ip e porta
     assert(strlen(text+1)<=512-RESERVED_BYTES);
     Message::length = strlen(text)+1;
     strncpy(Message::text+RESERVED_BYTES, text, Message::length);
+    Message::setFlags(flags);
 }
 
 Message::Message(const uint8_t* binary_data, short len)
@@ -118,10 +119,9 @@ Message::Message(const uint8_t* binary_data, short len)
 }
 
 Message::Message(const Ip f, uint16_t port_no, short len, uint8_t* data,
-                 uint8_t flags):from(f)
+                 uint8_t flags):senderNode(f, ntohs(port_no))
 {
     assert(len<=512-RESERVED_BYTES);
-    Message::port_ho = ntohs(port_no);
     Message::length = len;
     Message::flags = flags;
     strncpy(Message::text,(char*)data,len);
@@ -142,14 +142,9 @@ const char* Message::getText() const
     return (char*)text;
 }
 
-uint16_t Message::getSenderPort() const
+Node Message::getSenderNode() const
 {
-    return port_ho;
-}
-
-const Ip& Message::getSenderIp() const
-{
-    return from;
+    return senderNode;
 }
 
 Message::~Message()

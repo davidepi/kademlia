@@ -3,23 +3,21 @@
 void rpc_pong(Node node)
 {
 	//create message
-	Message response("ACK_PING");
-	response.setFlags(RPC_PONG);
+	Message response("ACK_PING", RPC_PONG);
 
 	//send PONG
 	Messenger* m = &(Messenger::getInstance());
-	m->sendMessage(node.getIp(), node.getPort(), response);
+	m->sendMessage(node, response);
 }
 
 void rpc_ping(Node node)
 {
 	//create message
-	Message response("PING");
-	response.setFlags(RPC_PING);
+	Message response("PING", RPC_PING);
 
 	//send PING
 	Messenger* m = &(Messenger::getInstance());
-	m->sendMessage(node.getIp(), node.getPort(), response);
+	m->sendMessage(node, response);
 }
 
 
@@ -35,13 +33,13 @@ static void* execute(void* this_class)
         {
             top = q->front();
             q->pop();
-            Node senderNode(top->getSenderIp(), top->getSenderPort());
+           
 			switch(top->getFlags())
             {
 				case RPC_PING : 
 					{
 						std::cout << "The message is a ping: " << top->getText() << std::endl;
-						rpc_pong(senderNode);
+						rpc_pong(top->getSenderNode());
 						//find distance and update bucket
 					}
 					break; 

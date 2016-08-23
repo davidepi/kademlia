@@ -3,13 +3,12 @@
 
 #include "Ip.hpp"
 #include "Key.hpp"
-#include "Kbucket.hpp"
 
-class Kbucket;
 class Node
 {
 
 public:
+    Node();
     Node(Ip ip, int port);
     ~Node();
     Ip getIp() const;
@@ -17,7 +16,6 @@ public:
     const Key* getKey() const;
 
 private:
-    Node();
 
     Ip my_ip;
     int port_ho; //a volte è int, altre short e altre uint16_t... why?

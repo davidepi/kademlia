@@ -5,7 +5,6 @@
 #include "Node.hpp"
 #include "settings.h"
 
-class Node;
 class Kbucket 
 {
 

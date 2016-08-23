@@ -30,5 +30,5 @@ void Kbucket::add(Node n)
 
 Kbucket::~Kbucket()
 {
-	delete[] nodeList;
+	delete nodeList;
 }
