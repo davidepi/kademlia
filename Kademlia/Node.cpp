@@ -1,14 +1,34 @@
 #include "Node.hpp"
 
 
-Node::Node()
+Node::Node() : id(NULL)
 { }
 
 Node::Node(Ip ip, int port)
 {
+    Node::owner = true;
 	Node::my_ip = ip;
 	Node::port_ho = port;
 	Node::id = new Key(ip,port);
+}
+
+Node::Node(const Node& copied)
+{
+    Node::owner = false;
+    Node::my_ip = copied.my_ip;
+    Node::port_ho = copied.port_ho;
+    Node::id = copied.id;
+}
+
+Node& Node::operator=(const Node& copied)
+{
+    if(Node::owner)
+        delete Node::id;
+    Node::owner = false;
+    Node::my_ip = copied.my_ip;
+    Node::port_ho = copied.port_ho;
+    Node::id = copied.id;
+    return *this;
 }
 
 Ip Node::getIp() const
@@ -28,6 +48,7 @@ const Key* Node::getKey() const
 
 Node::~Node()
 {
-    delete Node::id;
+    if(Node::owner)
+        delete Node::id;
 }
 
