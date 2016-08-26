@@ -12,6 +12,10 @@ static inline uint32_t fast_atoi(const char* str)    //~7x faster than atoi
 
 Ip::Ip(const char* ip)
 {
+    if(strcmp(ip,"localhost")==0)
+        Ip::ip = 0x100007F;
+    else
+    {
     char a[4], b[4], c[4], d[4];
     int i = 0,i2 = 0;
     while(ip[i]!='\0' && ip[i]!='.') //trova il primo punto
@@ -47,11 +51,12 @@ Ip::Ip(const char* ip)
     Ip::ip |= ((unsigned int)fast_atoi(b) << 8 );
     Ip::ip |= ((unsigned int)fast_atoi(c) << 16);
     Ip::ip |= ((unsigned int)fast_atoi(d) << 24);
+    }
 }
 
-Ip::Ip(int ip_host_ordered)
+Ip::Ip(int ip_network_ordered)
 {
-    Ip::ip = ip_host_ordered;
+    Ip::ip = ip_network_ordered;
 }
 
 Ip::Ip()
@@ -89,4 +94,14 @@ void Ip::toString(char output[16]) const
     strcat(output,".");
     output = strchr(output,'\0');
     sprintf(output,"%d",d);
+}
+
+bool Ip::operator==(const Ip& a)const
+{
+    return Ip::ip == a.ip;
+}
+
+bool Ip::operator!=(const Ip& a)const
+{
+    return !(*(this)==a);
 }

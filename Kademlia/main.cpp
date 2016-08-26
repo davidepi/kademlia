@@ -47,6 +47,11 @@ int main(int argc, char* argv[])
         srand(time(NULL));
         port_host = ( rand() % (65536+1024)) + 1024;
     }
+    else if(port_host <= 1024)
+    {
+        fprintf(stderr, "%s\n", "Reserved port. Don't worry, you have almost 64512 free ports between 1024 and 65536 :)");
+        exit(EXIT_FAILURE);
+    }
     
 
     std::queue<Message*> a;
@@ -60,7 +65,7 @@ int main(int argc, char* argv[])
         if(gateway.isLocalhost() || port_dest == 0)
         {
             fprintf(stderr, "%s\n", "Missing gateway ip or port");
-            //exit(EXIT_FAILURE);
+            exit(EXIT_FAILURE);
         }
         else
         {

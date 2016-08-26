@@ -36,6 +36,7 @@ Distance::Distance(Node n1, Node n2)
  
     const uint8_t* key1 = n1.getKey()->getKey();
     const uint8_t* key2 = n2.getKey()->getKey();
+    
     Distance::value[0] = key1[0] ^ key2[0];
     Distance::value[1] = key1[1] ^ key2[1];
     Distance::value[2] = key1[2] ^ key2[2];
@@ -246,7 +247,7 @@ bool Distance::operator!=(const Distance& k)const
 uint8_t Distance::getDistance() const
 {
     uint8_t val=0, index=0;
-    while(index < NBYTE)
+    while(index < NBYTE && val==0)
         val = Distance::value[index++];
     
     if(val == 0) //le chiavi sono uguali
