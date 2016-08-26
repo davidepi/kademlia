@@ -17,6 +17,7 @@ public:
     Ip getIp() const;
     int getPort() const;
     const Key* getKey() const;
+
     
 
 private:
@@ -25,6 +26,7 @@ private:
     int port_ho; //a volte è int, altre short e altre uint16_t... why?
                  //dipende da come mi alzo :D l'unica sbagliata e' short cmq
     Key* id;
+    
 };
 
 #endif

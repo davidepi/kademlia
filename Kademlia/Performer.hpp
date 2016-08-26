@@ -3,6 +3,7 @@
 
 #include <queue>
 #include <unistd.h>
+#include <unordered_map>
 #include "Messenger.hpp"
 #include "Node.hpp"
 #include "Kbucket.hpp"
@@ -15,6 +16,7 @@ class Performer
 		Performer(std::queue<Message*>* q);
         ~Performer();
         std::queue<Message*>* message_queue;
+        std::unordered_map<std::string, char*> filesMap;
 
 	private:
 		pthread_t thread_id;

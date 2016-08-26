@@ -53,16 +53,31 @@ static void* execute(void* this_class)
 				case RPC_STORE : 
 					{
 						std::cout << "The message is a store: " << top->getText() << std::endl;
+
+						std::string key(top->getText(),20);
+
+						short textLength = top->getLength();
+						char* text = new char[textLength];
+						for(int i = 20; i < textLength; i++)
+						{
+							text[i] = top->getText()[i];
+						}
+
+						p->filesMap.insert({{key.c_str(), text}});
+					}
+					break;
+				case RPC_FIND_NODE : 
+					{
+						std::cout << "The message is a find node: " << top->getText() << std::endl;
 						Node myself(m->getIp(), m->getPort());
 						int i = Distance(myself, senderNode).getDistance();
 						std::cout<<"the index is "<<i<<std::endl;
 					}
 					break;
-				case RPC_FIND_NODE : 
-					std::cout << "The message is a find node: " << top->getText() << std::endl;
-					break;
 				case RPC_FIND_VALUE : 
-					std::cout << "The message is a find value: " << top->getText() << std::endl;
+					{
+						std::cout << "The message is a find value: " << top->getText() << std::endl;
+					}
 					break;
 				default:
                     //ignore the packet with wrong type flag
@@ -71,7 +86,7 @@ static void* execute(void* this_class)
 		}
         else
         {
-			sleep(5);
+			sleep(2);
 		}
 	}
 	pthread_exit((void*)0);
