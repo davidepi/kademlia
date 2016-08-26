@@ -56,6 +56,8 @@ public:
     Node getSenderNode() const;
     void setFlags(uint8_t flags);
     short getFlags() const;
+    short getLength() const;
+    
 private:
     char text[512];
     uint8_t flags;

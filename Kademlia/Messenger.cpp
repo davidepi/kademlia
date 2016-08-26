@@ -171,5 +171,10 @@ Node Message::getSenderNode() const
     return senderNode;
 }
 
+short Message::getLength() const
+{
+    return length;
+}
+
 Message::~Message()
 { }
