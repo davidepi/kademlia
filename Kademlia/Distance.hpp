@@ -27,7 +27,7 @@ public:
     bool operator==(const Distance&)const;
     bool operator!=(const Distance&)const;
 
-private:
+    //private:
     Distance();
     uint8_t value[20];
 };

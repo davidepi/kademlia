@@ -15,7 +15,7 @@
 #define NBYTE 20
 #endif
 
-static void sha1(const uint8_t* input, uint8_t * output);
+static void sha1(const uint8_t* input, uint8_t * output, uint64_t len);
 
 uint32_t rotl32 (uint32_t value, unsigned int count) //left rotate
 {
@@ -24,12 +24,9 @@ uint32_t rotl32 (uint32_t value, unsigned int count) //left rotate
     return (value<<count) | (value>>( (-count) & mask ));
 }
 
-Key::Key()
-{ }
-
 Key::Key(Ip ip, int port)
 {
-    uint8_t input[7]; //assuming 4 byte pid
+    uint8_t input[6]; //assuming 4 byte pid
     uint16_t ipi = ip.getIp();
     input[0] = ipi >> 24;
     input[1] = ipi >> 16;
@@ -37,9 +34,9 @@ Key::Key(Ip ip, int port)
     input[3] = ipi;
     input[4] = port >> 8;
     input[5] = port;
-    input[6] = '\0';
+    
 #if HASHFN == SHA1
-    sha1(input,Key::key);
+    sha1(input,Key::key,6);
 #else
     //TODO: altre funzioni di hash (magari con output piu' corti per testare)
 #endif
@@ -47,7 +44,7 @@ Key::Key(Ip ip, int port)
 
 Key::Key(const char* name)
 {
-    sha1((uint8_t*)name,Key::key);
+    sha1((uint8_t*)name,Key::key,strlen(name));
 }
 
 Key::~Key()
@@ -61,26 +58,26 @@ const uint8_t* Key::getKey() const
 bool Key::operator==(const Key& k) const
 {
 #if HASHFN == SHA1
-    return Key::key[0]  && k.key[0]  &&
-           Key::key[1]  && k.key[1]  &&
-           Key::key[2]  && k.key[2]  &&
-           Key::key[3]  && k.key[3]  &&
-           Key::key[4]  && k.key[4]  &&
-           Key::key[5]  && k.key[5]  &&
-           Key::key[6]  && k.key[6]  &&
-           Key::key[7]  && k.key[7]  &&
-           Key::key[8]  && k.key[8]  &&
-           Key::key[9]  && k.key[9]  &&
-           Key::key[10] && k.key[10] &&
-           Key::key[11] && k.key[11] &&
-           Key::key[12] && k.key[12] &&
-           Key::key[13] && k.key[13] &&
-           Key::key[14] && k.key[14] &&
-           Key::key[15] && k.key[15] &&
-           Key::key[16] && k.key[16] &&
-           Key::key[17] && k.key[17] &&
-           Key::key[18] && k.key[18] &&
-           Key::key[19] && k.key[19];
+    return Key::key[0]  == k.key[0]  &&
+           Key::key[1]  == k.key[1]  &&
+           Key::key[2]  == k.key[2]  &&
+           Key::key[3]  == k.key[3]  &&
+           Key::key[4]  == k.key[4]  &&
+           Key::key[5]  == k.key[5]  &&
+           Key::key[6]  == k.key[6]  &&
+           Key::key[7]  == k.key[7]  &&
+           Key::key[8]  == k.key[8]  &&
+           Key::key[9]  == k.key[9]  &&
+           Key::key[10] == k.key[10] &&
+           Key::key[11] == k.key[11] &&
+           Key::key[12] == k.key[12] &&
+           Key::key[13] == k.key[13] &&
+           Key::key[14] == k.key[14] &&
+           Key::key[15] == k.key[15] &&
+           Key::key[16] == k.key[16] &&
+           Key::key[17] == k.key[17] &&
+           Key::key[18] == k.key[18] &&
+           Key::key[19] == k.key[19];
 #else //versione generica per chiavi da NBYTE
     bool retval = true;
     for(int i=0;i<NBYTE;i++)
@@ -94,7 +91,7 @@ bool Key::operator!=(const Key& k) const
     return !(*this==k);
 }
 
-static void sha1(const uint8_t* input, uint8_t* output)
+static void sha1(const uint8_t* input, uint8_t* output, uint64_t len)
 {
     uint32_t h0 = 0x67452301;
     uint32_t h1 = 0xEFCDAB89;
@@ -102,7 +99,6 @@ static void sha1(const uint8_t* input, uint8_t* output)
     uint32_t h3 = 0x10325476;
     uint32_t h4 = 0xC3D2E1F0;
 
-    uint64_t len = strlen((char*)input);
     const uint8_t* l = (const uint8_t*) &len;
 
     uint8_t messaggione[(len+9)%64==0?(len+9)/64*64:(len+9)/64*64+64];
@@ -241,3 +237,27 @@ static void sha1(const uint8_t* input, uint8_t* output)
     output[18] = tmp[2];
     output[19] = tmp[3];
 }
+
+//void Key::print()const
+//{
+//    printf("%#x",Key::key[0]);
+//    printf("%x",Key::key[1]);
+//    printf("%x",Key::key[2]);
+//    printf("%x",Key::key[3]);
+//    printf("%x",Key::key[4]);
+//    printf("%x",Key::key[5]);
+//    printf("%x",Key::key[6]);
+//    printf("%x",Key::key[7]);
+//    printf("%x",Key::key[8]);
+//    printf("%x",Key::key[9]);
+//    printf("%x",Key::key[10]);
+//    printf("%x",Key::key[11]);
+//    printf("%x",Key::key[12]);
+//    printf("%x",Key::key[13]);
+//    printf("%x",Key::key[14]);
+//    printf("%x",Key::key[15]);
+//    printf("%x",Key::key[16]);
+//    printf("%x",Key::key[17]);
+//    printf("%x",Key::key[18]);
+//    printf("%x\n",Key::key[19]);
+//}

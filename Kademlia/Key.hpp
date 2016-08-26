@@ -18,8 +18,10 @@ public:
     bool operator==(const Key& k)const;
     bool operator!=(const Key& k)const;
     
+    //void print()const;
+
+    
 private:
-    Key();
     uint8_t key[NBYTE];
 };
 

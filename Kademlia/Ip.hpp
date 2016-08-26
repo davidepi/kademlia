@@ -9,12 +9,15 @@ class Ip
 {
 public:
     Ip(const char* ip);
-    Ip(int host_ordered);
+    Ip(int network_ordered);
     Ip();
     ~Ip();
     uint32_t getIp() const;
     void toString(char output[16]) const;
     bool isLocalhost() const;
+    
+    bool operator==(const Ip&)const;
+    bool operator!=(const Ip&)const;
     
 private:
     uint32_t ip;
