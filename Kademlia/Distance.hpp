@@ -10,16 +10,10 @@ public:
     Distance(Key &k1, Key& k2);
     Distance(Node n1, Node n2);
     ~Distance();
-    
-    Distance operator+(const Distance&)const;
-    void operator+=(const Distance&);
-    Distance operator-(const Distance&)const;
-    
-    uint8_t getDistance()const; //ritorna il numero del primo bit diverso tra
+    short getDistance()const; //ritorna il numero del primo bit diverso tra
                                 //due chiavi partendo da sinistra. 1-based, 0
                                 //se le chiavi sono uguali
     
-    void operator-=(const Distance&);
     bool operator<(const Distance&)const;
     bool operator>(const Distance&)const;
     bool operator<=(const Distance&)const;
@@ -27,8 +21,7 @@ public:
     bool operator==(const Distance&)const;
     bool operator!=(const Distance&)const;
 
-    //private:
-    Distance();
+private:
     uint8_t value[20];
 };
 

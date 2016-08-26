@@ -31,7 +31,10 @@ static void* listener(void* p)
         if (count==-1) CRITICAL_ERROR
         else
         {
-            Message* m = new Message(*(uint32_t*)buffer,*(uint16_t*)(buffer+4),
+            uint32_t* b1 = (uint32_t*)buffer; //in realta' e' inutile sto qui,
+                                              //ma senza mi da il "don't pun and
+                                              //alias" error
+            Message* m = new Message(*b1,*(uint16_t*)(buffer+4),
                                      (short)count,(uint8_t*)(buffer+12),
                                      *(uint8_t*)(buffer+6));
             //char from[16];
@@ -101,7 +104,8 @@ void Messenger::sendMessage(const Node node, Message& msg)
 {
     Messenger::dest.sin_addr.s_addr = node.getIp().getIp(); //get ip of the node and convert into an unsigned network order int
     Messenger::dest.sin_port = htons(node.getPort());
-    *(uint32_t*)(msg.text) = (Messenger::my_ip.getIp());
+    uint32_t* t = (uint32_t*)(msg.text);
+    *t = (Messenger::my_ip.getIp());
     *(uint16_t*)(msg.text+4) = htons(Messenger::port_ho);
     *(uint16_t*)(msg.text+6) = msg.flags;
     if(sendto(sockfd_send,msg.text,msg.length+RESERVED_BYTES,0,

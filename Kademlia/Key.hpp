@@ -18,7 +18,7 @@ public:
     bool operator==(const Key& k)const;
     bool operator!=(const Key& k)const;
     
-    //void print()const;
+    void print()const;
 
     
 private:
