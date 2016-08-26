@@ -20,7 +20,7 @@ public:
     
 private:
     Key();
-    uint8_t* key;
+    uint8_t key[NBYTE];
 };
 
 

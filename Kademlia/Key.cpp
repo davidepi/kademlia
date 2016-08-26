@@ -25,13 +25,10 @@ uint32_t rotl32 (uint32_t value, unsigned int count) //left rotate
 }
 
 Key::Key()
-{
-    Key::key = new uint8_t[NBYTE];
-}
+{ }
 
 Key::Key(Ip ip, int port)
 {
-    Key::key = new uint8_t[NBYTE];
     uint8_t input[7]; //assuming 4 byte pid
     uint16_t ipi = ip.getIp();
     input[0] = ipi >> 24;
@@ -50,14 +47,11 @@ Key::Key(Ip ip, int port)
 
 Key::Key(const char* name)
 {
-    Key::key = new uint8_t[NBYTE];
     sha1((uint8_t*)name,Key::key);
 }
 
 Key::~Key()
-{
-    delete[] Key::key;
-}
+{ }
 
 const uint8_t* Key::getKey() const
 {

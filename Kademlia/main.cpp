@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
     
     //creating the thread that performs all the requests
     Performer p(&a);
-    Message msg("ACK", RPC_PING); 
+    Message msg("ACK", RPC_STORE); 
     m->sendMessage(Node(gateway, port_dest), msg);
     //wait for input(add key-value, retrieve value)
     while(true)
