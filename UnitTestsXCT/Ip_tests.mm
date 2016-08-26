@@ -101,5 +101,4 @@
     XCTAssertEqual(strcmp(ip1,"127.0.0.1"), 0);
     XCTAssertEqual(strcmp(ip2,s), 0);
 }
-
 @end

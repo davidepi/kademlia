@@ -49,5 +49,4 @@
     XCTAssertGreaterThan(Distance(a,b).getDistance(),0);
 }
 
-
 @end
