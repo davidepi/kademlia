@@ -136,6 +136,21 @@ short Distance::getDistance() const
     
     index--;
     
+#if (defined(__x86_64__) || defined(__i386__))
+    
+    uint16_t retval = 0, vall = val;
+    
+    __asm__ ( "lzcntw %1, %0;"
+             :"=r"(retval)
+             :"r"(vall << 8)
+             :
+             );
+    
+    // lzcnt non esiste per uint8_t, quindi ho castato a uint16_t e shiftato di
+    // 8 a sx, senno' il numero di zeri prima del primo uno e' aumentato di 8.
+    
+    return (8*index)+(retval);
+#else
     //siccome sono pro lo faccio divide et impera :D
     if((val & 0xF0) > 0) //il primo bit diverso e' tra i 1 e 4
         if((val & 0xC0) > 0) //il primo bit diverso e' tra 1 o 2
@@ -159,4 +174,13 @@ short Distance::getDistance() const
                 return (8*index)+6;
             else
                 return (8*index)+7; //la chiave e' 00000001
+    
+    //soluzione per i comuni mortali molto piu' elegante ma non
+    //divide et impera :p
+    
+    //while((val&0xFF)>>(7-i) == 0)i++;
+    //return (8*index+i)
+    
+    
+#endif
 }
