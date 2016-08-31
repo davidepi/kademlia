@@ -31,6 +31,16 @@ Node& Node::operator=(const Node& copied)
     return *this;
 }
 
+bool Node::operator==(const Node &n)const
+{
+    return Node::my_ip == n.my_ip && Node::port_ho == n.port_ho;
+}
+
+bool Node::operator!=(const Node&n)const
+{
+    return !(*(this)==n);
+}
+
 Ip Node::getIp() const
 {
 	return my_ip;

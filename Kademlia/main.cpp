@@ -7,7 +7,7 @@
 
 int main(int argc, char* argv[])
 {
-    
+
     int c;
     unsigned short port_host = 0, port_dest = 0;
     Ip gateway;
@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
             }
         }
     }
-    
+
     if(port_host == 0)
     {
         srand(time(NULL));
@@ -52,14 +52,14 @@ int main(int argc, char* argv[])
         fprintf(stderr, "%s\n", "Reserved port. Don't worry, you have almost 64512 free ports between 1024 and 65536 :)");
         exit(EXIT_FAILURE);
     }
-    
+
 
     std::queue<Message*> a;
 
     //creating the thread that waits for incoming packets and passes them to the performer one
     Messenger* m = &(Messenger::getInstance());
     m->init(&a, port_host);
-    
+
     if(!im_gateway)
     {
         if(gateway.isLocalhost() || port_dest == 0)
@@ -70,16 +70,18 @@ int main(int argc, char* argv[])
         else
         {
             char myIp[16];
-            m->getIp().toString(myIp); 
+            m->getIp().toString(myIp);
             std::cout << "ip " << myIp << std::endl;
-            Message msg(myIp, RPC_FIND_NODE); //TODO: settare la mia key qui
+            Message msg(myIp, RPC_FIND_NODE);
+
             m->sendMessage(Node(gateway, port_dest), msg);
+            std::cout<<"sent find_node"<<std::endl;
         }
     }
-    
+
     //creating the thread that performs all the requests
     Performer p(&a);
-    Message msg("chiave svakjv idhkjcneikjvn", RPC_STORE); 
+    Message msg("chiave svakjv idhkjcneikjvn", RPC_STORE);
     Message msg1("PING", RPC_PING);
     m->sendMessage(Node(gateway, port_dest), msg);
     m->sendMessage(Node(gateway, port_dest), msg1);

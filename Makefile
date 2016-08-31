@@ -30,8 +30,7 @@ ERROR_HANDLER = 2> temp.log || touch temp.errors;
 
 #cartelle
 SRC=Kademlia
-TEST=Test
-OS := $(shell uname)
+
 all: $(SRC)/$(MAIN)
 run: $(SRC)/$(MAIN)
 	@echo $(OS)

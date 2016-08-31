@@ -106,7 +106,7 @@ static void sha1(const uint8_t* input, uint8_t* output, uint64_t len)
     //PADDING 0s
     memset(messaggione, 0, sizeof(messaggione));
 
-    int i=0;
+    unsigned int i=0;
     while(i<len)
     {
         messaggione[i] = input[i];
@@ -132,7 +132,7 @@ static void sha1(const uint8_t* input, uint8_t* output, uint64_t len)
     int index = 0;
 
     //BREAK MESSAGGE IN 512bit CHUNKS AND CHUNKS IN 16 32bit WORDS
-    for(int i=0;i<nchu;i++)
+    for(unsigned int i=0;i<nchu;i++)
         for(int j=0;j<16;j++)
         {
             chunks[i][j]  = 0x00000000;
@@ -143,7 +143,7 @@ static void sha1(const uint8_t* input, uint8_t* output, uint64_t len)
         }
 
     //EXTEND THE WORDS TO 80
-    for(int i=0;i<nchu;i++)
+    for(unsigned int i=0;i<nchu;i++)
         for(int j=16;j<80;j++)
         {
             chunks[i][j] = rotl32(chunks[i][j-3]  ^ chunks[i][j-8]  ^
@@ -152,7 +152,7 @@ static void sha1(const uint8_t* input, uint8_t* output, uint64_t len)
 
     //MAIN LOOP
     uint32_t a,b,c,d,e,f,k,temp;
-    for(int i=0;i<nchu;i++)
+    for(unsigned int i=0;i<nchu;i++)
     {
         a = h0;
         b = h1;

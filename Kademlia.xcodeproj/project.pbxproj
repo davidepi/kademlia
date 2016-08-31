@@ -17,23 +17,16 @@
 		6BB96D641D5F702C0032D2BC /* Performer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB96D621D5F702C0032D2BC /* Performer.cpp */; };
 		6BBE0C561D6F57A60013D5D4 /* Distance_tests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6BBE0C551D6F57A60013D5D4 /* Distance_tests.mm */; };
 		6BBE0C5D1D6F58850013D5D4 /* Distance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BEDE1741D60F2E7003B43F4 /* Distance.cpp */; };
-		6BBE0C5E1D6F58850013D5D4 /* Distance.hpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BEDE1751D60F2E7003B43F4 /* Distance.hpp */; };
 		6BBE0C5F1D6F58850013D5D4 /* Key.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B557DD51D49157F00FA7352 /* Key.cpp */; };
-		6BBE0C601D6F58850013D5D4 /* Key.hpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B557DD61D49157F00FA7352 /* Key.hpp */; };
 		6BBE0C611D6F58850013D5D4 /* Node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B624F9C1D68918600F19749 /* Node.cpp */; };
-		6BBE0C621D6F58850013D5D4 /* Node.hpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B624F9D1D68918600F19749 /* Node.hpp */; };
 		6BBE0C631D6F58960013D5D4 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B557DCE1D49154800FA7352 /* main.cpp */; };
 		6BBE0C641D6F58960013D5D4 /* Ip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B557DD81D4A27CA00FA7352 /* Ip.cpp */; };
-		6BBE0C651D6F58960013D5D4 /* Ip.hpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B557DD91D4A27CA00FA7352 /* Ip.hpp */; };
 		6BBE0C661D6F58960013D5D4 /* Kbucket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B624F9A1D68918600F19749 /* Kbucket.cpp */; };
-		6BBE0C671D6F58960013D5D4 /* Kbucket.hpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B624F9B1D68918600F19749 /* Kbucket.hpp */; };
 		6BBE0C681D6F58960013D5D4 /* Messenger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B11971C1D595AE700810169 /* Messenger.cpp */; };
-		6BBE0C691D6F58960013D5D4 /* Messenger.hpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B11971D1D595AE700810169 /* Messenger.hpp */; };
 		6BBE0C6A1D6F58960013D5D4 /* Performer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB96D621D5F702C0032D2BC /* Performer.cpp */; };
-		6BBE0C6B1D6F58960013D5D4 /* Performer.hpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB96D631D5F702C0032D2BC /* Performer.hpp */; };
-		6BBE0C6C1D6F58960013D5D4 /* settings.h in Sources */ = {isa = PBXBuildFile; fileRef = 6BE9A11C1D6C40D6000BE280 /* settings.h */; };
 		6BBE0C6E1D6F5C6B0013D5D4 /* Key_tests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6BBE0C6D1D6F5C6B0013D5D4 /* Key_tests.mm */; };
 		6BC164AA1D6C850C0058A18E /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = 6BC164A91D6C850C0058A18E /* Makefile */; };
+		6BEA315A1D7087F900C31F9A /* Node_tests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6BEA31591D7087F900C31F9A /* Node_tests.mm */; };
 		6BEDE1761D60F2E7003B43F4 /* Distance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BEDE1741D60F2E7003B43F4 /* Distance.cpp */; };
 /* End PBXBuildFile section */
 
@@ -71,6 +64,7 @@
 		6BBE0C6D1D6F5C6B0013D5D4 /* Key_tests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Key_tests.mm; sourceTree = "<group>"; };
 		6BC164A91D6C850C0058A18E /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		6BE9A11C1D6C40D6000BE280 /* settings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = settings.h; sourceTree = "<group>"; };
+		6BEA31591D7087F900C31F9A /* Node_tests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Node_tests.mm; sourceTree = "<group>"; };
 		6BEDE1741D60F2E7003B43F4 /* Distance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Distance.cpp; sourceTree = "<group>"; };
 		6BEDE1751D60F2E7003B43F4 /* Distance.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Distance.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -138,6 +132,7 @@
 		6BBE0C541D6F57A60013D5D4 /* UnitTestsXCT */ = {
 			isa = PBXGroup;
 			children = (
+				6BEA31591D7087F900C31F9A /* Node_tests.mm */,
 				6B84F7831D6F632E004E52F6 /* Ip_tests.mm */,
 				6BBE0C6D1D6F5C6B0013D5D4 /* Key_tests.mm */,
 				6BBE0C551D6F57A60013D5D4 /* Distance_tests.mm */,
@@ -251,22 +246,15 @@
 			files = (
 				6BBE0C631D6F58960013D5D4 /* main.cpp in Sources */,
 				6BBE0C641D6F58960013D5D4 /* Ip.cpp in Sources */,
-				6BBE0C651D6F58960013D5D4 /* Ip.hpp in Sources */,
 				6BBE0C661D6F58960013D5D4 /* Kbucket.cpp in Sources */,
+				6BEA315A1D7087F900C31F9A /* Node_tests.mm in Sources */,
 				6B84F7841D6F632E004E52F6 /* Ip_tests.mm in Sources */,
-				6BBE0C671D6F58960013D5D4 /* Kbucket.hpp in Sources */,
 				6BBE0C681D6F58960013D5D4 /* Messenger.cpp in Sources */,
-				6BBE0C691D6F58960013D5D4 /* Messenger.hpp in Sources */,
 				6BBE0C6A1D6F58960013D5D4 /* Performer.cpp in Sources */,
-				6BBE0C6B1D6F58960013D5D4 /* Performer.hpp in Sources */,
-				6BBE0C6C1D6F58960013D5D4 /* settings.h in Sources */,
 				6BBE0C5D1D6F58850013D5D4 /* Distance.cpp in Sources */,
-				6BBE0C5E1D6F58850013D5D4 /* Distance.hpp in Sources */,
 				6BBE0C5F1D6F58850013D5D4 /* Key.cpp in Sources */,
 				6BBE0C6E1D6F5C6B0013D5D4 /* Key_tests.mm in Sources */,
-				6BBE0C601D6F58850013D5D4 /* Key.hpp in Sources */,
 				6BBE0C611D6F58850013D5D4 /* Node.cpp in Sources */,
-				6BBE0C621D6F58850013D5D4 /* Node.hpp in Sources */,
 				6BBE0C561D6F57A60013D5D4 /* Distance_tests.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -372,6 +360,8 @@
 		6BBE0C591D6F57A60013D5D4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LIBRARY = "libc++";
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = UnitTestsXCT/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
@@ -383,6 +373,8 @@
 		6BBE0C5A1D6F57A60013D5D4 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD)";
+				CLANG_CXX_LIBRARY = "libc++";
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = UnitTestsXCT/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
