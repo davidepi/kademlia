@@ -70,7 +70,11 @@ static void* execute(void* this_class)
 					{
 						std::cout << "The message is a find node: " << top->getText() << std::endl;
 						Node myself(m->getIp(), m->getPort());
-						int i = Distance(myself, senderNode).getDistance();
+
+						std::string key(top->getText(),20);
+						const Key keyToSearch(key.c_str());
+
+						int i = Distance(*(myself.getKey()), keyToSearch).getDistance();
 						std::cout<<"the index is "<<i<<std::endl;
 					}
 					break;

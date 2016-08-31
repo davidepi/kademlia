@@ -69,7 +69,10 @@ int main(int argc, char* argv[])
         }
         else
         {
-            Message msg("", RPC_FIND_NODE); //TODO: settare la mia key qui
+            char myIp[16];
+            m->getIp().toString(myIp); 
+            std::cout << "ip " << myIp << std::endl;
+            Message msg(myIp, RPC_FIND_NODE); //TODO: settare la mia key qui
             m->sendMessage(Node(gateway, port_dest), msg);
         }
     }

@@ -1,6 +1,6 @@
 #include "Distance.hpp"
 
-Distance::Distance(Key& k1, Key& k2)
+Distance::Distance(const Key& k1, const Key& k2)
 {
     const uint8_t* key1 = k1.getKey();
     const uint8_t* key2 = k2.getKey();

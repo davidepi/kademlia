@@ -1,5 +1,5 @@
-.PHONY: clean all run 
-CC=g++-6
+.PHONY: clean all run
+CC=g++
 
 #Ofast          - fregacazzi delle specifiche dei Floating Point violate, i risultati sono uguali, e va faster
 #march = native - dovrebbe essere faster
@@ -17,14 +17,14 @@ NO_COLOR=\033[0m
 OK_COLOR=\033[0;32m
 ERROR_COLOR=\033[0;31m
 WARN_COLOR=\033[0;33m
- 
+
 # le stringhe [OK] [ERROR] e [WARNING] con i vari colori
 OK_STRING=$(NO_COLOR)[$(OK_COLOR)OK$(NO_COLOR)]
 PASS_STRING = $(NO_COLOR)[$(OK_COLOR)PASS$(NO_COLOR)]
 WARN_STRING=$(NO_COLOR)[$(WARN_COLOR)WARNING$(NO_COLOR)]
 ERROR_STRING=$(NO_COLOR)[$(ERROR_COLOR)ERROR$(NO_COLOR)]
 FAIL_STRING = $(NO_COLOR)[$(ERROR_COLOR)FAIL$(NO_COLOR)]
- 
+
 # contiene le informazioni su dove spedire eventuali errori di compilazione
 ERROR_HANDLER = 2> temp.log || touch temp.errors;
 
