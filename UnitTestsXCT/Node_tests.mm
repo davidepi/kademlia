@@ -82,9 +82,9 @@
     XCTAssertEqual(n.getKey(), n3.getKey());
     XCTAssertEqual(n2.getKey(), n3.getKey());
     
-    XCTAssertEqual(n.getKey()[0], n2.getKey()[0]);
-    XCTAssertEqual(n.getKey()[0], n3.getKey()[0]);
-    XCTAssertEqual(n2.getKey()[0], n3.getKey()[0]);
+    XCTAssertTrue(n.getKey()[0] == n2.getKey()[0]);
+    XCTAssertTrue(n.getKey()[0] == n3.getKey()[0]);
+    XCTAssertTrue(n2.getKey()[0] == n3.getKey()[0]);
     
     n = n3;
 }

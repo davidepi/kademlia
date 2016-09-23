@@ -38,7 +38,7 @@
     Key a("127.0.0.1");
     Key b("10.196.10.4");
     
-    XCTAssertGreaterThanOrEqual(Distance(a,b).getDistance(), 0);
+    XCTAssertTrue(Distance(a,b).getDistance() >= 0);
 }
 
 -(void)test03_Distance_TwoNodes
@@ -46,7 +46,7 @@
     Node a("127.0.0.1",3400);
     Node b("10.196.10.4",65000);
     
-    XCTAssertGreaterThanOrEqual(Distance(a,b).getDistance(), 0);
+    XCTAssertTrue(Distance(a,b).getDistance() >= 0);
 }
 
 -(void)test04_Distance_getDistanceExactly1
