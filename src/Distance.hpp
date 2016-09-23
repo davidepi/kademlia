@@ -7,7 +7,7 @@
 class Distance
 {
 public:
-    Distance(Key &k1, Key& k2);
+    Distance(const Key &k1, const Key& k2);
     Distance(Node n1, Node n2);
     ~Distance();
     short getDistance()const; //ritorna il numero del primo bit diverso tra
