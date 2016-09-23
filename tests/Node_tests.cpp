@@ -2,7 +2,7 @@
 
 
 
-#include <CppUTest/TestHarness.h>
+#include <gtest/gtest.h>
 TEST_GROUP(Node)
 { };
 
@@ -15,7 +15,7 @@ TEST(Node,creationEmpty)
 {
     Node n;
     const Key* k = n.getKey();
-    CHECK(k == NULL);
+    EXPECT_TRUE(k == NULL);
 }
 
 TEST(Node,creationIpPort)
@@ -25,8 +25,8 @@ TEST(Node,creationIpPort)
     Node n(originalip,originalport);
     char ip[16];
     n.getIp().toString(ip);
-    CHECK_EQUAL(strcmp(ip,originalip), 0);
-    CHECK_EQUAL(n.getPort(), originalport);
+    EXPECT_EQ(strcmp(ip,originalip), 0);
+    EXPECT_EQ(n.getPort(), originalport);
 }
 
 TEST(Node,opEqual)
@@ -38,11 +38,11 @@ TEST(Node,opEqual)
     Node e("127.0.0.1",3500);
     Node f ("10.196.1.1",3500);
 
-    CHECK(a == b);
-    CHECK(a == c);
-    CHECK_FALSE(a == d);
-    CHECK_FALSE(a == e);
-    CHECK_FALSE(a == f);
+    EXPECT_TRUE(a == b);
+    EXPECT_TRUE(a == c);
+    EXPECT_FALSE(a == d);
+    EXPECT_FALSE(a == e);
+    EXPECT_FALSE(a == f);
 
 }
 
@@ -55,11 +55,11 @@ TEST(Node,opNotEqual)
     Node e("127.0.0.1",3500);
     Node f ("10.196.1.1",3500);
 
-    CHECK_FALSE(a != b);
-    CHECK_FALSE(a != c);
-    CHECK(a != d);
-    CHECK(a != e);
-    CHECK(a != f);
+    EXPECT_FALSE(a != b);
+    EXPECT_FALSE(a != c);
+    EXPECT_TRUE(a != d);
+    EXPECT_TRUE(a != e);
+    EXPECT_TRUE(a != f);
 }
 
 TEST(Node,ruleOfThree)
@@ -73,17 +73,17 @@ TEST(Node,ruleOfThree)
                      //almost instantly and accessing Node::key will
                      //result in a segafault
 
-    CHECK(n == n2);
-    CHECK(n == n3);
-    CHECK(n2 == n3);
+    EXPECT_TRUE(n == n2);
+    EXPECT_TRUE(n == n3);
+    EXPECT_TRUE(n2 == n3);
 
-    CHECK_EQUAL(n.getKey(), n2.getKey());
-    CHECK_EQUAL(n.getKey(), n3.getKey());
-    CHECK_EQUAL(n2.getKey(), n3.getKey());
+    EXPECT_EQ(n.getKey(), n2.getKey());
+    EXPECT_EQ(n.getKey(), n3.getKey());
+    EXPECT_EQ(n2.getKey(), n3.getKey());
 
-    CHECK(n.getKey()[0] == n2.getKey()[0]);
-    CHECK(n.getKey()[0] == n3.getKey()[0]);
-    CHECK(n2.getKey()[0] == n3.getKey()[0]);
+    EXPECT_TRUE(n.getKey()[0] == n2.getKey()[0]);
+    EXPECT_TRUE(n.getKey()[0] == n3.getKey()[0]);
+    EXPECT_TRUE(n2.getKey()[0] == n3.getKey()[0]);
 
     n = n3;
 }

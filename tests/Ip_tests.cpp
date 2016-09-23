@@ -2,7 +2,7 @@
 
 
 
-#include <CppUTest/TestHarness.h>
+#include <gtest/gtest.h>
 TEST_GROUP(Ip)
 { };
 
@@ -14,7 +14,7 @@ TEST_GROUP(Ip)
 TEST(Ip,creationEmpty)
 {
     Ip a;
-    CHECK_EQUAL(a.getIp(), 0x100007F);
+    EXPECT_EQ(a.getIp(), 0x100007F);
 }
 
 TEST(Ip,creationGivenNetworkOrdered)
@@ -27,10 +27,10 @@ TEST(Ip,creationGivenNetworkOrdered)
     Ip b(i2);
     Ip c(i3);
     Ip d(i4);
-    CHECK_EQUAL(a.getIp(), i1);
-    CHECK_EQUAL(b.getIp(), i2);
-    CHECK_EQUAL(c.getIp(), i3);
-    CHECK_EQUAL(d.getIp(), i4);
+    EXPECT_EQ(a.getIp(), i1);
+    EXPECT_EQ(b.getIp(), i2);
+    EXPECT_EQ(c.getIp(), i3);
+    EXPECT_EQ(d.getIp(), i4);
 }
 
 TEST(Ip,Localhost)
@@ -39,9 +39,9 @@ TEST(Ip,Localhost)
     Ip b("127.0.0.1");
     Ip c("localhost");
 
-    CHECK_EQUAL(a.getIp(), 0x100007F);
-    CHECK_EQUAL(b.getIp(), 0x100007F);
-    CHECK_EQUAL(c.getIp(), 0x100007F);
+    EXPECT_EQ(a.getIp(), 0x100007F);
+    EXPECT_EQ(b.getIp(), 0x100007F);
+    EXPECT_EQ(c.getIp(), 0x100007F);
 }
 
 TEST(Ip,LocalhostFunctionChecking)
@@ -51,10 +51,10 @@ TEST(Ip,LocalhostFunctionChecking)
     Ip c("localhost");
     Ip d("10.194.245.3");
 
-    CHECK(a.isLocalhost());
-    CHECK(b.isLocalhost());
-    CHECK(c.isLocalhost());
-    CHECK_FALSE(d.isLocalhost());
+    EXPECT_TRUE(a.isLocalhost());
+    EXPECT_TRUE(b.isLocalhost());
+    EXPECT_TRUE(c.isLocalhost());
+    EXPECT_FALSE(d.isLocalhost());
 }
 
 TEST(Ip,assignOperator)
@@ -63,7 +63,7 @@ TEST(Ip,assignOperator)
     Ip b("10.194.30.240");
 
     a = b;
-    CHECK_EQUAL(a.getIp(), b.getIp());
+    EXPECT_EQ(a.getIp(), b.getIp());
 }
 
 TEST(Ip,equalOperator)
@@ -72,8 +72,8 @@ TEST(Ip,equalOperator)
     Ip b("localhost");
     Ip c("10.145.34.93");
 
-    CHECK(a == b);
-    CHECK_FALSE(a == c);
+    EXPECT_TRUE(a == b);
+    EXPECT_FALSE(a == c);
 }
 
 TEST(Ip,notEqualOperator)
@@ -82,8 +82,8 @@ TEST(Ip,notEqualOperator)
     Ip b("localhost");
     Ip c("10.145.34.93");
 
-    CHECK(a != c);
-    CHECK_FALSE(a != b);
+    EXPECT_TRUE(a != c);
+    EXPECT_FALSE(a != b);
 }
 
 TEST(Ip,toStringOperator)
@@ -97,6 +97,6 @@ TEST(Ip,toStringOperator)
     a.toString(ip1);
     b.toString(ip2);
 
-    CHECK_EQUAL(strcmp(ip1,"127.0.0.1"), 0);
-    CHECK_EQUAL(strcmp(ip2,s), 0);
+    EXPECT_EQ(strcmp(ip1,"127.0.0.1"), 0);
+    EXPECT_EQ(strcmp(ip2,s), 0);
 }

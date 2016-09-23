@@ -1,7 +1,7 @@
 #include "../src/Key.hpp"
 
 
-#include <CppUTest/TestHarness.h>
+#include <gtest/gtest.h>
 TEST_GROUP(Key)
 { };
 
@@ -17,48 +17,48 @@ TEST(Key,creationWithString)
 {
 
     Key a("key1"); //0xb299ff9ed1c1904a4aa6d0b55c5cdc4d744aee44
-    CHECK_EQUAL(a.getKey()[0], 0xB2);
-    CHECK_EQUAL(a.getKey()[1], 0x99);
-    CHECK_EQUAL(a.getKey()[2], 0xFF);
-    CHECK_EQUAL(a.getKey()[3], 0x9E);
-    CHECK_EQUAL(a.getKey()[4], 0xD1);
-    CHECK_EQUAL(a.getKey()[5], 0xC1);
-    CHECK_EQUAL(a.getKey()[6], 0x90);
-    CHECK_EQUAL(a.getKey()[7], 0x4A);
-    CHECK_EQUAL(a.getKey()[8], 0x4A);
-    CHECK_EQUAL(a.getKey()[9], 0xA6);
-    CHECK_EQUAL(a.getKey()[10], 0xD0);
-    CHECK_EQUAL(a.getKey()[11], 0xB5);
-    CHECK_EQUAL(a.getKey()[12], 0x5C);
-    CHECK_EQUAL(a.getKey()[13], 0x5C);
-    CHECK_EQUAL(a.getKey()[14], 0xDC);
-    CHECK_EQUAL(a.getKey()[15], 0x4D);
-    CHECK_EQUAL(a.getKey()[16], 0x74);
-    CHECK_EQUAL(a.getKey()[17], 0x4A);
-    CHECK_EQUAL(a.getKey()[18], 0xEE);
-    CHECK_EQUAL(a.getKey()[19], 0x44);
+    EXPECT_EQ(a.getKey()[0], 0xB2);
+    EXPECT_EQ(a.getKey()[1], 0x99);
+    EXPECT_EQ(a.getKey()[2], 0xFF);
+    EXPECT_EQ(a.getKey()[3], 0x9E);
+    EXPECT_EQ(a.getKey()[4], 0xD1);
+    EXPECT_EQ(a.getKey()[5], 0xC1);
+    EXPECT_EQ(a.getKey()[6], 0x90);
+    EXPECT_EQ(a.getKey()[7], 0x4A);
+    EXPECT_EQ(a.getKey()[8], 0x4A);
+    EXPECT_EQ(a.getKey()[9], 0xA6);
+    EXPECT_EQ(a.getKey()[10], 0xD0);
+    EXPECT_EQ(a.getKey()[11], 0xB5);
+    EXPECT_EQ(a.getKey()[12], 0x5C);
+    EXPECT_EQ(a.getKey()[13], 0x5C);
+    EXPECT_EQ(a.getKey()[14], 0xDC);
+    EXPECT_EQ(a.getKey()[15], 0x4D);
+    EXPECT_EQ(a.getKey()[16], 0x74);
+    EXPECT_EQ(a.getKey()[17], 0x4A);
+    EXPECT_EQ(a.getKey()[18], 0xEE);
+    EXPECT_EQ(a.getKey()[19], 0x44);
 
     Key b("key2"); //0xb0b94cb63c2b200632c90732de6933ebaf1a7d
-    CHECK_EQUAL(b.getKey()[0], 0xB0);
-    CHECK_EQUAL(b.getKey()[1], 0xB9);
-    CHECK_EQUAL(b.getKey()[2], 0x4C);
-    CHECK_EQUAL(b.getKey()[3], 0xB6);
-    CHECK_EQUAL(b.getKey()[4], 0x3C);
-    CHECK_EQUAL(b.getKey()[5], 0x2B);
-    CHECK_EQUAL(b.getKey()[6], 0x20);
-    CHECK_EQUAL(b.getKey()[7], 0x06);
-    CHECK_EQUAL(b.getKey()[8], 0x03);
-    CHECK_EQUAL(b.getKey()[9], 0x2C);
-    CHECK_EQUAL(b.getKey()[10], 0x90);
-    CHECK_EQUAL(b.getKey()[11], 0x73);
-    CHECK_EQUAL(b.getKey()[12], 0x2D);
-    CHECK_EQUAL(b.getKey()[13], 0xE6);
-    CHECK_EQUAL(b.getKey()[14], 0x93);
-    CHECK_EQUAL(b.getKey()[15], 0x3E);
-    CHECK_EQUAL(b.getKey()[16], 0xBA);
-    CHECK_EQUAL(b.getKey()[17], 0xF1);
-    CHECK_EQUAL(b.getKey()[18], 0xA7);
-    CHECK_EQUAL(b.getKey()[19], 0x0D);
+    EXPECT_EQ(b.getKey()[0], 0xB0);
+    EXPECT_EQ(b.getKey()[1], 0xB9);
+    EXPECT_EQ(b.getKey()[2], 0x4C);
+    EXPECT_EQ(b.getKey()[3], 0xB6);
+    EXPECT_EQ(b.getKey()[4], 0x3C);
+    EXPECT_EQ(b.getKey()[5], 0x2B);
+    EXPECT_EQ(b.getKey()[6], 0x20);
+    EXPECT_EQ(b.getKey()[7], 0x06);
+    EXPECT_EQ(b.getKey()[8], 0x03);
+    EXPECT_EQ(b.getKey()[9], 0x2C);
+    EXPECT_EQ(b.getKey()[10], 0x90);
+    EXPECT_EQ(b.getKey()[11], 0x73);
+    EXPECT_EQ(b.getKey()[12], 0x2D);
+    EXPECT_EQ(b.getKey()[13], 0xE6);
+    EXPECT_EQ(b.getKey()[14], 0x93);
+    EXPECT_EQ(b.getKey()[15], 0x3E);
+    EXPECT_EQ(b.getKey()[16], 0xBA);
+    EXPECT_EQ(b.getKey()[17], 0xF1);
+    EXPECT_EQ(b.getKey()[18], 0xA7);
+    EXPECT_EQ(b.getKey()[19], 0x0D);
 }
 
 TEST(Key,creationWithIp)
@@ -72,8 +72,8 @@ TEST(Key,stringEqual)
     Key a("ciao");
     Key b("ciao");
 
-    CHECK(a == b);
-    CHECK_FALSE(a != b);
+    EXPECT_TRUE(a == b);
+    EXPECT_FALSE(a != b);
 }
 
 TEST(Key,stringNotEqual)
@@ -81,8 +81,8 @@ TEST(Key,stringNotEqual)
     Key a("ciao");
     Key b("miao");
 
-    CHECK(a != b);
-    CHECK_FALSE(a == b);
+    EXPECT_TRUE(a != b);
+    EXPECT_FALSE(a == b);
 }
 
 TEST(Key,ipEqual)
@@ -90,8 +90,8 @@ TEST(Key,ipEqual)
     Key a("127.0.0.1",3400);
     Key b("127.0.0.1",3400);
 
-    CHECK(a == b);
-    CHECK_FALSE(a != b);
+    EXPECT_TRUE(a == b);
+    EXPECT_FALSE(a != b);
 }
 
 TEST(Key,ipNotEqual)
@@ -99,8 +99,8 @@ TEST(Key,ipNotEqual)
     Key a("127.0.0.1",3200);
     Key b("127.0.0.1",65000);
 
-    CHECK(a != b);
-    CHECK_FALSE(a == b);
+    EXPECT_TRUE(a != b);
+    EXPECT_FALSE(a == b);
 }
 
 TEST(Key,ipNotEqual2)
@@ -108,8 +108,8 @@ TEST(Key,ipNotEqual2)
     Key a("127.0.0.1",3400);
     Key b("10.196.10.10",3400);
 
-    CHECK(a != b);
-    CHECK_FALSE(a == b);
+    EXPECT_TRUE(a != b);
+    EXPECT_FALSE(a == b);
 }
 
 TEST(Key,creationWithText)
@@ -117,7 +117,7 @@ TEST(Key,creationWithText)
     Key a("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras posuere.");
     Key b("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras pos");
 
-    CHECK(a != b);
+    EXPECT_TRUE(a != b);
 }
 
 //- (void) test06
