@@ -138,11 +138,11 @@ short Distance::getDistance() const
     
 #if (defined(__x86_64__) || defined(__i386__))
     
-    uint16_t retval = 0, vall = val;
+    uint32_t retval = 0, vall = val;
     
-    __asm__ ( "lzcntw %1, %0;"
+    __asm__ ( "lzcntl %1, %0;"
              :"=r"(retval)
-             :"r"(vall << 8)
+             :"r"(vall << 24)
              :
              );
     

@@ -7,27 +7,26 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		6B11971E1D595AE700810169 /* Messenger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B11971C1D595AE700810169 /* Messenger.cpp */; };
-		6B557DCF1D49154800FA7352 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B557DCE1D49154800FA7352 /* main.cpp */; };
-		6B557DD71D49157F00FA7352 /* Key.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B557DD51D49157F00FA7352 /* Key.cpp */; };
-		6B557DDA1D4A27CA00FA7352 /* Ip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B557DD81D4A27CA00FA7352 /* Ip.cpp */; };
-		6B624F9E1D68918600F19749 /* Kbucket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B624F9A1D68918600F19749 /* Kbucket.cpp */; };
-		6B624F9F1D68918600F19749 /* Node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B624F9C1D68918600F19749 /* Node.cpp */; };
+		6B27F77C1D95169C0049D4C2 /* Distance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B27F76C1D95169C0049D4C2 /* Distance.cpp */; };
+		6B27F77D1D95169C0049D4C2 /* Ip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B27F76E1D95169C0049D4C2 /* Ip.cpp */; };
+		6B27F77E1D95169C0049D4C2 /* Kbucket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B27F7701D95169C0049D4C2 /* Kbucket.cpp */; };
+		6B27F77F1D95169C0049D4C2 /* Key.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B27F7721D95169C0049D4C2 /* Key.cpp */; };
+		6B27F7801D95169C0049D4C2 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B27F7741D95169C0049D4C2 /* main.cpp */; };
+		6B27F7811D95169C0049D4C2 /* Messenger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B27F7751D95169C0049D4C2 /* Messenger.cpp */; };
+		6B27F7821D95169C0049D4C2 /* Node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B27F7771D95169C0049D4C2 /* Node.cpp */; };
+		6B27F7831D95169C0049D4C2 /* Performer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B27F7791D95169C0049D4C2 /* Performer.cpp */; };
+		6B27F7841D9517230049D4C2 /* Distance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B27F76C1D95169C0049D4C2 /* Distance.cpp */; };
+		6B27F7861D9517230049D4C2 /* Ip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B27F76E1D95169C0049D4C2 /* Ip.cpp */; };
+		6B27F7881D9517230049D4C2 /* Kbucket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B27F7701D95169C0049D4C2 /* Kbucket.cpp */; };
+		6B27F78A1D9517230049D4C2 /* Key.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B27F7721D95169C0049D4C2 /* Key.cpp */; };
+		6B27F78C1D9517230049D4C2 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B27F7741D95169C0049D4C2 /* main.cpp */; };
+		6B27F78D1D9517230049D4C2 /* Messenger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B27F7751D95169C0049D4C2 /* Messenger.cpp */; };
+		6B27F78F1D9517230049D4C2 /* Node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B27F7771D95169C0049D4C2 /* Node.cpp */; };
+		6B27F7911D9517230049D4C2 /* Performer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B27F7791D95169C0049D4C2 /* Performer.cpp */; };
 		6B84F7841D6F632E004E52F6 /* Ip_tests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B84F7831D6F632E004E52F6 /* Ip_tests.mm */; };
-		6BB96D641D5F702C0032D2BC /* Performer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB96D621D5F702C0032D2BC /* Performer.cpp */; };
 		6BBE0C561D6F57A60013D5D4 /* Distance_tests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6BBE0C551D6F57A60013D5D4 /* Distance_tests.mm */; };
-		6BBE0C5D1D6F58850013D5D4 /* Distance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BEDE1741D60F2E7003B43F4 /* Distance.cpp */; };
-		6BBE0C5F1D6F58850013D5D4 /* Key.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B557DD51D49157F00FA7352 /* Key.cpp */; };
-		6BBE0C611D6F58850013D5D4 /* Node.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B624F9C1D68918600F19749 /* Node.cpp */; };
-		6BBE0C631D6F58960013D5D4 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B557DCE1D49154800FA7352 /* main.cpp */; };
-		6BBE0C641D6F58960013D5D4 /* Ip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B557DD81D4A27CA00FA7352 /* Ip.cpp */; };
-		6BBE0C661D6F58960013D5D4 /* Kbucket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B624F9A1D68918600F19749 /* Kbucket.cpp */; };
-		6BBE0C681D6F58960013D5D4 /* Messenger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B11971C1D595AE700810169 /* Messenger.cpp */; };
-		6BBE0C6A1D6F58960013D5D4 /* Performer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BB96D621D5F702C0032D2BC /* Performer.cpp */; };
 		6BBE0C6E1D6F5C6B0013D5D4 /* Key_tests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6BBE0C6D1D6F5C6B0013D5D4 /* Key_tests.mm */; };
-		6BC164AA1D6C850C0058A18E /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = 6BC164A91D6C850C0058A18E /* Makefile */; };
 		6BEA315A1D7087F900C31F9A /* Node_tests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6BEA31591D7087F900C31F9A /* Node_tests.mm */; };
-		6BEDE1761D60F2E7003B43F4 /* Distance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BEDE1741D60F2E7003B43F4 /* Distance.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -43,30 +42,30 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		6B11971C1D595AE700810169 /* Messenger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Messenger.cpp; sourceTree = "<group>"; };
-		6B11971D1D595AE700810169 /* Messenger.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Messenger.hpp; sourceTree = "<group>"; };
+		6B27F76C1D95169C0049D4C2 /* Distance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Distance.cpp; path = src/Distance.cpp; sourceTree = "<group>"; };
+		6B27F76D1D95169C0049D4C2 /* Distance.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Distance.hpp; path = src/Distance.hpp; sourceTree = "<group>"; };
+		6B27F76E1D95169C0049D4C2 /* Ip.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Ip.cpp; path = src/Ip.cpp; sourceTree = "<group>"; };
+		6B27F76F1D95169C0049D4C2 /* Ip.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Ip.hpp; path = src/Ip.hpp; sourceTree = "<group>"; };
+		6B27F7701D95169C0049D4C2 /* Kbucket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Kbucket.cpp; path = src/Kbucket.cpp; sourceTree = "<group>"; };
+		6B27F7711D95169C0049D4C2 /* Kbucket.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Kbucket.hpp; path = src/Kbucket.hpp; sourceTree = "<group>"; };
+		6B27F7721D95169C0049D4C2 /* Key.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Key.cpp; path = src/Key.cpp; sourceTree = "<group>"; };
+		6B27F7731D95169C0049D4C2 /* Key.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Key.hpp; path = src/Key.hpp; sourceTree = "<group>"; };
+		6B27F7741D95169C0049D4C2 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = src/main.cpp; sourceTree = "<group>"; };
+		6B27F7751D95169C0049D4C2 /* Messenger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Messenger.cpp; path = src/Messenger.cpp; sourceTree = "<group>"; };
+		6B27F7761D95169C0049D4C2 /* Messenger.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Messenger.hpp; path = src/Messenger.hpp; sourceTree = "<group>"; };
+		6B27F7771D95169C0049D4C2 /* Node.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Node.cpp; path = src/Node.cpp; sourceTree = "<group>"; };
+		6B27F7781D95169C0049D4C2 /* Node.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Node.hpp; path = src/Node.hpp; sourceTree = "<group>"; };
+		6B27F7791D95169C0049D4C2 /* Performer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Performer.cpp; path = src/Performer.cpp; sourceTree = "<group>"; };
+		6B27F77A1D95169C0049D4C2 /* Performer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Performer.hpp; path = src/Performer.hpp; sourceTree = "<group>"; };
+		6B27F77B1D95169C0049D4C2 /* settings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = settings.h; path = src/settings.h; sourceTree = "<group>"; };
 		6B557DCB1D49154800FA7352 /* Kademlia */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Kademlia; sourceTree = BUILT_PRODUCTS_DIR; };
-		6B557DCE1D49154800FA7352 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		6B557DD51D49157F00FA7352 /* Key.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Key.cpp; sourceTree = "<group>"; };
-		6B557DD61D49157F00FA7352 /* Key.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Key.hpp; sourceTree = "<group>"; };
-		6B557DD81D4A27CA00FA7352 /* Ip.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Ip.cpp; sourceTree = "<group>"; };
-		6B557DD91D4A27CA00FA7352 /* Ip.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Ip.hpp; sourceTree = "<group>"; };
-		6B624F9A1D68918600F19749 /* Kbucket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Kbucket.cpp; sourceTree = "<group>"; };
-		6B624F9B1D68918600F19749 /* Kbucket.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Kbucket.hpp; sourceTree = "<group>"; };
-		6B624F9C1D68918600F19749 /* Node.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Node.cpp; sourceTree = "<group>"; };
-		6B624F9D1D68918600F19749 /* Node.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Node.hpp; sourceTree = "<group>"; };
 		6B84F7831D6F632E004E52F6 /* Ip_tests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Ip_tests.mm; sourceTree = "<group>"; };
-		6BB96D621D5F702C0032D2BC /* Performer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Performer.cpp; sourceTree = "<group>"; };
-		6BB96D631D5F702C0032D2BC /* Performer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Performer.hpp; sourceTree = "<group>"; };
 		6BBE0C531D6F57A60013D5D4 /* UnitTestsXCT.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UnitTestsXCT.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6BBE0C551D6F57A60013D5D4 /* Distance_tests.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = Distance_tests.mm; sourceTree = "<group>"; };
 		6BBE0C571D6F57A60013D5D4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		6BBE0C6D1D6F5C6B0013D5D4 /* Key_tests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Key_tests.mm; sourceTree = "<group>"; };
 		6BC164A91D6C850C0058A18E /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
-		6BE9A11C1D6C40D6000BE280 /* settings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = settings.h; sourceTree = "<group>"; };
 		6BEA31591D7087F900C31F9A /* Node_tests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Node_tests.mm; sourceTree = "<group>"; };
-		6BEDE1741D60F2E7003B43F4 /* Distance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Distance.cpp; sourceTree = "<group>"; };
-		6BEDE1751D60F2E7003B43F4 /* Distance.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Distance.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,11 +86,34 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6B27F76B1D95168F0049D4C2 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				6B27F76C1D95169C0049D4C2 /* Distance.cpp */,
+				6B27F76D1D95169C0049D4C2 /* Distance.hpp */,
+				6B27F76E1D95169C0049D4C2 /* Ip.cpp */,
+				6B27F76F1D95169C0049D4C2 /* Ip.hpp */,
+				6B27F7701D95169C0049D4C2 /* Kbucket.cpp */,
+				6B27F7711D95169C0049D4C2 /* Kbucket.hpp */,
+				6B27F7721D95169C0049D4C2 /* Key.cpp */,
+				6B27F7731D95169C0049D4C2 /* Key.hpp */,
+				6B27F7741D95169C0049D4C2 /* main.cpp */,
+				6B27F7751D95169C0049D4C2 /* Messenger.cpp */,
+				6B27F7761D95169C0049D4C2 /* Messenger.hpp */,
+				6B27F7771D95169C0049D4C2 /* Node.cpp */,
+				6B27F7781D95169C0049D4C2 /* Node.hpp */,
+				6B27F7791D95169C0049D4C2 /* Performer.cpp */,
+				6B27F77A1D95169C0049D4C2 /* Performer.hpp */,
+				6B27F77B1D95169C0049D4C2 /* settings.h */,
+			);
+			name = src;
+			sourceTree = "<group>";
+		};
 		6B557DC21D49154800FA7352 = {
 			isa = PBXGroup;
 			children = (
 				6BC164A91D6C850C0058A18E /* Makefile */,
-				6B557DCD1D49154800FA7352 /* Kademlia */,
+				6B27F76B1D95168F0049D4C2 /* src */,
 				6BBE0C541D6F57A60013D5D4 /* UnitTestsXCT */,
 				6B557DCC1D49154800FA7352 /* Products */,
 			);
@@ -104,29 +126,6 @@
 				6BBE0C531D6F57A60013D5D4 /* UnitTestsXCT.xctest */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		6B557DCD1D49154800FA7352 /* Kademlia */ = {
-			isa = PBXGroup;
-			children = (
-				6B557DCE1D49154800FA7352 /* main.cpp */,
-				6BEDE1741D60F2E7003B43F4 /* Distance.cpp */,
-				6BEDE1751D60F2E7003B43F4 /* Distance.hpp */,
-				6B557DD81D4A27CA00FA7352 /* Ip.cpp */,
-				6B557DD91D4A27CA00FA7352 /* Ip.hpp */,
-				6B624F9A1D68918600F19749 /* Kbucket.cpp */,
-				6B624F9B1D68918600F19749 /* Kbucket.hpp */,
-				6B557DD51D49157F00FA7352 /* Key.cpp */,
-				6B557DD61D49157F00FA7352 /* Key.hpp */,
-				6B11971C1D595AE700810169 /* Messenger.cpp */,
-				6B11971D1D595AE700810169 /* Messenger.hpp */,
-				6B624F9C1D68918600F19749 /* Node.cpp */,
-				6B624F9D1D68918600F19749 /* Node.hpp */,
-				6BB96D621D5F702C0032D2BC /* Performer.cpp */,
-				6BB96D631D5F702C0032D2BC /* Performer.hpp */,
-				6BE9A11C1D6C40D6000BE280 /* settings.h */,
-			);
-			path = Kademlia;
 			sourceTree = "<group>";
 		};
 		6BBE0C541D6F57A60013D5D4 /* UnitTestsXCT */ = {
@@ -228,15 +227,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6BC164AA1D6C850C0058A18E /* Makefile in Sources */,
-				6B624F9F1D68918600F19749 /* Node.cpp in Sources */,
-				6BB96D641D5F702C0032D2BC /* Performer.cpp in Sources */,
-				6B557DCF1D49154800FA7352 /* main.cpp in Sources */,
-				6B557DDA1D4A27CA00FA7352 /* Ip.cpp in Sources */,
-				6B557DD71D49157F00FA7352 /* Key.cpp in Sources */,
-				6B624F9E1D68918600F19749 /* Kbucket.cpp in Sources */,
-				6B11971E1D595AE700810169 /* Messenger.cpp in Sources */,
-				6BEDE1761D60F2E7003B43F4 /* Distance.cpp in Sources */,
+				6B27F77C1D95169C0049D4C2 /* Distance.cpp in Sources */,
+				6B27F77E1D95169C0049D4C2 /* Kbucket.cpp in Sources */,
+				6B27F7801D95169C0049D4C2 /* main.cpp in Sources */,
+				6B27F77F1D95169C0049D4C2 /* Key.cpp in Sources */,
+				6B27F77D1D95169C0049D4C2 /* Ip.cpp in Sources */,
+				6B27F7811D95169C0049D4C2 /* Messenger.cpp in Sources */,
+				6B27F7831D95169C0049D4C2 /* Performer.cpp in Sources */,
+				6B27F7821D95169C0049D4C2 /* Node.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -244,17 +242,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6BBE0C631D6F58960013D5D4 /* main.cpp in Sources */,
-				6BBE0C641D6F58960013D5D4 /* Ip.cpp in Sources */,
-				6BBE0C661D6F58960013D5D4 /* Kbucket.cpp in Sources */,
+				6B27F7841D9517230049D4C2 /* Distance.cpp in Sources */,
+				6B27F7861D9517230049D4C2 /* Ip.cpp in Sources */,
+				6B27F7881D9517230049D4C2 /* Kbucket.cpp in Sources */,
+				6B27F78A1D9517230049D4C2 /* Key.cpp in Sources */,
+				6B27F78C1D9517230049D4C2 /* main.cpp in Sources */,
+				6B27F78D1D9517230049D4C2 /* Messenger.cpp in Sources */,
+				6B27F78F1D9517230049D4C2 /* Node.cpp in Sources */,
+				6B27F7911D9517230049D4C2 /* Performer.cpp in Sources */,
 				6BEA315A1D7087F900C31F9A /* Node_tests.mm in Sources */,
 				6B84F7841D6F632E004E52F6 /* Ip_tests.mm in Sources */,
-				6BBE0C681D6F58960013D5D4 /* Messenger.cpp in Sources */,
-				6BBE0C6A1D6F58960013D5D4 /* Performer.cpp in Sources */,
-				6BBE0C5D1D6F58850013D5D4 /* Distance.cpp in Sources */,
-				6BBE0C5F1D6F58850013D5D4 /* Key.cpp in Sources */,
 				6BBE0C6E1D6F5C6B0013D5D4 /* Key_tests.mm in Sources */,
-				6BBE0C611D6F58850013D5D4 /* Node.cpp in Sources */,
 				6BBE0C561D6F57A60013D5D4 /* Distance_tests.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

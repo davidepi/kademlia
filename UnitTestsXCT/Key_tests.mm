@@ -1,5 +1,5 @@
 #import <XCTest/XCTest.h>
-#include "Key.hpp"
+#include "../src/Key.hpp"
 @interface Key_tests : XCTestCase
 
 @end

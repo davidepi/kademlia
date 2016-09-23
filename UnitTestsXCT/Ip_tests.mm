@@ -1,5 +1,5 @@
 #import <XCTest/XCTest.h>
-#include "Ip.hpp"
+#include "../src/Ip.hpp"
 
 @interface Ip_tests : XCTestCase
 
