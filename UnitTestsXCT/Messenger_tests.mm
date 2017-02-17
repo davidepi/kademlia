@@ -15,8 +15,7 @@
 
 - (void)test00_Messenger_creationEmpty
 {
-    Messenger* m = &(Messenger::getInstance());
-    
+    Messenger::getInstance();
     XCTAssertTrue(true); //no crash = OK ;)
 }
 
@@ -72,27 +71,28 @@
 - (void)test05_Message_messageTextConstructor
 {
     Message m("ciao");
-    XCTAssertEqual(strcmp("ciao", m.getText()),0);
+    XCTAssertEqual(strcmp("ciao", (char*)m.getText()),0);
 }
 
 - (void)test06_Message_messageDataConstructor
 {
     uint8_t data[] = {0x2A,0xE0,0x88,0x98,0x49,0x0D,0x87,0x5F};
-    Message m(data,7);
-    XCTAssertEqual(data[0],m.getText()[0]);
-    XCTAssertEqual(data[1],m.getText()[1]);
-    XCTAssertEqual(data[2],m.getText()[2]);
-    XCTAssertEqual(data[3],m.getText()[3]);
-    XCTAssertEqual(data[4],m.getText()[4]);
-    XCTAssertEqual(data[5],m.getText()[5]);
-    XCTAssertEqual(data[6],m.getText()[6]);
-    XCTAssertEqual(data[7],m.getText()[7]);
+    Message m(data,8);
+    
+    XCTAssertEqual(data[0],m.getData()[0]);
+    XCTAssertEqual(data[1],m.getData()[1]);
+    XCTAssertEqual(data[2],m.getData()[2]);
+    XCTAssertEqual(data[3],m.getData()[3]);
+    XCTAssertEqual(data[4],m.getData()[4]);
+    XCTAssertEqual(data[5],m.getData()[5]);
+    XCTAssertEqual(data[6],m.getData()[6]);
+    XCTAssertEqual(data[7],m.getData()[7]);
 }
 
-- (void)test07_Message_privateSenderCosntructor
+- (void)test07_Message_privateSenderConstructor
 {
     uint8_t data[] = {0x45,0x76};
-    Message m("10.4.24.1",htonl(55640),2,data,RPC_STORE);
+    Message m("10.4.24.1",55640,2,data,RPC_STORE);
     XCTAssertEqual(data[0],m.getText()[0]);
     XCTAssertEqual(data[1],m.getText()[1]);
 }

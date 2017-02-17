@@ -147,15 +147,14 @@ Message::Message(const char* text)
     memset(Message::text,0,RESERVED_BYTES);//riservo 12 byte per ip e porta
     assert(strlen(text+1)<=512-RESERVED_BYTES);
     Message::length = strlen(text)+1;
-    strncpy(Message::text+RESERVED_BYTES, text, Message::length);
+    memcpy(Message::text+RESERVED_BYTES, text, Message::length);
 }
 
 Message::Message(const uint8_t* binary_data, short len)
 {
     assert(len <= 512-RESERVED_BYTES);
     memset(Message::text,0,RESERVED_BYTES);//riservo 12 byte per ip e porta
-    for(short i=RESERVED_BYTES; i<len+RESERVED_BYTES; i++)
-        Message::text[i] = binary_data[i-RESERVED_BYTES]; //TODO: controllare che non casti
+    memcpy(Message::text+RESERVED_BYTES, binary_data, len);
     Message::length = len;
 }
 
@@ -174,7 +173,7 @@ Message::Message(const Ip f, uint16_t port_ho, short len, uint8_t* data,
     assert(len<=512-RESERVED_BYTES);
     Message::length = len;
     Message::flags = flags;
-    strncpy(Message::text+RESERVED_BYTES,(char*)data,len);
+    memcpy(Message::text+RESERVED_BYTES,(char*)data,len);
 }
 
 void Message::setFlags(uint8_t flags)
@@ -190,6 +189,11 @@ short Message::getFlags() const
 const char* Message::getText() const
 {
     return ((char*)text)+RESERVED_BYTES;
+}
+
+const uint8_t* Message::getData() const
+{
+    return text+RESERVED_BYTES;
 }
 
 Node Message::getSenderNode() const

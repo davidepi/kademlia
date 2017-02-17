@@ -60,13 +60,14 @@ public:
     ~Message();
     
     const char* getText() const;
+    const uint8_t* getData() const;
     Node getSenderNode() const;
     void setFlags(uint8_t flags);
     short getFlags() const;
     short getLength() const;
     
 private:
-    char text[512];
+    uint8_t text[512];
     uint8_t flags;
     short length;
     Node senderNode;
