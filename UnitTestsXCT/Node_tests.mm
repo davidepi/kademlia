@@ -1,5 +1,6 @@
 #import <XCTest/XCTest.h>
 #include "../src/Node.hpp"
+#define XCTEST
 
 @interface Node_tests : XCTestCase
 
@@ -87,6 +88,18 @@
     XCTAssertTrue(n2.getKey()[0] == n3.getKey()[0]);
     
     n = n3;
+}
+
+- (void)test05_Node_isEmpty
+{
+    Node n;
+    XCTAssertTrue(n.isEmpty());
+}
+
+- (void)test06_Node_notEmpty
+{
+    Node n("10.0.0.1", 4593);
+    XCTAssertFalse(n.isEmpty());
 }
 
 @end

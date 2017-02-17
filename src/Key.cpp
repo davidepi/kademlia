@@ -238,26 +238,26 @@ static void sha1(const uint8_t* input, uint8_t* output, uint64_t len)
     output[19] = tmp[3];
 }
 
-//void Key::print()const
-//{
-//    printf("%#x",Key::key[0]);
-//    printf("%x",Key::key[1]);
-//    printf("%x",Key::key[2]);
-//    printf("%x",Key::key[3]);
-//    printf("%x",Key::key[4]);
-//    printf("%x",Key::key[5]);
-//    printf("%x",Key::key[6]);
-//    printf("%x",Key::key[7]);
-//    printf("%x",Key::key[8]);
-//    printf("%x",Key::key[9]);
-//    printf("%x",Key::key[10]);
-//    printf("%x",Key::key[11]);
-//    printf("%x",Key::key[12]);
-//    printf("%x",Key::key[13]);
-//    printf("%x",Key::key[14]);
-//    printf("%x",Key::key[15]);
-//    printf("%x",Key::key[16]);
-//    printf("%x",Key::key[17]);
-//    printf("%x",Key::key[18]);
-//    printf("%x\n",Key::key[19]);
-//}
+void Key::print()const
+{
+    printf("%#x",Key::key[0]);
+    printf("%x",Key::key[1]);
+    printf("%x",Key::key[2]);
+    printf("%x",Key::key[3]);
+    printf("%x",Key::key[4]);
+    printf("%x",Key::key[5]);
+    printf("%x",Key::key[6]);
+    printf("%x",Key::key[7]);
+    printf("%x",Key::key[8]);
+    printf("%x",Key::key[9]);
+    printf("%x",Key::key[10]);
+    printf("%x",Key::key[11]);
+    printf("%x",Key::key[12]);
+    printf("%x",Key::key[13]);
+    printf("%x",Key::key[14]);
+    printf("%x",Key::key[15]);
+    printf("%x",Key::key[16]);
+    printf("%x",Key::key[17]);
+    printf("%x",Key::key[18]);
+    printf("%x\n",Key::key[19]);
+}

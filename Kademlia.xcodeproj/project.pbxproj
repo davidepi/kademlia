@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6B0A07F81DB6857E0051DD50 /* KBucket_tests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B0A07F71DB6857E0051DD50 /* KBucket_tests.mm */; };
+		6B0A07FA1DB688690051DD50 /* Performer_tests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B0A07F91DB688690051DD50 /* Performer_tests.mm */; };
+		6B0A07FC1DB688B50051DD50 /* Messenger_tests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6B0A07FB1DB688B50051DD50 /* Messenger_tests.mm */; };
 		6B27F77C1D95169C0049D4C2 /* Distance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B27F76C1D95169C0049D4C2 /* Distance.cpp */; };
 		6B27F77D1D95169C0049D4C2 /* Ip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B27F76E1D95169C0049D4C2 /* Ip.cpp */; };
 		6B27F77E1D95169C0049D4C2 /* Kbucket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6B27F7701D95169C0049D4C2 /* Kbucket.cpp */; };
@@ -42,6 +45,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		6B0A07F71DB6857E0051DD50 /* KBucket_tests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = KBucket_tests.mm; sourceTree = "<group>"; };
+		6B0A07F91DB688690051DD50 /* Performer_tests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Performer_tests.mm; sourceTree = "<group>"; };
+		6B0A07FB1DB688B50051DD50 /* Messenger_tests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Messenger_tests.mm; sourceTree = "<group>"; };
 		6B27F76C1D95169C0049D4C2 /* Distance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Distance.cpp; path = src/Distance.cpp; sourceTree = "<group>"; };
 		6B27F76D1D95169C0049D4C2 /* Distance.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Distance.hpp; path = src/Distance.hpp; sourceTree = "<group>"; };
 		6B27F76E1D95169C0049D4C2 /* Ip.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Ip.cpp; path = src/Ip.cpp; sourceTree = "<group>"; };
@@ -131,6 +137,9 @@
 		6BBE0C541D6F57A60013D5D4 /* UnitTestsXCT */ = {
 			isa = PBXGroup;
 			children = (
+				6B0A07FB1DB688B50051DD50 /* Messenger_tests.mm */,
+				6B0A07F91DB688690051DD50 /* Performer_tests.mm */,
+				6B0A07F71DB6857E0051DD50 /* KBucket_tests.mm */,
 				6BEA31591D7087F900C31F9A /* Node_tests.mm */,
 				6B84F7831D6F632E004E52F6 /* Ip_tests.mm */,
 				6BBE0C6D1D6F5C6B0013D5D4 /* Key_tests.mm */,
@@ -183,7 +192,7 @@
 		6B557DC31D49154800FA7352 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0730;
+				LastUpgradeCheck = 0820;
 				ORGANIZATIONNAME = DS_project;
 				TargetAttributes = {
 					6B557DCA1D49154800FA7352 = {
@@ -244,15 +253,18 @@
 			files = (
 				6B27F7841D9517230049D4C2 /* Distance.cpp in Sources */,
 				6B27F7861D9517230049D4C2 /* Ip.cpp in Sources */,
+				6B0A07FC1DB688B50051DD50 /* Messenger_tests.mm in Sources */,
 				6B27F7881D9517230049D4C2 /* Kbucket.cpp in Sources */,
 				6B27F78A1D9517230049D4C2 /* Key.cpp in Sources */,
 				6B27F78C1D9517230049D4C2 /* main.cpp in Sources */,
 				6B27F78D1D9517230049D4C2 /* Messenger.cpp in Sources */,
 				6B27F78F1D9517230049D4C2 /* Node.cpp in Sources */,
 				6B27F7911D9517230049D4C2 /* Performer.cpp in Sources */,
+				6B0A07F81DB6857E0051DD50 /* KBucket_tests.mm in Sources */,
 				6BEA315A1D7087F900C31F9A /* Node_tests.mm in Sources */,
 				6B84F7841D6F632E004E52F6 /* Ip_tests.mm in Sources */,
 				6BBE0C6E1D6F5C6B0013D5D4 /* Key_tests.mm in Sources */,
+				6B0A07FA1DB688690051DD50 /* Performer_tests.mm in Sources */,
 				6BBE0C561D6F57A60013D5D4 /* Distance_tests.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -274,8 +286,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "-";
@@ -318,8 +332,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "-";
@@ -344,21 +360,30 @@
 		6B557DD31D49154800FA7352 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_WARN_PEDANTIC = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRINGS_FILE_OUTPUT_ENCODING = "UTF-8";
 			};
 			name = Debug;
 		};
 		6B557DD41D49154800FA7352 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_ENABLE_CPP_EXCEPTIONS = NO;
+				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_WARN_PEDANTIC = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRINGS_FILE_OUTPUT_ENCODING = "UTF-8";
 			};
 			name = Release;
 		};
 		6BBE0C591D6F57A60013D5D4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_CXX_LIBRARY = "libc++";
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = UnitTestsXCT/Info.plist;
@@ -371,7 +396,6 @@
 		6BBE0C5A1D6F57A60013D5D4 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_CXX_LIBRARY = "libc++";
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = UnitTestsXCT/Info.plist;

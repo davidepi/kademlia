@@ -1,10 +1,10 @@
 #include "../src/Node.hpp"
+#define XCTEST
 
 
 
 #include <gtest/gtest.h>
-TEST_GROUP(Node)
-{ };
+
 
 
 

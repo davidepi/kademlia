@@ -1,12 +1,10 @@
-%START FILENAME DELETE_EVERYTHING REQUEST_1NAME REQUEST_2NAME
+%START DELETE_EVERYTHING REQUEST_1NAME REQUEST_2NAME
 
 %%
 ^"#import".+\n {}
 ^"@interface".+\n {}
 ^"@end".*\n {}
-^"@implementation " {printf("%s\n","#include <gtest/gtest.h>");BEGIN FILENAME;printf("%s","TEST_GROUP(");}
-<FILENAME>[a-zA-Z0-9][a-zA-Z0-9]+ {ECHO;printf("%s",")\n{ };");}
-<FILENAME>_tests {BEGIN 0;}
+^"@implementation".+ {printf("%s\n","#include <gtest/gtest.h>");}
 
 ^"- (void)setUp"\ +\{    {BEGIN DELETE_EVERYTHING;}
 ^"- (void)tearDown"\ +\{ {BEGIN DELETE_EVERYTHING;}
@@ -29,7 +27,7 @@
 
 int main( int argc, char **argv )
 {
-	++argv, --argc;  /* skip over program name */
+	++argv, --argc;  // skip over program name
 	if ( argc > 0 )
 		yyin = fopen( argv[0], "r" );
 	else

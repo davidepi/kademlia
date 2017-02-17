@@ -1,10 +1,10 @@
 #include "../src/Ip.hpp"
+#define XCTEST
 
 
 
 #include <gtest/gtest.h>
-TEST_GROUP(Ip)
-{ };
+
 
 
 

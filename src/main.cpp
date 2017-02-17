@@ -72,7 +72,8 @@ int main(int argc, char* argv[])
             char myIp[16];
             m->getIp().toString(myIp);
             std::cout << "ip " << myIp << std::endl;
-            Message msg(myIp, RPC_FIND_NODE);
+            Message msg(myIp);
+            msg.setFlags(RPC_FIND_NODE);
 
             m->sendMessage(Node(gateway, port_dest), msg);
             std::cout<<"sent find_node"<<std::endl;
@@ -81,8 +82,10 @@ int main(int argc, char* argv[])
 
     //creating the thread that performs all the requests
     Performer p(&a);
-    Message msg("chiave svakjv idhkjcneikjvn", RPC_STORE);
-    Message msg1("PING", RPC_PING);
+    Message msg("chiave svakjv idhkjcneikjvn");
+    msg.setFlags(RPC_STORE);
+    Message msg1("PING");
+    msg1.setFlags(RPC_PING);
     m->sendMessage(Node(gateway, port_dest), msg);
     m->sendMessage(Node(gateway, port_dest), msg1);
     //wait for input(add key-value, retrieve value)

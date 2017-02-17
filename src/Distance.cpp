@@ -64,21 +64,10 @@ Distance::~Distance()
 
 bool Distance::operator<(const Distance& k)const
 {
-    //l'idea e' che almeno uno dei minori deve essere verificato.
-    //se non lo e' allora i valori sono uguali e deve essere il prossimo.
-    //se non lo e' nemmeno l'ultimo allora ciccia le chiavi sono uguali
-    int i = 0;
-    bool retval = false;
-    do
-    {
-        retval = value[i] < k.value[i];
-        if(retval)
-            break;
-        else
-            i++;
-    }while(value[i]==k.value[i]);
-    
-    return retval;
+    //prima c'era un ciclo while, e tante shits varie
+    //ora ho aggiunto l'istruzione assembly che e' molto piu' veloce e
+    //izi
+    return Distance::getDistance() < k.getDistance();
 }
 
 bool Distance::operator>(const Distance& k)const
@@ -125,6 +114,22 @@ bool Distance::operator!=(const Distance& k)const
     return !((*this) == k);
 }
 
+void Distance::printDistance(char* out) const
+{
+    for(int i=0; i<20;i++)
+    {
+        out[0+i*8] = ((Distance::value[i]&0x80)>>7)==0?'0':'1';
+        out[1+i*8] = ((Distance::value[i]&0x40)>>6)==0?'0':'1';
+        out[2+i*8] = ((Distance::value[i]&0x20)>>5)==0?'0':'1';
+        out[3+i*8] = ((Distance::value[i]&0x10)>>4)==0?'0':'1';
+        out[4+i*8] = ((Distance::value[i]&0x08)>>3)==0?'0':'1';
+        out[5+i*8] = ((Distance::value[i]&0x04)>>2)==0?'0':'1';
+        out[6+i*8] = ((Distance::value[i]&0x02)>>1)==0?'0':'1';
+        out[7+i*8] = (Distance::value[i]&0x01)==0?'0':'1';
+    }
+    out[160] = '\0';
+}
+
 short Distance::getDistance() const
 {
     uint8_t val=0, index=0;
@@ -132,7 +137,7 @@ short Distance::getDistance() const
         val = Distance::value[index++];
     
     if(val == 0) //le chiavi sono uguali
-        return -1;
+        return 0;
     
     index--;
     
@@ -149,31 +154,32 @@ short Distance::getDistance() const
     // lzcnt non esiste per uint8_t, quindi ho castato a uint16_t e shiftato di
     // 8 a sx, senno' il numero di zeri prima del primo uno e' aumentato di 8.
     
-    return (8*index)+(retval);
-#else
-    //siccome sono pro lo faccio divide et impera :D
+    return (8*index)+(retval)+1;
+    
+#else //stessa cosa ma scritta non in assembly
+      //siccome sono pro lo faccio divide et impera :D
     if((val & 0xF0) > 0) //il primo bit diverso e' tra i 1 e 4
         if((val & 0xC0) > 0) //il primo bit diverso e' tra 1 o 2
             if((val & 0x80) > 0) //la chiave e' 1xxxxxxx
-                return (8*index)+0;
-            else    //la chiave e' 01xxxxxx
                 return (8*index)+1;
-        else // primo bit diverso e 3 o 4
-            if((val & 0x20) > 0) //la chiave e' 001xxxxx
+            else    //la chiave e' 01xxxxxx
                 return (8*index)+2;
-            else    //la chiave e' 0001xxxx
+        else // primo bit diverso e' 3 o 4
+            if((val & 0x20) > 0) //la chiave e' 001xxxxx
                 return (8*index)+3;
+            else    //la chiave e' 0001xxxx
+                return (8*index)+4;
     else //il primo bit diverso e' tra 5 e 8
         if((val & 0x0C) > 0) //il primo bit diverso e' 5 o 6
             if((val & 0x08) > 0) //la chiave e' 00001xxx
-                return (8*index)+4;
-            else    //la chiave e' 000001xx
                 return (8*index)+5;
+            else    //la chiave e' 000001xx
+                return (8*index)+6;
         else //il primo bit diverso e' 7 o 8
             if((val & 0x02) > 0) //la chiave e' 0000001x
-                return (8*index)+6;
+                return (8*index)+7;
             else
-                return (8*index)+7; //la chiave e' 00000001
+                return (8*index)+8; //la chiave e' 00000001
     
     //soluzione per i comuni mortali molto piu' elegante ma non
     //divide et impera :p

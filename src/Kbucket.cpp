@@ -9,7 +9,7 @@ Kbucket::Kbucket()
 
 void Kbucket::add(Node n)
 {
-	std::cout << "add" << std::endl;
+    //std::cout << "add" << std::endl;
 	if (Kbucket::nodeList->size() < KBUCKET_SIZE)
 	{
 		Kbucket::nodeList->push_front(n);

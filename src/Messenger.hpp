@@ -18,6 +18,9 @@
 #define RPC_FIND_NODE 0x8
 #define RPC_FIND_VALUE 0x10
 
+#define NULL_QUEUE -2
+#define ALREADY_INITIALIZED -3
+
 class Message;
 class Messenger
 {
@@ -27,13 +30,14 @@ public:
     static Messenger& getInstance();
     Messenger(Messenger const&)      = delete;
     void operator=(Messenger const&) = delete;
-    void init(std::queue<Message*>* queue, int port_ho);
+    int init(std::queue<Message*>* queue, int port_ho);
     void sendMessage(const Node node, Message& msg);
     Ip getIp() const;
     uint16_t getPort() const;
 
 private:
     Messenger();
+    bool initialized;
     int sockfd_recv;
     int sockfd_send;
     pthread_t thread_id;
@@ -47,11 +51,14 @@ class Message
 {
     friend class Messenger;
 public:
-    Message(const char* text, uint8_t flags);
+    Message(const char* text);
     Message(const uint8_t* binary_data, short len);
+    Message(uint8_t flags);
+    Message(const uint8_t* binary_data, short len, uint8_t flags);
     Message(const Ip from, uint16_t port_no, short len, uint8_t* data,
-            uint8_t flags);
+            uint8_t flags); //used by messenger when the received message is constructed
     ~Message();
+    
     const char* getText() const;
     Node getSenderNode() const;
     void setFlags(uint8_t flags);

@@ -3,7 +3,7 @@
 void rpc_pong(Node node)
 {
 	//create message
-	Message response("ACK_PING", RPC_PONG);
+	Message response(RPC_PONG);
 
 	//send PONG
 	Messenger* m = &(Messenger::getInstance());
@@ -13,7 +13,7 @@ void rpc_pong(Node node)
 void rpc_ping(Node node)
 {
 	//create message
-	Message response("PING", RPC_PING);
+	Message response(RPC_PING);
 
 	//send PING
 	Messenger* m = &(Messenger::getInstance());

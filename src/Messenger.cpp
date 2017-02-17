@@ -3,8 +3,10 @@
 
 #define CRITICAL_ERROR {fprintf(stderr,"[%s,line %d]%s\n",__FILE__,__LINE__,\
         strerror(errno));exit(EXIT_FAILURE);}
+
 #define RESERVED_BYTES 12 //[0-3] source IP
                           //[4-5] source port (the listening one)
+
 
 typedef struct listener_thread_params
 {
@@ -34,7 +36,7 @@ static void* listener(void* p)
             uint32_t* b1 = (uint32_t*)buffer; //in realta' e' inutile sto qui,
                                               //ma senza mi da il "don't pun and
                                               //alias" error
-            Message* m = new Message(*b1,*(uint16_t*)(buffer+4),
+            Message* m = new Message(*b1,ntohl(*(uint16_t*)(buffer+4)),
                                      (short)count,(uint8_t*)(buffer+12),
                                      *(uint8_t*)(buffer+6));
             //char from[16];
@@ -62,8 +64,16 @@ Messenger& Messenger::getInstance()
 Messenger::Messenger()
 { }
 
-void Messenger::init(std::queue<Message*>* q, int port_ho)
+int Messenger::init(std::queue<Message*>* q, int port_ho)
 {
+    if(q == NULL)
+        return NULL_QUEUE;
+    if(initialized)
+        return ALREADY_INITIALIZED;
+    else
+        initialized = true; //abbasso il rischio di avere 80000 thread
+                            //se avvengono tutte chiamate contemporanee.
+                            //ancora non ho garanzie, ma chissene
     char myipstring[16];
 #if defined(__linux__) || defined(__unix__)
     FILE* fp = popen("hostname -I","r");
@@ -74,6 +84,7 @@ void Messenger::init(std::queue<Message*>* q, int port_ho)
     exit(EXIT_FAILURE);
 #endif
     
+    //TODO: if not connected, myipstring will fail and the program crash
     fscanf(fp,"%s",myipstring);
     my_ip = Ip(myipstring);
     pclose(fp);
@@ -98,6 +109,8 @@ void Messenger::init(std::queue<Message*>* q, int port_ho)
     params->listener_process_address = &(Messenger::my_address);
     params->listener_process_lenght = sizeof(Messenger::my_address);
     pthread_create(&(Messenger::thread_id), NULL, listener, (void*)params);
+    return true;
+    
 }
 
 void Messenger::sendMessage(const Node node, Message& msg)
@@ -128,31 +141,40 @@ uint16_t Messenger::getPort()const
 
 //<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
-Message::Message(const char* text, uint8_t flags)
+
+Message::Message(const char* text)
 {
     memset(Message::text,0,RESERVED_BYTES);//riservo 12 byte per ip e porta
     assert(strlen(text+1)<=512-RESERVED_BYTES);
     Message::length = strlen(text)+1;
     strncpy(Message::text+RESERVED_BYTES, text, Message::length);
-    Message::setFlags(flags);
 }
 
 Message::Message(const uint8_t* binary_data, short len)
 {
-    assert(len <= 500);
+    assert(len <= 512-RESERVED_BYTES);
     memset(Message::text,0,RESERVED_BYTES);//riservo 12 byte per ip e porta
     for(short i=RESERVED_BYTES; i<len+RESERVED_BYTES; i++)
-        Message::text[i] = binary_data[i]; //TODO: controllare che non casti
+        Message::text[i] = binary_data[i-RESERVED_BYTES]; //TODO: controllare che non casti
     Message::length = len;
 }
 
-Message::Message(const Ip f, uint16_t port_no, short len, uint8_t* data,
-                 uint8_t flags):senderNode(f, ntohs(port_no))
+Message::Message(uint8_t flags)
+{
+    memset(Message::text,0,RESERVED_BYTES);//riservo 12 byte per ip e porta
+    Message::length = 0;
+    Message::setFlags(flags);
+}
+
+//Usato da Messenger quando riceve un messaggio, per settare da chi l'ha ricevuto
+
+Message::Message(const Ip f, uint16_t port_ho, short len, uint8_t* data,
+                 uint8_t flags):senderNode(f, port_ho)
 {
     assert(len<=512-RESERVED_BYTES);
     Message::length = len;
     Message::flags = flags;
-    strncpy(Message::text,(char*)data,len);
+    strncpy(Message::text+RESERVED_BYTES,(char*)data,len);
 }
 
 void Message::setFlags(uint8_t flags)
@@ -167,7 +189,7 @@ short Message::getFlags() const
 
 const char* Message::getText() const
 {
-    return (char*)text;
+    return ((char*)text)+RESERVED_BYTES;
 }
 
 Node Message::getSenderNode() const

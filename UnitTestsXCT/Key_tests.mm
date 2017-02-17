@@ -1,6 +1,7 @@
 #import <XCTest/XCTest.h>
 #include "../src/Key.hpp"
 @interface Key_tests : XCTestCase
+#define XCTEST
 
 @end
 

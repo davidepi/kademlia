@@ -17,6 +17,7 @@ public:
     Ip getIp() const;
     int getPort() const;
     const Key* getKey() const;
+    bool isEmpty();
     
     bool operator==(const Node&)const;
     bool operator!=(const Node&)const;

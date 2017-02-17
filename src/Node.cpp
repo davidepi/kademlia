@@ -56,6 +56,14 @@ const Key* Node::getKey() const
 	return id;
 }
 
+bool Node::isEmpty()
+{
+    if(id==NULL)
+        return true;
+    else
+        return false;
+}
+
 Node::~Node()
 {
     if(Node::owner)

@@ -1,10 +1,10 @@
 #include "../src/Distance.hpp"
-
+#define XCTEST
+#define XCTEST
 
 
 #include <gtest/gtest.h>
-TEST_GROUP(Distance)
-{ };
+
 
 
 

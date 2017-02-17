@@ -1,9 +1,9 @@
 #include "../src/Key.hpp"
+#define XCTEST
 
 
 #include <gtest/gtest.h>
-TEST_GROUP(Key)
-{ };
+
 
 
 

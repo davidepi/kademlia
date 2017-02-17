@@ -1,5 +1,6 @@
 #import <XCTest/XCTest.h>
 #include "../src/Ip.hpp"
+#define XCTEST
 
 @interface Ip_tests : XCTestCase
 
