@@ -8,9 +8,15 @@
 
 @implementation Messenger_tests
 
-- (void)setUp {[super setUp];}
+- (void)setUp {
+    [super setUp];
+    Messenger* m = &(Messenger::getInstance());
+    std::queue<Message*>* q = new std::queue<Message*>;
+    m->init(q, 3400);
+}
 
-- (void)tearDown {[super tearDown];
+- (void)tearDown {
+    [super tearDown];
 }
 
 - (void)test00_Messenger_creationEmpty
@@ -32,10 +38,8 @@
 {
     Messenger* m = &(Messenger::getInstance());
     std::queue<Message*>* q = new std::queue<Message*>();
-    std::queue<Message*>* r = new std::queue<Message*>();
-    m->init(q, 3400);
-    int retval = m->init(r, 3500);
-    
+    int retval = m->init(q, 3400);
+    delete q;
     XCTAssertEqual(retval,ALREADY_INITIALIZED);
 }
 
@@ -63,7 +67,7 @@
 - (void)test04_Messenger_getPort
 {
     Messenger* m = &(Messenger::getInstance());
-    std::queue<Message*>*q = new std::queue<Message*>();
+    std::queue<Message*>* q;
     m->init(q,3400);
     XCTAssertEqual(m->getPort(),3400);
 }
@@ -166,6 +170,24 @@
     XCTAssertFalse(n.isEmpty());
     XCTAssertTrue(n.getIp() == "10.0.0.1");
     XCTAssertTrue(n.getPort() == 6840);
+}
+
+- (void)test11_Messenger_sendAndReceive
+{
+    Messenger* m = &(Messenger::getInstance());
+    std::queue<Message*>* q = m->getBindedQueue();
+    Message msg("Přijet pozdě");
+    m->sendMessage(Node(m->getIp(), 3400), msg);
+    sleep(1);
+    if(q->size())
+    {
+        Message* extracted = q->front();
+        q->pop();
+        XCTAssertTrue(strcmp(msg.getText(),extracted->getText())==0);
+        delete extracted;
+    }
+    else
+        XCTAssertTrue(false);
 }
 
 @end

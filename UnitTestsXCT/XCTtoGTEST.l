@@ -6,8 +6,9 @@
 ^"@end".*\n {}
 ^"@implementation".+ {printf("%s\n","#include <gtest/gtest.h>");}
 
-^"- (void)setUp"\ +\{    {BEGIN DELETE_EVERYTHING;}
-^"- (void)tearDown"\ +\{ {BEGIN DELETE_EVERYTHING;}
+^"- (void)setUp"\ +\{                  {BEGIN DELETE_EVERYTHING;}
+^"- (void)tearDown"\ +\{               {BEGIN DELETE_EVERYTHING;}
+^"- (void)testPerformanceExample"\ +\{ {BEGIN DELETE_EVERYTHING;}
 <DELETE_EVERYTHING>\}    {BEGIN 0;}
 <DELETE_EVERYTHING>.     {}
 
@@ -16,9 +17,13 @@
 <REQUEST_1NAME>_                {BEGIN REQUEST_2NAME;printf("%s",",");}
 <REQUEST_2NAME>.+               {ECHO;printf("%s",")");BEGIN 0;}
 
-"XCTAssertTrue"  {printf("EXPECT_TRUE");}
-"XCTAssertFalse" {printf("EXPECT_FALSE");}
-"XCTAssertEqual" {printf("EXPECT_EQ");}
+"XCTAssertTrue"               {printf("EXPECT_TRUE");}
+"XCTAssertFalse"              {printf("EXPECT_FALSE");}
+"XCTAssertEqual"              {printf("EXPECT_EQ");}
+"XCTAssertGreaterThan"        {printf("EXPECT_GT");}
+"XCTAssertGreaterThanOrEqual" {printf("EXPECT_GE");}
+"XCTAssertLessThan"           {printf("EXPECT_LT");}
+"XCTAssertLessThanOrEqual"    {printf("EXPECT_LE");}
 
 ^\ *\n+ {printf("\n");}
 . {ECHO;}

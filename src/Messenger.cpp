@@ -89,6 +89,7 @@ int Messenger::init(std::queue<Message*>* q, int port_ho)
     my_ip = Ip(myipstring);
     pclose(fp);
     
+    Messenger::binded_queue = q;
     Messenger::sockfd_recv = socket(AF_INET, SOCK_DGRAM, 0);
     Messenger::sockfd_send = socket(AF_INET, SOCK_DGRAM, 0);
     if(Messenger::sockfd_recv < 0 || Messenger::sockfd_send < 0)
@@ -137,6 +138,11 @@ Ip Messenger::getIp()const
 uint16_t Messenger::getPort()const
 {
     return Messenger::port_ho;
+}
+
+std::queue<Message*>* Messenger::getBindedQueue() const
+{
+    return Messenger::binded_queue;
 }
 
 //<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>

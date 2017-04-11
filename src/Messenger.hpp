@@ -34,6 +34,7 @@ public:
     void sendMessage(const Node node, Message& msg);
     Ip getIp() const;
     uint16_t getPort() const;
+    std::queue<Message*>* getBindedQueue() const;
 
 private:
     Messenger();
@@ -45,6 +46,7 @@ private:
     int port_ho; //host order
     sockaddr_in my_address;
     sockaddr_in dest;
+    std::queue<Message*>* binded_queue;
 };
 
 class Message

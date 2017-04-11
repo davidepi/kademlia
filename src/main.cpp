@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
     }
     else if(port_host <= 1024)
     {
-        fprintf(stderr, "%s\n", "Reserved port. Don't worry, you have almost 64512 free ports between 1024 and 65536 :)");
+        fprintf(stderr, "%s\n", "Reserved port. Don't worry, you have almost 64512 free ports between 1024 and 65536 :^)");
         exit(EXIT_FAILURE);
     }
 
@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
     //creating the thread that waits for incoming packets and passes them to the performer one
     Messenger* m = &(Messenger::getInstance());
     m->init(&a, port_host);
-
+    Performer p(&a);
     if(!im_gateway)
     {
         if(gateway.isLocalhost() || port_dest == 0)
@@ -81,7 +81,6 @@ int main(int argc, char* argv[])
     }
 
     //creating the thread that performs all the requests
-    Performer p(&a);
     Message msg("chiave svakjv idhkjcneikjvn");
     msg.setFlags(RPC_STORE);
     Message msg1("PING");

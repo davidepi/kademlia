@@ -122,6 +122,13 @@
     XCTAssertTrue(a != b);
 }
 
+- (void)test07_Key_print
+{
+    //just to have coverage 100%, the print is correct.
+    Key a("večer");
+    a.print();
+}
+
 //- (void) test06
 //{
 //    srand(time(NULL));
