@@ -25,7 +25,7 @@ public:
     
 
 private:
-    bool owner;
+    uint8_t* reference; //tipo shared pointer per sapere quando eliminare la key
     Ip my_ip;
     int port_ho; //a volte è int, altre short e altre uint16_t... why?
                  //dipende da come mi alzo :D l'unica sbagliata e' short cmq

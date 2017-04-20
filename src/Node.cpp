@@ -1,12 +1,17 @@
 #include "Node.hpp"
 
 
-Node::Node() : id(NULL)
-{ }
+Node::Node()
+{
+    Node::reference = new uint8_t[1];
+    Node::my_ip = Ip(0);
+    Node::port_ho = 0;
+    Node::id = new Key(0,0);
+}
 
 Node::Node(Ip ip, int port)
 {
-    Node::owner = true;
+    Node::reference = new uint8_t[1];
 	Node::my_ip = ip;
 	Node::port_ho = port;
 	Node::id = new Key(ip,port);
@@ -14,7 +19,8 @@ Node::Node(Ip ip, int port)
 
 Node::Node(const Node& copied)
 {
-    Node::owner = false;
+    Node::reference = copied.reference;
+    *(Node::reference)++;
     Node::my_ip = copied.my_ip;
     Node::port_ho = copied.port_ho;
     Node::id = copied.id;
@@ -22,9 +28,8 @@ Node::Node(const Node& copied)
 
 Node& Node::operator=(const Node& copied)
 {
-    if(Node::owner)
-        delete Node::id;
-    Node::owner = false;
+    Node::reference = copied.reference;
+    *(Node::reference)++;
     Node::my_ip = copied.my_ip;
     Node::port_ho = copied.port_ho;
     Node::id = copied.id;
@@ -58,7 +63,7 @@ const Key* Node::getKey() const
 
 bool Node::isEmpty()
 {
-    if(id==NULL)
+    if(port_ho==0 || my_ip.getIp()==0)
         return true;
     else
         return false;
@@ -66,7 +71,10 @@ bool Node::isEmpty()
 
 Node::~Node()
 {
-    if(Node::owner)
+    if(*(Node::reference) == 1)
+    {
         delete Node::id;
+        delete[] Node::reference;
+    }
 }
 

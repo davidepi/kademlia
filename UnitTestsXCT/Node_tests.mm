@@ -17,7 +17,8 @@
 {
     Node n;
     const Key* k = n.getKey();
-    XCTAssertTrue(k == NULL);
+    Key k2(0,0);
+    XCTAssertTrue(*k==k2);
 }
 
 - (void)test01_Node_creationIpPort
