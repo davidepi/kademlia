@@ -12,5 +12,6 @@ const Kbucket* NeighbourManager::getNeighbourManager() {
 
 const Kbucket* NeighbourManager::findKClosestNodes(const Key* key) {
     //TODO implement
+    return NULL;
 }
 

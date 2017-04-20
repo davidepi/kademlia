@@ -22,13 +22,11 @@ public:
     bool operator==(const Node&)const;
     bool operator!=(const Node&)const;
 
-    
-
 private:
     uint8_t* reference; //tipo shared pointer per sapere quando eliminare la key
     Ip my_ip;
-    int port_ho; //a volte è int, altre short e altre uint16_t... why?
-                 //dipende da come mi alzo :D l'unica sbagliata e' short cmq
+    uint16_t port_ho; //a volte è int, altre short e altre uint16_t... why?
+                      //dipende da come mi alzo :D l'unica sbagliata e' short
     Key* id;
     
 };

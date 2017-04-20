@@ -33,6 +33,10 @@
     XCTAssertEqual(b.getIp(), i2);
     XCTAssertEqual(c.getIp(), i3);
     XCTAssertEqual(d.getIp(), i4);
+    XCTAssertEqual(a.getIpHo(),ntohl(i1));
+    XCTAssertEqual(b.getIpHo(),ntohl(i2));
+    XCTAssertEqual(c.getIpHo(),ntohl(i3));
+    XCTAssertEqual(d.getIpHo(),ntohl(i4));
 }
 
 - (void)test02_Ip_Localhost

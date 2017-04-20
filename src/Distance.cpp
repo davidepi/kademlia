@@ -190,3 +190,4 @@ short Distance::getDistance() const
     
 #endif
 }
+

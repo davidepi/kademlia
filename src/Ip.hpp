@@ -13,6 +13,7 @@ public:
     Ip();
     ~Ip();
     uint32_t getIp() const;
+    uint32_t getIpHo() const;
     void toString(char output[16]) const;
     bool isLocalhost() const;
     
@@ -20,7 +21,7 @@ public:
     bool operator!=(const Ip&)const;
     
 private:
-    uint32_t ip;
+    uint32_t ip_no;
 };
 
 #endif

@@ -7,7 +7,7 @@
 
 int main(int argc, char* argv[])
 {
-
+    
     int c;
     unsigned short port_host = 0, port_dest = 0;
     Ip gateway;
@@ -83,8 +83,7 @@ int main(int argc, char* argv[])
     //creating the thread that performs all the requests
     Message msg("chiave svakjv idhkjcneikjvn");
     msg.setFlags(RPC_STORE);
-    Message msg1("PING");
-    msg1.setFlags(RPC_PING);
+    Message msg1(RPC_PING);
     m->sendMessage(Node(gateway, port_dest), msg);
     m->sendMessage(Node(gateway, port_dest), msg1);
     //wait for input(add key-value, retrieve value)

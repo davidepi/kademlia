@@ -21,6 +21,12 @@ void rpc_ping(Node node)
     m->sendMessage(node, response);
 }
 
+void Performer::rpc_find_node(Node target_node, Node node, uint8_t iteration)
+{
+    Message response(iteration);
+    response.setFlags(RPC_FIND_NODE);
+}
+
 
 static void* execute(void* this_class) 
 {
@@ -35,8 +41,8 @@ static void* execute(void* this_class)
             top = q->front();
             q->pop();
 
-            Node senderNode = top->getSenderNode();            
-
+            Node senderNode = top->getSenderNode();
+            
             switch(top->getFlags())
             {
                 case RPC_PING :

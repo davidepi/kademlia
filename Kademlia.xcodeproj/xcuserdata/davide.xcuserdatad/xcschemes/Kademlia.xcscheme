@@ -63,7 +63,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "-i 10.190.181.163 -p 3400 -P 3600"
+            argument = "-p 3400 -P 3600"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

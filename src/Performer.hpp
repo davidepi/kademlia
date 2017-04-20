@@ -12,17 +12,18 @@
 
 class Performer
 {
-
-    public:
-        Performer(std::queue<Message*>* q);
-        ~Performer();
-        Node* myself;
-        std::queue<Message*>* message_queue;
-        std::unordered_map<std::string, char*> filesMap;
-
-    private:
-        pthread_t thread_id;
-        NeighbourManager* neighbours;
+public:
+    Performer(std::queue<Message*>* q);
+    ~Performer();
+    Node* myself;
+    std::queue<Message*>* message_queue;
+    std::unordered_map<std::string, char*> filesMap;
+    
+private:
+    pthread_t thread_id;
+    NeighbourManager* neighbours;
+    
+    void rpc_find_node(Node target_node, Node search_for, uint8_t iteration);
 };
 
 

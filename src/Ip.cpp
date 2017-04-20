@@ -13,7 +13,7 @@ static inline uint32_t fast_atoi(const char* str)    //~7x faster than atoi
 Ip::Ip(const char* ip)
 {
     if(strcmp(ip,"localhost")==0)
-        Ip::ip = 0x100007F;
+        Ip::ip_no = 0x100007F;
     else
     {
     char a[4], b[4], c[4], d[4];
@@ -46,22 +46,22 @@ Ip::Ip(const char* ip)
     //shifta i numeri. Io voglio che l'ordine dei bit sia [ a ][ b ][ c ][ d ]
     //ma essendo qui little endian devo scrivere 0x[ d ][ c ][ b ][ a ].
     //Oh e' un casino da spiegare sta roba, amen.
-    Ip::ip = 0x00000000;
-    Ip::ip |= ((unsigned int)fast_atoi(a));
-    Ip::ip |= ((unsigned int)fast_atoi(b) << 8 );
-    Ip::ip |= ((unsigned int)fast_atoi(c) << 16);
-    Ip::ip |= ((unsigned int)fast_atoi(d) << 24);
+    Ip::ip_no = 0x00000000;
+    Ip::ip_no |= ((unsigned int)fast_atoi(a));
+    Ip::ip_no |= ((unsigned int)fast_atoi(b) << 8 );
+    Ip::ip_no |= ((unsigned int)fast_atoi(c) << 16);
+    Ip::ip_no |= ((unsigned int)fast_atoi(d) << 24);
     }
 }
 
 Ip::Ip(int ip_network_ordered)
 {
-    Ip::ip = ip_network_ordered;
+    Ip::ip_no = ip_network_ordered;
 }
 
 Ip::Ip()
 {
-    Ip::ip = 0x100007F; //assegno 127.0.0.1 come default
+    Ip::ip_no = 0x100007F; //assegno 127.0.0.1 come default
 }
 
 Ip::~Ip()
@@ -69,21 +69,26 @@ Ip::~Ip()
 
 uint32_t Ip::getIp() const
 {
-    return Ip::ip;
+    return Ip::ip_no;
+}
+
+uint32_t Ip::getIpHo() const
+{
+    return ntohl(Ip::ip_no);
 }
 
 bool Ip::isLocalhost()const
 {
-    return Ip::ip == 0x100007F;
+    return Ip::ip_no == 0x100007F;
 }
 
 void Ip::toString(char output[16]) const
 {
     uint8_t a = 0x00, b=0x00, c=0x00, d=0x00;
-    a = Ip::ip;
-    b = Ip::ip >> 8;
-    c = Ip::ip >> 16;
-    d = Ip::ip >> 24;
+    a = Ip::ip_no;
+    b = Ip::ip_no >> 8;
+    c = Ip::ip_no >> 16;
+    d = Ip::ip_no >> 24;
     sprintf(output,"%d",a);
     strcat(output,".");
     output = strchr(output,'\0');
@@ -98,7 +103,7 @@ void Ip::toString(char output[16]) const
 
 bool Ip::operator==(const Ip& a)const
 {
-    return Ip::ip == a.ip;
+    return Ip::ip_no == a.ip_no;
 }
 
 bool Ip::operator!=(const Ip& a)const

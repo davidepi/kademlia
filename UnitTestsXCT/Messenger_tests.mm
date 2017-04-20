@@ -190,4 +190,24 @@
         XCTAssertTrue(false);
 }
 
+- (void)test12_Messenger_sendAndReceiveCorrectPort
+{
+    Messenger* m = &(Messenger::getInstance());
+    std::queue<Message*>* q = m->getBindedQueue();
+    Message msg("Bořislavka");
+    m->sendMessage(Node(m->getIp(), 3400), msg);
+    sleep(1);
+    if(q->size())
+    {
+        Message* extracted = q->front();
+        q->pop();
+        XCTAssertTrue(strcmp(msg.getText(),extracted->getText())==0);
+        XCTAssertEqual(extracted->getSenderNode().getIp(),m->getIp());
+        XCTAssertEqual(extracted->getSenderNode().getPort(),m->getPort());
+        delete extracted;
+    }
+    else
+        XCTAssertTrue(false);
+}
+
 @end

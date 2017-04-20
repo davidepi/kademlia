@@ -36,7 +36,7 @@ static void* listener(void* p)
             uint32_t* b1 = (uint32_t*)buffer; //in realta' e' inutile sto qui,
                                               //ma senza mi da il "don't pun and
                                               //alias" error
-            Message* m = new Message(*b1,ntohl(*(uint16_t*)(buffer+4)),
+            Message* m = new Message(*b1,ntohs(*(uint16_t*)(buffer+4)),
                                      (short)count,(uint8_t*)(buffer+12),
                                      *(uint8_t*)(buffer+6));
             //char from[16];
@@ -116,15 +116,16 @@ int Messenger::init(std::queue<Message*>* q, int port_ho)
 
 void Messenger::sendMessage(const Node node, Message& msg)
 {
-    Messenger::dest.sin_addr.s_addr = node.getIp().getIp(); //get ip of the node and convert into an unsigned network order int
-    Messenger::dest.sin_port = htons(node.getPort());
+    struct sockaddr_in dest = Messenger::dest;
+    dest.sin_addr.s_addr = node.getIp().getIp(); //get ip of the node and convert into an unsigned network order int
+    dest.sin_port = htons(node.getPort());
     uint32_t* t = (uint32_t*)(msg.text);
     *t = (Messenger::my_ip.getIp());
     *(uint16_t*)(msg.text+4) = htons(Messenger::port_ho);
     *(uint16_t*)(msg.text+6) = msg.flags;
     if(sendto(sockfd_send,msg.text,msg.length+RESERVED_BYTES,0,
-              (struct sockaddr*)&(Messenger::dest),
-              (socklen_t)sizeof(Messenger::dest)) == -1)
+              (struct sockaddr*)&dest,
+              (socklen_t)sizeof(dest)) == -1)
     {
         CRITICAL_ERROR
     }

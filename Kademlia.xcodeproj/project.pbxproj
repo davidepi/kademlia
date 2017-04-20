@@ -30,6 +30,8 @@
 		6BBE0C561D6F57A60013D5D4 /* Distance_tests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6BBE0C551D6F57A60013D5D4 /* Distance_tests.mm */; };
 		6BBE0C6E1D6F5C6B0013D5D4 /* Key_tests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6BBE0C6D1D6F5C6B0013D5D4 /* Key_tests.mm */; };
 		6BEA315A1D7087F900C31F9A /* Node_tests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6BEA31591D7087F900C31F9A /* Node_tests.mm */; };
+		6BF9B6921EA77414004BA990 /* NeighbourManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BF9B6901EA77414004BA990 /* NeighbourManager.cpp */; };
+		6BF9B6931EA775A2004BA990 /* NeighbourManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6BF9B6901EA77414004BA990 /* NeighbourManager.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -72,6 +74,8 @@
 		6BBE0C6D1D6F5C6B0013D5D4 /* Key_tests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Key_tests.mm; sourceTree = "<group>"; };
 		6BC164A91D6C850C0058A18E /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		6BEA31591D7087F900C31F9A /* Node_tests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Node_tests.mm; sourceTree = "<group>"; };
+		6BF9B6901EA77414004BA990 /* NeighbourManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NeighbourManager.cpp; path = src/NeighbourManager.cpp; sourceTree = "<group>"; };
+		6BF9B6911EA77414004BA990 /* NeighbourManager.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = NeighbourManager.hpp; path = src/NeighbourManager.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,6 +101,8 @@
 			children = (
 				6B27F76C1D95169C0049D4C2 /* Distance.cpp */,
 				6B27F76D1D95169C0049D4C2 /* Distance.hpp */,
+				6BF9B6901EA77414004BA990 /* NeighbourManager.cpp */,
+				6BF9B6911EA77414004BA990 /* NeighbourManager.hpp */,
 				6B27F76E1D95169C0049D4C2 /* Ip.cpp */,
 				6B27F76F1D95169C0049D4C2 /* Ip.hpp */,
 				6B27F7701D95169C0049D4C2 /* Kbucket.cpp */,
@@ -240,6 +246,7 @@
 				6B27F77E1D95169C0049D4C2 /* Kbucket.cpp in Sources */,
 				6B27F7801D95169C0049D4C2 /* main.cpp in Sources */,
 				6B27F77F1D95169C0049D4C2 /* Key.cpp in Sources */,
+				6BF9B6921EA77414004BA990 /* NeighbourManager.cpp in Sources */,
 				6B27F77D1D95169C0049D4C2 /* Ip.cpp in Sources */,
 				6B27F7811D95169C0049D4C2 /* Messenger.cpp in Sources */,
 				6B27F7831D95169C0049D4C2 /* Performer.cpp in Sources */,
@@ -251,6 +258,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6BF9B6931EA775A2004BA990 /* NeighbourManager.cpp in Sources */,
 				6B27F7841D9517230049D4C2 /* Distance.cpp in Sources */,
 				6B27F7861D9517230049D4C2 /* Ip.cpp in Sources */,
 				6B0A07FC1DB688B50051DD50 /* Messenger_tests.mm in Sources */,
