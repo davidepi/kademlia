@@ -2,16 +2,22 @@
 #define	__NEIGHBOURMANAGER_HPP
 
 #include "Kbucket.hpp"
+#include "Distance.hpp"
+#include <assert.h>
 
 class NeighbourManager {
-    public:
-        NeighbourManager();
-        ~NeighbourManager();
-        const Kbucket* findKClosestNodes(const Key* key);
-        const Kbucket* getNeighbourManager();
+public:
+    NeighbourManager(Node* myself);
+    ~NeighbourManager();
+    Kbucket* findKClosestNodes(const Key* key);
+    const Kbucket* getNeighbourManager();
+    const Node* getMyself();
+    void insertNode(const Node* node);
 
-    private:
-        Kbucket neighboursArray[NBYTE * 8];
+private:
+    Kbucket neighboursArray[NBYTE * 8];
+    Node* myself;
+    void addNodesToList(std::list<Node>* list, int index);
 
 };
 

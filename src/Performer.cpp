@@ -49,12 +49,12 @@ static void* execute(void* this_class)
                 {
                     std::cout << "The message is a ping: " << top->getText() << std::endl;
                     rpc_pong(senderNode);
-                    //find distance and update bucket
+                    
                 }
                     break;
                 case RPC_PONG :
                     std::cout << "The message is a pong: " << top->getText() << std::endl;
-                    //update bucket
+                    
                     break;
                 case RPC_STORE :
                 {
@@ -79,7 +79,7 @@ static void* execute(void* this_class)
                     std::string key(top->getText(), 20);
                     const Key keyToSearch(key.c_str());
 
-                    int i = Distance(*(p->myself->getKey()), keyToSearch).getDistance();
+                    int i = Distance(*(p->neighbours->getMyself()->getKey()), keyToSearch).getDistance();
                     std::cout<<"the index is "<<i<<std::endl;
                 }
                     break;
@@ -92,6 +92,9 @@ static void* execute(void* this_class)
                     //ignore the packet with wrong type flag
                     ;
             }
+
+            //update bucket -> add the sender node whichever the RPC is
+            p->neighbours->insertNode(&senderNode);
         } 
         else 
         {
@@ -104,15 +107,15 @@ static void* execute(void* this_class)
 Performer::Performer(std::queue<Message*>* q)
 {
     Messenger* m = &(Messenger::getInstance());
-    Performer::myself = new Node(m->getIp(), m->getPort());
     
-    Performer::neighbours = new NeighbourManager();
+    Node* myself = new Node(m->getIp(), m->getPort());
+    Performer::neighbours = new NeighbourManager(myself);
+    
     Performer::message_queue = q;
     pthread_create(&(Performer::thread_id), NULL, execute, (void*)this);
 }
 
 Performer::~Performer()
 { 
-    delete myself;
     delete neighbours;
 }

@@ -4,6 +4,7 @@
 #include <cstdlib>  //uint32_t
 #include <cstring>  //strcat
 #include <iostream> //sprintf
+#include <arpa/inet.h>  //htons, htonl e cosi' via
 
 class Ip
 {
