@@ -1,34 +1,42 @@
 #include "Kbucket.hpp"
+#include <unistd.h>
 
 
-Kbucket::Kbucket()
+Kbucket::Kbucket() 
 {
-	Kbucket::nodeList = new std::list<Node>();
+    Kbucket::nodeList = new std::list<Node>();
 }
 
-
-void Kbucket::add(Node n)
+void Kbucket::add(const Node n)
 {
     //std::cout << "add" << std::endl;
-	if (Kbucket::nodeList->size() < KBUCKET_SIZE)
-	{
-		Kbucket::nodeList->push_front(n);
-	}
-    else
+    if (Kbucket::nodeList->size() < KBUCKET_SIZE) 
     {
-		//check if last node is still alive
-		Node lastActiveNode = Kbucket::nodeList->back(); 
-		Kbucket::nodeList->pop_back();
+        Kbucket::nodeList->push_front(n); 
+    } 
+    else 
+    {
+        //check if last node is still alive
+        Node lastActiveNode = Kbucket::nodeList->back();
+        Kbucket::nodeList->pop_back();
 
-		//check ping
-		//rpc_ping(lastActiveNode);
-	}
+        //check ping
+        //rpc_ping(lastActiveNode);
+    }
+}
+
+const std::list<Node>* Kbucket::getNodes() {
+    return Kbucket::nodeList;
+}
+
+void Kbucket::setNodes(std::list<Node>* nodeList) {
+    *(Kbucket::nodeList) = *nodeList;
 }
 
 void Kbucket::serialize(uint8_t out[500])const
 {
 #if KBUCKET_SIZE > 83
-#error A Kbucket won't fit inside a single UDP datagram
+#error A Kbucket will not fit inside a single UDP datagram
 #endif
     short index = 0;
     uint16_t size_ho = nodeList->size();
@@ -80,5 +88,5 @@ void Kbucket::print()
 
 Kbucket::~Kbucket()
 {
-	delete nodeList;
+    delete nodeList;
 }
