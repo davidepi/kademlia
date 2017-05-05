@@ -1,7 +1,6 @@
 #import <XCTest/XCTest.h>
 #include "../src/Distance.hpp"
 #define XCTEST
-#define XCTEST
 @interface Distance_tests : XCTestCase
 
 @end
@@ -17,6 +16,8 @@
     // Put teardown code here. This method is called after the invocation of each test method in the class.
     [super tearDown];
 }
+
+#ifdef LEFT_DISTANCE
 
 - (void)test00_Distance_SameKey
 {
@@ -55,7 +56,7 @@
     
     Key a("HaBfqvbOBdDBvWzdHxgz");
     Key b("3qrtaITKnny3rhOfxEtE");
-
+    
     XCTAssertEqual(Distance(a,b).getDistance(), 1);
 }
 
@@ -289,4 +290,278 @@
     Key l("C3RpDVaaWLOViSTcIqUz");
 }
 
+#else
+
+- (void)test00_Distance_SameKey
+{
+    Key a("key1"); //0xb299ff9e....
+    Distance d1(a,a);
+    
+    XCTAssertEqual(d1.getDistance(), 0);
+}
+
+-(void)test01_Distance_SameNode
+{
+    Node a("127.0.0.1",3400);
+    Distance d1(a,a);
+    
+    XCTAssertEqual(d1.getDistance(), 0);
+}
+
+-(void)test02_Distance_TwoKeys
+{
+    Key a("127.0.0.1");
+    Key b("10.196.10.4");
+    
+    XCTAssertTrue(Distance(a,b).getDistance() >= 0);
+}
+
+-(void)test03_Distance_TwoNodes
+{
+    Node a("127.0.0.1",3400);
+    Node b("10.196.10.4",65000);
+    
+    XCTAssertTrue(Distance(a,b).getDistance() >= 0);
+}
+
+-(void)test04_Distance_getDistanceExactly1
+{
+    
+    Key a("alfOT4RZmjCdDkEHnGk6");
+    Key b("DQYX1EEwVMuiV1lp39Be");
+
+    XCTAssertEqual(Distance(a,b).getDistance(), 1);
+}
+
+-(void)test05_Distance_getDistanceExactly2
+{
+    
+    Key a("APlE4L3dxWWokEWequ4o");
+    Key b("whfzZuWUM0WkOkNLFnep");
+    
+    XCTAssertEqual(Distance(a,b).getDistance(), 2);
+}
+
+-(void)test06_Distance_getDistanceExactly3
+{
+    
+    Key a("XxvqiFc1r2BqhemxzIik");
+    Key b("nqrq2B1ObqtILHubiQYL");
+    
+    XCTAssertEqual(Distance(a,b).getDistance(), 3);
+}
+
+-(void)test07_Distance_getDistanceExactly4
+{
+    
+    Key a("UmIAzNu44cBBDLkzqMhi");
+    Key b("f2geP5O21E72hAHp6T2J");
+    
+    XCTAssertEqual(Distance(a,b).getDistance(), 4);
+}
+
+-(void)test08_Distance_getDistanceExactly5
+{
+    
+    Key a("ev3L4auNSx4hoVhEnipI");
+    Key b("4ZaGHJFQ8sW7D4oSrf1L");
+    
+    XCTAssertEqual(Distance(a,b).getDistance(), 5);
+}
+
+-(void)test09_Distance_getDistanceExactly6
+{
+    
+    Key a("evotqWt3aCB47elbuQDw");
+    Key b("qm80gy71ZJidV4EVHbLS");
+    
+    XCTAssertEqual(Distance(a,b).getDistance(), 6);
+}
+
+-(void)test10_Distance_getDistanceExactly7
+{
+    
+    Key a("x6lwU3hlpOpDBIyzvh4L");
+    Key b("LdGqa173p7jg72XS29Vt");
+    
+    XCTAssertEqual(Distance(a,b).getDistance(), 7);
+}
+
+-(void)test11_Distance_getDistanceExactly8
+{
+    
+    Key a("Xvbl0bgeMB9fzaOBH3Gr");
+    Key b("DFuovwRjMcENjmoBgfZS");
+    
+    XCTAssertEqual(Distance(a,b).getDistance(), 8);
+}
+
+- (void)test12_Distance_getDistanceSecondByte
+{
+    Key a("qDrnwxzslBK2FKN16bL9");
+    Key b("RnW2q5LyCLKNmEVwxxJh");
+    
+    XCTAssertGreaterThan(Distance(a,b).getDistance(),8);
+    XCTAssertLessThan(Distance(a,b).getDistance(),17);
+}
+
+- (void)test13_Distance_secondByteExactly4
+{
+    Key a("VsKxMcjQn92X5J4xyRuB");
+    Key b("ar5uXhn0bgTdAstoOcdb");
+    
+    XCTAssertEqual(Distance(a,b).getDistance(), 12);
+}
+
+- (void)test14_Distance_opLessThan_firstTrue
+{
+    Key a("wneeLM7ruDQTZn5fodFR");
+    Key b("sA4Xjmvabrk80nVPOZeA");
+    Key c("wIEizN6jknzjmflbYLMl");
+    Key d("vLXlnTfZV9nGjU6ZKTgw");
+    
+    printf("%d %d\n",Distance(a,b).getDistance(),Distance(c,d).getDistance());
+    
+    XCTAssertTrue(Distance(a,b) < Distance(c,d));
+}
+
+- (void)test15_Distance_opLessThan_secondTrue
+{
+    Key a("WmadfAYyFWFL5CoY5J42");  //0xCA 0x06
+    Key b("QX659NlqHABReLgSWDwZ");  //0xCA 0xDA
+    Key c("OWvU6xxcBPp9Ml52CJxw");  //0x65 0xC3
+    Key d("J5rV89VL9pLBSHecIeyN");  //0x65 0xB6
+    
+    XCTAssertTrue((a.getKey()[0] ^ b.getKey()[0]) == 0 &&
+                  (c.getKey()[0] ^ d.getKey()[0]) == 0);
+    XCTAssertTrue(Distance(a,b) < Distance(c,d));
+}
+
+-(void)test16_Distance_opLessThan_false
+{
+    Key a("Cb2y39TaASln8723gtji");
+    Key b("hqvdYD0yMSCAG3XCK6c8");
+    Key c("c3S6U30sYJOO358abTPh");
+    Key d("XV0fmxaMA4VWh0Wm35zh");
+    
+    XCTAssertFalse(Distance(a,b) < Distance(c,d));
+}
+
+- (void)test17_Distance_opGreaterThan_firstTrue
+{
+    Key a("EALNNwzg8dyVfDGbbD1a");
+    Key b("AdHqOiCdIamS5Naz8QRf");
+    Key c("yHKctQ1imwjiVYLlDNwG");
+    Key d("0JnUwc9thzA3DHzU5Loy");
+    XCTAssertTrue(Distance(a,b) > Distance(c,d));
+}
+
+- (void)test18_Distance_opGreaterThan_secondTrue
+{
+    Key a("gMWf3IWpzH0UA9sqYOLu");
+    Key b("e9I6eiDsDmVg85jbg0AA");
+    Key c("XqtsC633kSQB7v0FJ4Rh");
+    Key d("r7mZZ8n86HaPZXkjRwjP");
+    
+    XCTAssertTrue((a.getKey()[0] ^ b.getKey()[0]) == 0 &&
+                  (c.getKey()[0] ^ d.getKey()[0]) == 0);
+    
+    XCTAssertTrue(Distance(a,b) > Distance(c,d));
+}
+
+- (void)test19_Distance_opGreaterThan_false
+{
+    Key a("hxqbVlHgBKUDROPibeBc");
+    Key b("Gq8RV1FitSQeJ3E2tReD");
+    Key c("2xSNrxQ1sfPzscp9yAxB");
+    Key d("RD0HEaNUI03Am06iBmZ7");
+    
+    XCTAssertFalse(Distance(a,b) > Distance(c,d));
+}
+
+- (void)test20_Distance_opLessThanOrEqual
+{
+    Key a("YtXwDF6fTX0ZCvDgoOrK");
+    Key b("UJLiLWXriM14PAYcSu68");
+    Key c("iyWMpedrMHxe864J6pZK");
+    Key d("FoPcBtpUqflAfiXq5isn");
+    XCTAssertTrue(Distance(a,b) <= Distance(c,d));
+    XCTAssertTrue(Distance(a,b) <= Distance(a,b));
+    XCTAssertTrue(Distance(c,d) <= Distance(c,d));
+}
+
+- (void)test21_Distance_opGreaterThanOrEqual
+{
+    Key a("I3kcaJoWqXaIsJ5S3Hnp");
+    Key b("NSlw853pvtRNr84US6KU");
+    Key c("xwOjomaf2Fzu11bBqdHX");
+    Key d("eKHrKxnCJdbIGnvuQd1m");
+    
+    XCTAssertTrue(Distance(a,b) >= Distance(c,d));
+    XCTAssertTrue(Distance(a,b) >= Distance(a,b));
+    XCTAssertTrue(Distance(c,d) >= Distance(c,d));
+}
+
+- (void)test22_Distance_opEqual
+{
+    Key a("2Tv8cForS9J16ngkrpF9");
+    Key b("TqF3AFes5UniXGzhbPiX");
+    Key c("NyZO9NhCcluT0ueB5jwC");
+    XCTAssertTrue(Distance(a,b) == Distance(a,b));
+    XCTAssertTrue(Distance(a,b) >= Distance(a,b));
+    XCTAssertTrue(Distance(a,b) <= Distance(a,b));
+    XCTAssertFalse(Distance(a,b) == Distance(a,c));
+}
+
+- (void)test23_Distance_opNotEqual
+{
+    Key a("2Tv8cForS9J16ngkrpF9");
+    Key b("TqF3AFes5UniXGzhbPiX");
+    Key c("NyZO9NhCcluT0ueB5jwC");
+    XCTAssertFalse(Distance(a,b) != Distance(a,b));
+    XCTAssertTrue(Distance(a,b) != Distance(a,c));
+}
+
+- (void)test24_Distance_printDistanceSame
+{
+    Key a("2Tv8cForS9J16ngkrpF9");
+    Key b("TqF3AFes5UniXGzhbPiX");
+    
+    char out1[161];
+    char out2[161];
+    Distance(a,b).printDistance(out1);
+    Distance(a,b).printDistance(out2);
+    
+    XCTAssertTrue(strcmp(out1,out2)==0);
+}
+
+- (void)test24_Distance_printDistanceZero
+{
+    Key a("NyZO9NhCcluT0ueB5jwC");
+    
+    char out1[161];
+    char out2[161];
+    Distance(a,a).printDistance(out1);
+    strcpy(out2,"0000000000000000000000000000000000000000");
+    strcat(out2,"0000000000000000000000000000000000000000");
+    strcat(out2,"0000000000000000000000000000000000000000");
+    strcat(out2,"0000000000000000000000000000000000000000");
+    
+    XCTAssertTrue(strcmp(out1,out2)==0);
+}
+
+- (void)test25_Distance_printFixedInputs
+{
+    Key a("ygLco4MF9PwbGxviiZ6y");
+    Key b("6m8CnZsYbNNV7d2wpRep");
+    Key c("lVRPeBoopsKPETBfIIXH");
+    Key d("pWtqntqKFh2KwUsk9GnH");
+    Key e("nNfoelJWY4nEmgCRq60O");
+    Key f("WENZjN7wiUJctEpKIN6C");
+    Key g("hK2jO7I93jpg7SGxJDrU");
+    Key h("ESMoN9aOT14T2X8bNO85");
+    Key i("7mP79ZNOVmNwApw1e1HQ");
+    Key l("C3RpDVaaWLOViSTcIqUz");
+}
+#endif
 @end

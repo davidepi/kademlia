@@ -1,5 +1,7 @@
 #include "Distance.hpp"
-
+#if !defined(LEFT_DISTANCE) and !defined(RIGHT_DISTANCE)
+#define RIGHT_DISTANCE
+#endif
 Distance::Distance(const Key& k1, const Key& k2)
 {
     const uint8_t* key1 = k1.getKey();
@@ -64,9 +66,6 @@ Distance::~Distance()
 
 bool Distance::operator<(const Distance& k)const
 {
-    //prima c'era un ciclo while, e tante shits varie
-    //ora ho aggiunto l'istruzione assembly che e' molto piu' veloce e
-    //izi
     return Distance::getDistance() < k.getDistance();
 }
 
@@ -132,7 +131,9 @@ void Distance::printDistance(char* out) const
 
 short Distance::getDistance() const
 {
-    uint8_t val=0, index=0;
+    uint8_t val=0;
+#ifdef LEFT_DISTANCE
+    uint8_t index=0;
     while(index < NBYTE && val==0)
         val = Distance::value[index++];
     
@@ -186,8 +187,55 @@ short Distance::getDistance() const
     
     //while((val&0xFF)>>(7-i) == 0)i++;
     //return (8*index+i)
+#endif
+#else
     
+    int index=NBYTE-1;
+    while(index >=0 && val==0)
+        val = Distance::value[index--];
     
+    if(val == 0) //le chiavi sono uguali
+        return 0;
+    
+    index++; //due to the previous lines, index is decremented even if the
+             //correct value is found
+    index = NBYTE-1-index;
+    
+#if (defined(__x86_64__) || defined(__i386__))
+    
+    uint32_t retval = 0, vall = val;
+    
+    __asm__ ( "tzcntl %1, %0;"
+             :"=r"(retval)
+             :"r"(vall)
+             :
+             );
+    return (8*index)+(retval)+1;
+#else
+    
+    if((val & 0xF) > 0) //il primo bit diverso e' tra i 5 e 8
+        if((val & 0x3) > 0) //il primo bit diverso e' tra 7 o 8
+            if((val & 0x1) > 0) //la chiave e' xxxxxxx1
+                return (8*index)+1;
+            else //la chiave e' xxxxxx10
+                return (8*index+2);
+        else // il primo bit diverso e' 5 o 6
+            if((val & 0x4)>0) //la chiave e' xxxxx100
+                return (8*index+3);
+            else //la chaive e' xxxx1000
+                return (8*index+4);
+    else //il primo bit diverso e' tra 1 e 4
+        if((val & 0x30) > 0) //il primo bit diverso e' 3 o 4
+            if((val & 0x10) > 0) //la chiave e' xxx10000
+                return (8*index+5);
+            else //la chiave e' xx100000
+                return (8*index+6);
+        else //il primo bit diverso e' 1 o 2
+            if((val & 0x40) > 0) //la chiave e' x1000000
+                return (8*index+7);
+            else // la chiave e' 10000000
+                return (8*index+8);
+#endif
 #endif
 }
 

@@ -3,6 +3,7 @@
 
 #include "Key.hpp"
 #include "Node.hpp"
+#include "settings.h"
 
 class Distance
 {
