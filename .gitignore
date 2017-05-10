@@ -1,0 +1,9 @@
+.DS_Store
+*.o
+*.gch
+*.out
+*.exe
+*.app
+Makefile
+*.xcodeproj
+/build
