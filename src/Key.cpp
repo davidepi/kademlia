@@ -238,6 +238,17 @@ static void sha1(const uint8_t* input, uint8_t* output, uint64_t len)
     output[19] = tmp[3];
 }
 
+Key::Key()
+{
+    
+}
+
+void Key::craft(const uint8_t* bytes)
+{
+    for(unsigned int i=0;i<NBYTE;i++)
+        key[i] = bytes[i];
+}
+
 void Key::print()const
 {
     printf("%#x",Key::key[0]);

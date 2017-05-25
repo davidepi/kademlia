@@ -11,13 +11,15 @@ class Key
 public:
     Key(Ip ip, pid_t pid);
     Key(const char* name);
+    Key();
     ~Key();
     
     const uint8_t* getKey()const;
     
     bool operator==(const Key& k)const;
     bool operator!=(const Key& k)const;
-    
+
+    void craft(const uint8_t* bytes);
     void print()const;
 
     

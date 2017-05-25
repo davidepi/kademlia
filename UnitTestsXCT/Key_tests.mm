@@ -129,6 +129,14 @@
     a.print();
 }
 
+- (void)test08_Key_craft
+{
+    Key a("Horká voda se skořicí");
+    Key b;
+    b.craft(a.getKey());
+    XCTAssertTrue(a == b);
+}
+
 //- (void) test06
 //{
 //    srand(time(NULL));
