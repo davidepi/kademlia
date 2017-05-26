@@ -420,8 +420,6 @@
     Key c("wIEizN6jknzjmflbYLMl");
     Key d("vLXlnTfZV9nGjU6ZKTgw");
     
-    printf("%d %d\n",Distance(a,b).getDistance(),Distance(c,d).getDistance());
-    
     XCTAssertTrue(Distance(a,b) < Distance(c,d));
 }
 
