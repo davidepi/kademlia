@@ -4,10 +4,8 @@
 #include "Performer.hpp"
 #include "Node.hpp"
 #include <unistd.h>
-
 int main(int argc, char* argv[])
 {
-    
     int c;
     unsigned short port_host = 0, port_dest = 0;
     Ip gateway;
@@ -44,7 +42,7 @@ int main(int argc, char* argv[])
 
     if(port_host == 0)
     {
-        srand(time(NULL));
+        srand((unsigned int)time(NULL));
         port_host = ( rand() % (65536+1024)) + 1024;
     }
     else if(port_host <= 1024)
@@ -81,11 +79,10 @@ int main(int argc, char* argv[])
     }
 
     //creating the thread that performs all the requests
-    Message msg("chiave svakjv idhkjcneikjvn");
-    msg.setFlags(RPC_STORE);
-    Message msg1(RPC_PING);
+    Node n("192.168.1.2",3400);
+    Message msg(n.getKey()->getKey(),NBYTE);
+    msg.setFlags(RPC_FIND_NODE);
     m->sendMessage(Node(gateway, port_dest), msg);
-    m->sendMessage(Node(gateway, port_dest), msg1);
     //wait for input(add key-value, retrieve value)
     while(true)
     {

@@ -14,9 +14,10 @@
 
 #define RPC_PING 0x1
 #define RPC_PONG 0x2
-#define RPC_STORE 0x4
-#define RPC_FIND_NODE 0x8
-#define RPC_FIND_VALUE 0x10
+#define RPC_STORE 0x3
+#define RPC_FIND_NODE 0x4
+#define RPC_FIND_NODE_ANSWER 0x5
+#define RPC_FIND_VALUE 0x6
 
 #define NULL_QUEUE -2
 #define ALREADY_INITIALIZED -3
@@ -66,6 +67,8 @@ public:
     Node getSenderNode() const;
     void setFlags(uint8_t flags);
     short getFlags() const;
+    void setText(const char* text);
+    void setData(const uint8_t* binary_data, short len);
     short getLength() const;
     
 private:

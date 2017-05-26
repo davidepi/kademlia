@@ -7,8 +7,7 @@ void rpc_pong(Node node)
     Message response(RPC_PONG);
 
     //send PONG
-    Messenger* m = &(Messenger::getInstance());
-    m->sendMessage(node, response);
+    (Messenger::getInstance()).sendMessage(node, response);
 }
 
 void rpc_ping(Node node) 
@@ -17,16 +16,27 @@ void rpc_ping(Node node)
     Message response(RPC_PING);
 
     //send PING
-    Messenger* m = &(Messenger::getInstance());
-    m->sendMessage(node, response);
+    (Messenger::getInstance()).sendMessage(node, response);
 }
 
-void Performer::rpc_find_node(Node target_node, Node node, uint8_t iteration)
+void Performer::rpc_find_node_request(Node askme, Node findme,
+                                      uint8_t iteration)
 {
-    Message response(iteration);
+    Message response(findme.getKey()->getKey(),NBYTE);
     response.setFlags(RPC_FIND_NODE);
+    (Messenger::getInstance()).sendMessage(askme, response);
+    
 }
 
+void Performer::rpc_find_node_answer(Node target, Kbucket* bucket)
+{
+    uint8_t data[500];
+    int len = bucket->serialize(data);
+    delete bucket;
+    Message response(data,len);
+    response.setFlags(RPC_FIND_NODE_ANSWER);
+    (Messenger::getInstance()).sendMessage(target, response);
+}
 
 static void* execute(void* this_class) 
 {
@@ -74,13 +84,21 @@ static void* execute(void* this_class)
                     break;
                 case RPC_FIND_NODE :
                 {
-                    std::cout << "The message is a find node: " << top->getText() << std::endl;
-
-                    std::string key(top->getText(), 20);
-                    const Key keyToSearch(key.c_str());
-
-                    int i = Distance(*(p->neighbours->getMyself()->getKey()), keyToSearch).getDistance();
-                    std::cout<<"the index is "<<i<<std::endl;
+                    Key k;
+                    //retrieve the key from message
+                    k.craft(top->getData());
+                    //find closest nodes
+                    Kbucket* b = p->neighbours->findKClosestNodes(&k);
+                    b->print();
+                    p->rpc_find_node_answer(senderNode, b);
+                }
+                    break;
+                    
+                case RPC_FIND_NODE_ANSWER :
+                {
+                    std::cout << "Received a list of nodes" << std::endl;
+                    Kbucket b(top->getData());
+                    //b.print();
                 }
                     break;
                 case RPC_FIND_VALUE :

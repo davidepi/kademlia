@@ -4,6 +4,7 @@
 #include <queue>
 #include <unistd.h>
 #include <unordered_map>
+#include <cstring> //strncpy
 #include "Messenger.hpp"
 #include "Node.hpp"
 #include "Kbucket.hpp"
@@ -19,10 +20,11 @@ public:
     std::unordered_map<std::string, char*> filesMap;
     NeighbourManager* neighbours;
     
+    void rpc_find_node_request(Node ask_me, Node find_me, uint8_t iteration);
+    void rpc_find_node_answer(Node target, Kbucket* bucket);
+    
 private:
     pthread_t thread_id;
-    
-    void rpc_find_node(Node target_node, Node search_for, uint8_t iteration);
 };
 
 

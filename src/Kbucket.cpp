@@ -1,6 +1,4 @@
 #include "Kbucket.hpp"
-#include <unistd.h>
-
 
 Kbucket::Kbucket() 
 {
@@ -33,7 +31,7 @@ void Kbucket::setNodes(std::list<Node>* nodeList) {
     *(Kbucket::nodeList) = *nodeList;
 }
 
-void Kbucket::serialize(uint8_t out[500])const
+int Kbucket::serialize(uint8_t out[500])const
 {
 #if KBUCKET_SIZE > 83
 #error A Kbucket will not fit inside a single UDP datagram
@@ -56,9 +54,10 @@ void Kbucket::serialize(uint8_t out[500])const
         out[index++] = *((uint8_t*)(&port)+0);
         out[index++] = *((uint8_t*)(&port)+1);
     }
+    return index;
 }
 
-Kbucket::Kbucket(uint8_t serialized[500])
+Kbucket::Kbucket(const uint8_t serialized[500])
 {
     nodeList = new std::list<Node>;
     uint16_t size = ntohs(*(uint16_t*)serialized);
@@ -79,6 +78,7 @@ void Kbucket::print()
 {
     std::cout<<"KBucket: "<<std::endl;
     char ipstring[16];
+    
     for(std::list<Node>::iterator i=nodeList->begin();i!=nodeList->end();++i)
     {
         i->getIp().toString(ipstring);

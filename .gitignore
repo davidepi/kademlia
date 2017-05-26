@@ -4,6 +4,7 @@
 *.out
 *.exe
 *.app
+*.plist
 Makefile
 *.xcodeproj
 /build

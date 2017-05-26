@@ -198,9 +198,25 @@ const char* Message::getText() const
     return ((char*)text)+RESERVED_BYTES;
 }
 
+void Message::setText(const char *text)
+{
+    memset(Message::text,0,RESERVED_BYTES);//riservo 12 byte per ip e porta
+    assert(strlen(text+1)<=512-RESERVED_BYTES);
+    Message::length = strlen(text)+1;
+    memcpy(Message::text+RESERVED_BYTES, text, Message::length);
+}
+
 const uint8_t* Message::getData() const
 {
     return text+RESERVED_BYTES;
+}
+
+void Message::setData(const uint8_t *binary_data, short len)
+{
+    assert(len <= 512-RESERVED_BYTES);
+    memset(Message::text,0,RESERVED_BYTES);//riservo 12 byte per ip e porta
+    memcpy(Message::text+RESERVED_BYTES, binary_data, len);
+    Message::length = len;
 }
 
 Node Message::getSenderNode() const

@@ -34,7 +34,7 @@ Kbucket* NeighbourManager::findKClosestNodes(const Key* key) {
 
     int otherBuckIndex = index + 1;
 
-    while (resultList->size() < KBUCKET_SIZE && otherBuckIndex <= NBYTE * 8) {
+    while (resultList->size() < KBUCKET_SIZE && otherBuckIndex < NBYTE * 8) {
         addNodesToList(resultList, otherBuckIndex);
         otherBuckIndex++;
     }

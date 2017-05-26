@@ -4,6 +4,7 @@
 Node::Node()
 {
     Node::reference = new uint8_t[1];
+    *(Node::reference) = 1;
     Node::my_ip = Ip(0);
     Node::port_ho = 0;
     Node::id = new Key(0,0);
@@ -12,6 +13,7 @@ Node::Node()
 Node::Node(Ip ip, int port)
 {
     Node::reference = new uint8_t[1];
+    *(Node::reference) = 1;
 	Node::my_ip = ip;
 	Node::port_ho = port;
 	Node::id = new Key(ip,port);
@@ -20,7 +22,7 @@ Node::Node(Ip ip, int port)
 Node::Node(const Node& copied)
 {
     Node::reference = copied.reference;
-    *(Node::reference)++;
+    (*(Node::reference))++;
     Node::my_ip = copied.my_ip;
     Node::port_ho = copied.port_ho;
     Node::id = copied.id;
@@ -29,7 +31,7 @@ Node::Node(const Node& copied)
 Node& Node::operator=(const Node& copied)
 {
     Node::reference = copied.reference;
-    *(Node::reference)++;
+    (*(Node::reference))++;
     Node::my_ip = copied.my_ip;
     Node::port_ho = copied.port_ho;
     Node::id = copied.id;

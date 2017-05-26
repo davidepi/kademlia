@@ -210,4 +210,29 @@
         XCTAssertTrue(false);
 }
 
+- (void)test13_Message_setData
+{
+    uint8_t data[] = {0x2A,0xE0,0x88,0x98,0x49,0x0D,0x87,0x5F};
+    Message m(RPC_PONG);
+    m.setData(data,8);
+    
+    XCTAssertEqual(data[0],m.getData()[0]);
+    XCTAssertEqual(data[1],m.getData()[1]);
+    XCTAssertEqual(data[2],m.getData()[2]);
+    XCTAssertEqual(data[3],m.getData()[3]);
+    XCTAssertEqual(data[4],m.getData()[4]);
+    XCTAssertEqual(data[5],m.getData()[5]);
+    XCTAssertEqual(data[6],m.getData()[6]);
+    XCTAssertEqual(data[7],m.getData()[7]);
+    XCTAssertEqual(m.getFlags(), RPC_PONG);
+}
+
+- (void)test14_Message_setText
+{
+    Message m(RPC_FIND_NODE);
+    m.setText("Kuřecí maso");
+    XCTAssertEqual(strcmp("Kuřecí maso", (char*)m.getText()),0);
+    XCTAssertEqual(m.getFlags(), RPC_FIND_NODE);
+}
+
 @end
