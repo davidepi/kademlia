@@ -8,6 +8,15 @@ Kbucket::Kbucket()
 void Kbucket::add(const Node n)
 {
     //std::cout << "add" << std::endl;
+    for (std::list<Node>::const_iterator it = Kbucket::nodeList->begin(); it != Kbucket::nodeList->end(); ++it) {
+        if(n == *it) { //already present, delete node and put in front
+            Kbucket::nodeList->remove(*it);
+            Kbucket::nodeList->push_front(*it);
+            return;
+        }
+    }
+    
+    //if not present, add it
     if (Kbucket::nodeList->size() < KBUCKET_SIZE) 
     {
         Kbucket::nodeList->push_front(n); 
@@ -21,6 +30,7 @@ void Kbucket::add(const Node n)
         //check ping
         //rpc_ping(lastActiveNode);
     }
+   
 }
 
 const std::list<Node>* Kbucket::getNodes() {
