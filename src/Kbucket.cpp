@@ -86,7 +86,7 @@ Kbucket::Kbucket(const uint8_t serialized[500])
 
 void Kbucket::print()
 {
-    std::cout<<"KBucket: "<<std::endl;
+    std::cout<<"KBucket size: "<<nodeList->size()<<std::endl;
     char ipstring[16];
     
     for(std::list<Node>::iterator i=nodeList->begin();i!=nodeList->end();++i)

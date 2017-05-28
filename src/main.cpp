@@ -69,23 +69,13 @@ int main(int argc, char* argv[])
         {
             char myIp[16];
             m->getIp().toString(myIp);
-            std::cout << "ip " << myIp << std::endl;
-            Message msg(myIp);
-            msg.setFlags(RPC_FIND_NODE);
-
+            std::cout << "My ip: " << myIp << std::endl;
+            
+            Message msg(RPC_FIND_NODE);
             m->sendMessage(Node(gateway, port_dest), msg);
-            std::cout<<"sent find_node"<<std::endl;
         }
     }
 
-    //creating the thread that performs all the requests
-    Node n("192.168.1.2",3400);
-    Message msg(n.getKey()->getKey(),NBYTE);
-    msg.setFlags(RPC_FIND_NODE);
-    m->sendMessage(Node(gateway, port_dest), msg);
-    //wait for input(add key-value, retrieve value)
-    while(true)
-    {
-        sleep(8000);
-    }
+    pthread_join(p.getThreadID(), NULL);
+    return 0;
 }

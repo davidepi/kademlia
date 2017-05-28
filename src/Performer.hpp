@@ -22,6 +22,7 @@ public:
     
     void rpc_find_node_request(Node ask_me, Node find_me, uint8_t iteration);
     void rpc_find_node_answer(Node target, Kbucket* bucket);
+    const pthread_t getThreadID()const;
     
 private:
     pthread_t thread_id;

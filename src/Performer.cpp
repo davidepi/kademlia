@@ -98,7 +98,7 @@ static void* execute(void* this_class)
                 {
                     std::cout << "Received a list of nodes" << std::endl;
                     Kbucket b(top->getData());
-                    //b.print();
+                    b.print();
                 }
                     break;
                 case RPC_FIND_VALUE :
@@ -131,6 +131,11 @@ Performer::Performer(std::queue<Message*>* q)
     
     Performer::message_queue = q;
     pthread_create(&(Performer::thread_id), NULL, execute, (void*)this);
+}
+
+const pthread_t Performer::getThreadID()const
+{
+    return Performer::thread_id;
 }
 
 Performer::~Performer()
