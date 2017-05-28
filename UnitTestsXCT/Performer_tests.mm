@@ -1,5 +1,5 @@
 #import <XCTest/XCTest.h>
-#include "../src/Performer.hpp"
+#include "Performer.hpp"
 #define XCTEST
 
 @interface Performer_tests : XCTestCase

@@ -1,5 +1,5 @@
 #import <XCTest/XCTest.h>
-#include "../src/Kbucket.hpp"
+#include "Kbucket.hpp"
 #define XCTEST
 
 @interface KBucket_tests : XCTestCase

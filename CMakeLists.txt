@@ -36,7 +36,6 @@ if(GTEST_FOUND)
         set(lexer_output ${CMAKE_CURRENT_BINARY_DIR}/testconverter.c)
         set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/testconverter.c GENERATED)
         add_executable(testconverter EXCLUDE_FROM_ALL ${lexer_output})
-        set_target_properties(testconverter PROPERTIES LINK_FLAGS "-ll -lm")
         foreach(filename ${xct_tests})
             get_filename_component(tmp ${filename} NAME_WE)
             add_custom_command(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/tests/${tmp}.cc"

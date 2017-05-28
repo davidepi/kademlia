@@ -1,5 +1,5 @@
 #import <XCTest/XCTest.h>
-#include "../src/Messenger.hpp"
+#include "Messenger.hpp"
 #define XCTEST
 
 @interface Messenger_tests : XCTestCase

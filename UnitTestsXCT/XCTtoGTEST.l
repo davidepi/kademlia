@@ -1,5 +1,5 @@
 %START DELETE_EVERYTHING REQUEST_1NAME REQUEST_2NAME
-
+%option noyywrap
 %%
 ^"#import".+\n {}
 ^"@interface".+\n {}

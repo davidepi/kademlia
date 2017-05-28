@@ -69,9 +69,12 @@ int main(int argc, char* argv[])
         {
             char myIp[16];
             m->getIp().toString(myIp);
+            Key myKey(m->getIp(),m->getPort());
             std::cout << "My ip: " << myIp << std::endl;
             
-            Message msg(RPC_FIND_NODE);
+            Message msg(myKey.getKey(),NBYTE); //ask for neighbours to the
+                                               //gateway
+            msg.setFlags(RPC_FIND_NODE);
             m->sendMessage(Node(gateway, port_dest), msg);
         }
     }

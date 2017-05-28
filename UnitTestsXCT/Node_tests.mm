@@ -1,5 +1,5 @@
 #import <XCTest/XCTest.h>
-#include "../src/Node.hpp"
+#include "Node.hpp"
 #define XCTEST
 
 @interface Node_tests : XCTestCase

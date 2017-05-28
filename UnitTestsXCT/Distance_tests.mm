@@ -1,5 +1,5 @@
 #import <XCTest/XCTest.h>
-#include "../src/Distance.hpp"
+#include "Distance.hpp"
 #define XCTEST
 @interface Distance_tests : XCTestCase
 
