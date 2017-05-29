@@ -7,6 +7,7 @@
 #define RESERVED_BYTES 12 //[0-3] source IP
                           //[4-5] source port (the listening one)
 
+size_t WriteCallback(void* contents,size_t size,size_t nmemb,void* userp);
 
 typedef struct listener_thread_params
 {
@@ -75,20 +76,27 @@ int Messenger::init(std::queue<Message*>* q, int port_ho)
                             //se avvengono tutte chiamate contemporanee.
                             //ancora non ho garanzie, ma chissene
     char myipstring[16];
-#if defined(__linux__) || defined(__unix__)
-    FILE* fp = popen("hostname -I","r");
-#elif defined(__APPLE__)
-    FILE* fp = popen("ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\\.){3}[0-9]*).*/\\2/p'","r");
-#else
-    fprintf(stderr, "%s\n", "Os not recognized");
-    exit(EXIT_FAILURE);
-#endif
+    myipstring[0] = 0;
+    CURL *curl;
+    CURLcode res;
     
-    //TODO: if not connected, myipstring will fail and the program crash
-    fscanf(fp,"%s",myipstring);
-    my_ip = Ip(myipstring);
-    pclose(fp);
-    
+    curl_global_init(CURL_GLOBAL_ALL);
+    curl = curl_easy_init();
+    if(curl)
+    {
+        curl_easy_setopt(curl, CURLOPT_URL, "http://ipecho.net/plain");
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA,(void*)myipstring);
+        curl_easy_setopt(curl, CURLOPT_USERAGENT,"libcurl-agent/1.0");
+        
+        res = curl_easy_perform(curl);
+        //        if(res!=CURLE_OK) //TODO: fix this one
+//            CRITICAL_ERROR
+//        else
+            Messenger::my_ip = Ip(myipstring);
+        curl_easy_cleanup(curl);
+        curl_global_cleanup();
+    }
     Messenger::binded_queue = q;
     Messenger::sockfd_recv = socket(AF_INET, SOCK_DGRAM, 0);
     Messenger::sockfd_send = socket(AF_INET, SOCK_DGRAM, 0);
@@ -231,3 +239,22 @@ short Message::getLength() const
 
 Message::~Message()
 { }
+
+//used by curl to store the global ip
+size_t WriteCallback(void* contents,size_t size,size_t nmemb,void* userp)
+{
+    //hardcodded because my buffer is limited
+    char* ipstring = (char*)userp;
+    char* cont = (char*)contents;
+    for(int i=0;i<16;i++)
+    {
+        if(cont[i]=='\r'||cont[i]=='\n'||i==15)
+        {
+            ipstring[i]='\0';
+            break;
+        }
+        else
+            ipstring[i] = cont[i];
+    }
+    return 16;
+}
