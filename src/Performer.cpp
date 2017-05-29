@@ -46,13 +46,17 @@ static void* execute(void* this_class)
     while(1) 
     {
         Message* top;
-        if (q->size() > 0) 
+        if (q->size() > 0)
         {
             top = q->front();
             q->pop();
 
             Node senderNode = top->getSenderNode();
-            
+#ifdef KAD_DEBUG
+            char ip[16];
+            senderNode.getIp().toString(ip);
+            std::cout<<"Received a message from: "<<ip<<std::endl;
+#endif
             switch(top->getFlags())
             {
                 case RPC_PING :

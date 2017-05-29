@@ -93,14 +93,13 @@ int Messenger::init(std::queue<Message*>* q, int port_ho)
         //        if(res!=CURLE_OK) //TODO: fix this one
 //            CRITICAL_ERROR
 //        else
-            Messenger::my_ip = Ip(myipstring);
+        my_ip = Ip(myipstring);
         curl_easy_cleanup(curl);
         curl_global_cleanup();
     }
     Messenger::binded_queue = q;
-    Messenger::sockfd_recv = socket(AF_INET, SOCK_DGRAM, 0);
-    Messenger::sockfd_send = socket(AF_INET, SOCK_DGRAM, 0);
-    if(Messenger::sockfd_recv < 0 || Messenger::sockfd_send < 0)
+    Messenger::sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if(Messenger::sockfd < 0)
         CRITICAL_ERROR
     memset(&(Messenger::my_address), 0, sizeof(Messenger::my_address));
     memset(&(Messenger::dest), 0, sizeof(Messenger::dest));
@@ -114,7 +113,7 @@ int Messenger::init(std::queue<Message*>* q, int port_ho)
     listener_thread_params* params = (listener_thread_params*)malloc
                                      (sizeof(listener_thread_params));
     params->where_to_write = q;
-    params->socket_file_descriptor = Messenger::sockfd_recv;
+    params->socket_file_descriptor = Messenger::sockfd;
     params->listener_process_address = &(Messenger::my_address);
     params->listener_process_lenght = sizeof(Messenger::my_address);
     pthread_create(&(Messenger::thread_id), NULL, listener, (void*)params);
@@ -125,13 +124,19 @@ int Messenger::init(std::queue<Message*>* q, int port_ho)
 void Messenger::sendMessage(const Node node, Message& msg)
 {
     struct sockaddr_in dest = Messenger::dest;
-    dest.sin_addr.s_addr = node.getIp().getIp(); //get ip of the node and convert into an unsigned network order int
+    dest.sin_addr.s_addr = htonl(node.getIp().getIp()); //get ip of the node and
+                                    //convert into an unsigned network order int
     dest.sin_port = htons(node.getPort());
     uint32_t* t = (uint32_t*)(msg.text);
     *t = (Messenger::my_ip.getIp());
     *(uint16_t*)(msg.text+4) = htons(Messenger::port_ho);
     *(uint16_t*)(msg.text+6) = msg.flags;
-    if(sendto(sockfd_send,msg.text,msg.length+RESERVED_BYTES,0,
+#ifdef KAD_DEBUG
+    char ip[16];
+    node.getIp().toString(ip);
+    std::cout<<"Sending packet to: "<<ip<<":"<<node.getPort()<<std::endl;
+#endif
+    if(sendto(sockfd,msg.text,msg.length+RESERVED_BYTES,0,
               (struct sockaddr*)&dest,
               (socklen_t)sizeof(dest)) == -1)
     {

@@ -41,8 +41,7 @@ public:
 private:
     Messenger();
     bool initialized;
-    int sockfd_recv;
-    int sockfd_send;
+    int sockfd;
     pthread_t thread_id;
     Ip my_ip;
     int port_ho; //host order
