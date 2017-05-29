@@ -13,7 +13,7 @@ static inline uint32_t fast_atoi(const char* str)    //~7x faster than atoi
 Ip::Ip(const char* ip)
 {
     if(strcmp(ip,"localhost")==0)
-        Ip::ip_no = 0x100007F;
+        Ip::ip_no = 0x7F000001;
     else
     {
     char a[4], b[4], c[4], d[4];
@@ -44,13 +44,14 @@ Ip::Ip(const char* ip)
     d[i2] = '\0';
     
     //shifta i numeri. Io voglio che l'ordine dei bit sia [ a ][ b ][ c ][ d ]
-    //ma essendo qui little endian devo scrivere 0x[ d ][ c ][ b ][ a ].
+    //quindi essendo che ognuno di questi e' un byte devo shiftarli in modo
+    //da posizionarli come sopra in un unico int big-endian (network ordered)
     //Oh e' un casino da spiegare sta roba, amen.
     Ip::ip_no = 0x00000000;
-    Ip::ip_no |= ((unsigned int)fast_atoi(a));
-    Ip::ip_no |= ((unsigned int)fast_atoi(b) << 8 );
-    Ip::ip_no |= ((unsigned int)fast_atoi(c) << 16);
-    Ip::ip_no |= ((unsigned int)fast_atoi(d) << 24);
+    Ip::ip_no |= ((unsigned int)fast_atoi(a) << 24);
+    Ip::ip_no |= ((unsigned int)fast_atoi(b) << 16);
+    Ip::ip_no |= ((unsigned int)fast_atoi(c) << 8);
+    Ip::ip_no |= ((unsigned int)fast_atoi(d) << 0);
     }
 }
 
@@ -61,7 +62,7 @@ Ip::Ip(int ip_network_ordered)
 
 Ip::Ip()
 {
-    Ip::ip_no = 0x100007F; //assegno 127.0.0.1 come default
+    Ip::ip_no = 0x7F000001; //assegno 127.0.0.1 come default
 }
 
 Ip::~Ip()
@@ -79,16 +80,16 @@ uint32_t Ip::getIpHo() const
 
 bool Ip::isLocalhost()const
 {
-    return Ip::ip_no == 0x100007F;
+    return Ip::ip_no == 0x7F000001;
 }
 
 void Ip::toString(char output[16]) const
 {
     uint8_t a = 0x00, b=0x00, c=0x00, d=0x00;
-    a = Ip::ip_no;
-    b = Ip::ip_no >> 8;
-    c = Ip::ip_no >> 16;
-    d = Ip::ip_no >> 24;
+    a = Ip::ip_no >> 24;
+    b = Ip::ip_no >> 16;
+    c = Ip::ip_no >> 8;
+    d = Ip::ip_no >> 0;
     sprintf(output,"%d",a);
     strcat(output,".");
     output = strchr(output,'\0');
@@ -109,4 +110,20 @@ bool Ip::operator==(const Ip& a)const
 bool Ip::operator!=(const Ip& a)const
 {
     return !(*(this)==a);
+}
+
+bool Ip::isPrivate()const
+{
+    uint8_t q1 = (Ip::ip_no & 0xFF000000) >> 24;
+    if(q1 == 10 || q1 == 127)
+        return true;
+    else
+    {
+        uint8_t q2 = (Ip::ip_no & 0x00FF0000) >> 16;
+        if((q1 == 172 && q2 > 15 && q2 < 32) || (q1 == 192 && q2 == 168) ||
+           (q1 == 169 && q2 == 254))
+            return true;
+        else
+            return false;
+    }
 }

@@ -17,6 +17,7 @@ public:
     uint32_t getIpHo() const;
     void toString(char output[16]) const;
     bool isLocalhost() const;
+    bool isPrivate()const;
     
     bool operator==(const Ip&)const;
     bool operator!=(const Ip&)const;
