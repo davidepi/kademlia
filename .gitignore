@@ -7,4 +7,9 @@
 *.plist
 Makefile
 *.xcodeproj
-build/
+build*/
+.Rhistory
+.dep.inc
+nbproject/
+dist/
+tests/*.cpp

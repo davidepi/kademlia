@@ -11,7 +11,7 @@ void Kbucket::add(const Node n)
     for (std::list<Node>::const_iterator it = Kbucket::nodeList->begin(); it != Kbucket::nodeList->end(); ++it) {
         if(n == *it) { //already present, delete node and put in front
             Kbucket::nodeList->remove(*it);
-            Kbucket::nodeList->push_front(*it);
+            Kbucket::nodeList->push_front(n);
             return;
         }
     }
@@ -82,6 +82,15 @@ Kbucket::Kbucket(const uint8_t serialized[500])
         index+=2;
         nodeList->push_front(Node(Ip(ip),port));
     }
+}
+
+bool Kbucket::contains(Node* n)const {
+    for (std::list<Node>::const_iterator it = Kbucket::nodeList->begin(); it != Kbucket::nodeList->end(); ++it) {
+        if(*n == *it) {
+            return true;
+        } 
+    }
+    return false;
 }
 
 void Kbucket::print()
