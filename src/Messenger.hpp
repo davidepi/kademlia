@@ -71,6 +71,9 @@ public:
     void setData(const uint8_t* binary_data, short len);
     short getLength() const;
     
+    uint32_t senderip_no;
+    uint16_t senderport_no;
+    
 private:
     uint8_t text[512];
     uint8_t flags;

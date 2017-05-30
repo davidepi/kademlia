@@ -52,6 +52,7 @@ static void* execute(void* this_class)
             q->pop();
 
             Node senderNode = top->getSenderNode();
+            Node answerto(Ip(top->senderip_no),ntohs(top->senderport_no));
 #ifdef KAD_DEBUG
             char ip[16];
             senderNode.getIp().toString(ip);
@@ -62,7 +63,7 @@ static void* execute(void* this_class)
                 case RPC_PING :
                 {
                     std::cout << "The message is a ping: " << top->getText() << std::endl;
-                    rpc_pong(senderNode);
+                    rpc_pong(answerto);
                     
                 }
                     break;
@@ -94,7 +95,7 @@ static void* execute(void* this_class)
                     //find closest nodes
                     Kbucket* b = p->neighbours->findKClosestNodes(&k);
                     b->print();
-                    p->rpc_find_node_answer(senderNode, b);
+                    p->rpc_find_node_answer(answerto, b);
                 }
                     break;
                     

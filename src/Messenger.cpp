@@ -29,7 +29,10 @@ static void* listener(void* p)
         CRITICAL_ERROR
     char buffer[512];
     ssize_t count;
-    while((count = recv(sockfd,buffer,sizeof(buffer),0)))
+    socklen_t len;
+    sockaddr_in sender;
+    while((count = recvfrom(sockfd,buffer,sizeof(buffer),0,
+                            (sockaddr*)&sender,&len)))
     {
         if (count==-1) CRITICAL_ERROR
         else
@@ -40,12 +43,14 @@ static void* listener(void* p)
             Message* m = new Message(*b1,ntohs(*(uint16_t*)(buffer+4)),
                                      (short)count,(uint8_t*)(buffer+12),
                                      *(uint8_t*)(buffer+6));
+            m->senderip_no = sender.sin_addr.s_addr;
+            m->senderport_no = sender.sin_port;
             //char from[16];
             //m->getSenderIp().toString(from);
             //std::cout<<"\tReceived \""<<m->getText()<<"\" from "<<
             //from<<":"<<m->getSenderPort()<<" type "<<m->getFlags()<<std::endl;
 
-
+            
             if(q->size() < QUEUE_LENGTH)
             {
                 q->push(m);
