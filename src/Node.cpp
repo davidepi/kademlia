@@ -1,6 +1,5 @@
 #include "Node.hpp"
 
-
 Node::Node()
 {
     Node::reference = new uint8_t[1];

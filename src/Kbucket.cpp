@@ -11,7 +11,7 @@ void Kbucket::add(const Node n)
     for (std::list<Node>::const_iterator it = Kbucket::nodeList->begin(); it != Kbucket::nodeList->end(); ++it) {
         if(n == *it) { //already present, delete node and put in front
             Kbucket::nodeList->remove(*it);
-            Kbucket::nodeList->push_front(*it);
+            Kbucket::nodeList->push_front(n);
             return;
         }
     }

@@ -29,8 +29,8 @@ static void* listener(void* p)
         CRITICAL_ERROR
     char buffer[512];
     ssize_t count;
-    socklen_t len;
     sockaddr_in sender;
+    socklen_t len = sizeof(sender);
     while((count = recvfrom(sockfd,buffer,sizeof(buffer),0,
                             (sockaddr*)&sender,&len)))
     {
@@ -43,8 +43,8 @@ static void* listener(void* p)
             Message* m = new Message(*b1,ntohs(*(uint16_t*)(buffer+4)),
                                      (short)count,(uint8_t*)(buffer+12),
                                      *(uint8_t*)(buffer+6));
-            m->senderip_no = sender.sin_addr.s_addr;
-            m->senderport_no = sender.sin_port;
+            m->senderip_no = htonl(sender.sin_addr.s_addr);
+            m->senderport_no = htons(sender.sin_port);
             //char from[16];
             //m->getSenderIp().toString(from);
             //std::cout<<"\tReceived \""<<m->getText()<<"\" from "<<
@@ -235,6 +235,13 @@ void Message::setData(const uint8_t *binary_data, short len)
     memset(Message::text,0,RESERVED_BYTES);//riservo 12 byte per ip e porta
     memcpy(Message::text+RESERVED_BYTES, binary_data, len);
     Message::length = len;
+}
+
+void Message::append(const uint8_t *data, short len)
+{
+    assert(Message::length+len <= 512-RESERVED_BYTES);
+    memcpy(Message::text+RESERVED_BYTES+Message::length, data, len);
+    Message::length+=len;
 }
 
 Node Message::getSenderNode() const

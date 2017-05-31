@@ -21,7 +21,7 @@ public:
     NeighbourManager* neighbours;
     
     void rpc_find_node_request(Node ask_me, Node find_me, uint8_t iteration);
-    void rpc_find_node_answer(Node target, Kbucket* bucket);
+    void rpc_find_node_answer(Node target, Node findme, Kbucket* bucket);
     const pthread_t getThreadID()const;
     
 private:

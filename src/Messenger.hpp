@@ -64,6 +64,7 @@ public:
     
     const char* getText() const;
     const uint8_t* getData() const;
+    void append(const uint8_t* data, short len);
     Node getSenderNode() const;
     void setFlags(uint8_t flags);
     short getFlags() const;

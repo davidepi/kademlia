@@ -22,14 +22,39 @@ void rpc_ping(Node node)
 void Performer::rpc_find_node_request(Node askme, Node findme,
                                       uint8_t iteration)
 {
+//    uint8_t data[6];
+//    uint32_t ip = findme.getIp().getIp();
+//    uint16_t port = htons(findme.getPort());
+//    data[0] = *((uint8_t*)(&ip)+0);
+//    data[1] = *((uint8_t*)(&ip)+1);
+//    data[2] = *((uint8_t*)(&ip)+2);
+//    data[3] = *((uint8_t*)(&ip)+3);
+//    data[4] = *((uint8_t*)(&port)+0);
+//    data[5] = *((uint8_t*)(&port)+1);
+//    Message response(data,6);
+//    response.append(findme.getKey()->getKey(),NBYTE);
     Message response(findme.getKey()->getKey(),NBYTE);
     response.setFlags(RPC_FIND_NODE);
     (Messenger::getInstance()).sendMessage(askme, response);
     
 }
 
-void Performer::rpc_find_node_answer(Node target, Kbucket* bucket)
+void Performer::rpc_find_node_answer(Node target, Node findme, Kbucket* bucket)
 {
+//    uint8_t data[500];
+//    uint32_t ip = findme.getIp().getIp();
+//    uint16_t port = htons(findme.getPort());
+//    data[0] = *((uint8_t*)(&ip)+0);
+//    data[1] = *((uint8_t*)(&ip)+1);
+//    data[2] = *((uint8_t*)(&ip)+2);
+//    data[3] = *((uint8_t*)(&ip)+3);
+//    data[4] = *((uint8_t*)(&port)+0);
+//    data[5] = *((uint8_t*)(&port)+1);
+//    int len = bucket->serialize(data+6);
+//    delete bucket;
+//    Message response(data,len+6);
+//    response.setFlags(RPC_FIND_NODE_ANSWER);
+//    (Messenger::getInstance()).sendMessage(target, response);
     uint8_t data[500];
     int len = bucket->serialize(data);
     delete bucket;
@@ -52,10 +77,10 @@ static void* execute(void* this_class)
             q->pop();
 
             Node senderNode = top->getSenderNode();
-            Node answerto(Ip(top->senderip_no),ntohs(top->senderport_no));
+            Node answerto(Ip(top->senderip_no),top->senderport_no);
 #ifdef KAD_DEBUG
             char ip[16];
-            senderNode.getIp().toString(ip);
+            answerto.getIp().toString(ip);
             std::cout<<"Received a message from: "<<ip<<std::endl;
 #endif
             switch(top->getFlags())
@@ -89,13 +114,18 @@ static void* execute(void* this_class)
                     break;
                 case RPC_FIND_NODE :
                 {
+                    const uint8_t* data = top->getData();
+                    uint32_t ip = *((uint32_t*)data);
+                    uint16_t port = ntohs(*(uint16_t*)(data+4));
+                    Node findme(Ip(ip),port);
+                    std::cout<<"Cercato il nodo: "<<ip<<":"<<port<<std::endl;
                     Key k;
                     //retrieve the key from message
-                    k.craft(top->getData());
+                    k.craft(top->getData()+6);
                     //find closest nodes
                     Kbucket* b = p->neighbours->findKClosestNodes(&k);
                     b->print();
-                    p->rpc_find_node_answer(answerto, b);
+                    p->rpc_find_node_answer(answerto, findme, b);
                 }
                     break;
                     
