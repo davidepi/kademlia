@@ -84,6 +84,15 @@ Kbucket::Kbucket(const uint8_t serialized[500])
     }
 }
 
+bool Kbucket::contains(Node* n)const {
+    for (std::list<Node>::const_iterator it = Kbucket::nodeList->begin(); it != Kbucket::nodeList->end(); ++it) {
+        if(*n == *it) {
+            return true;
+        } 
+    }
+    return false;
+}
+
 void Kbucket::print()
 {
     std::cout<<"KBucket size: "<<nodeList->size()<<std::endl;

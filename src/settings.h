@@ -2,7 +2,6 @@
 #define __SETTINGS_H__
 
 #define KBUCKET_SIZE 20
-#define KBUCKET_MAXIMUM_SIZE 83
 #define HASHFN SHA1
 #define NBYTE 20
 #define QUEUE_LENGTH 10000
