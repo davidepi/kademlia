@@ -37,6 +37,7 @@ public:
     Ip getIp() const;
     uint16_t getPort() const;
     std::queue<Message*>* getBindedQueue() const;
+    int setPrivate();
 
 private:
     Messenger();
@@ -71,9 +72,6 @@ public:
     void setText(const char* text);
     void setData(const uint8_t* binary_data, short len);
     short getLength() const;
-    
-    uint32_t senderip_no;
-    uint16_t senderport_no;
     
 private:
     uint8_t text[512];

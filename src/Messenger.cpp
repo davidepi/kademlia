@@ -1,5 +1,6 @@
 #include "Messenger.hpp"
 #include "assert.h" //TODO: rimuovere una volta che compila anche con -DNDEBUG
+#include <ifaddrs.h>
 
 #define CRITICAL_ERROR {fprintf(stderr,"[%s,line %d]%s\n",__FILE__,__LINE__,\
         strerror(errno));exit(EXIT_FAILURE);}
@@ -43,8 +44,6 @@ static void* listener(void* p)
             Message* m = new Message(*b1,ntohs(*(uint16_t*)(buffer+4)),
                                      (short)count,(uint8_t*)(buffer+12),
                                      *(uint8_t*)(buffer+6));
-            m->senderip_no = htonl(sender.sin_addr.s_addr);
-            m->senderport_no = htons(sender.sin_port);
             //char from[16];
             //m->getSenderIp().toString(from);
             //std::cout<<"\tReceived \""<<m->getText()<<"\" from "<<
@@ -274,4 +273,27 @@ size_t WriteCallback(void* contents,size_t size,size_t nmemb,void* userp)
             ipstring[i] = cont[i];
     }
     return 16;
+}
+
+int Messenger::setPrivate()
+{
+    struct ifaddrs *ifap, *ifa;
+    struct sockaddr_in *sa;
+    char *addr;
+    
+    getifaddrs (&ifap);
+    for (ifa = ifap; ifa; ifa = ifa->ifa_next)
+    {
+        if(ifa->ifa_name[0] == 'l' && ifa->ifa_name[1] == 'o')
+            continue;
+        else if(ifa->ifa_addr->sa_family==AF_INET)
+        {
+            sa = (struct sockaddr_in *) ifa->ifa_addr;
+            uint32_t addr = sa->sin_addr.s_addr;
+            freeifaddrs(ifap);
+            return addr;
+        }
+    }
+    freeifaddrs(ifap);
+    return 0;
 }

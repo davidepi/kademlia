@@ -77,7 +77,7 @@ static void* execute(void* this_class)
             q->pop();
 
             Node senderNode = top->getSenderNode();
-            Node answerto(Ip(top->senderip_no),top->senderport_no);
+            Node answerto = senderNode;
 #ifdef KAD_DEBUG
             char ip[16];
             answerto.getIp().toString(ip);

@@ -57,6 +57,7 @@ int main(int argc, char* argv[])
     //creating the thread that waits for incoming packets and passes them to the performer one
     Messenger* m = &(Messenger::getInstance());
     m->init(&a, port_host);
+    m->setPrivate();
     Performer p(&a);
     if(!im_gateway)
     {
