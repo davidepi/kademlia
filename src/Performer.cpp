@@ -1,5 +1,6 @@
 #include "Performer.hpp"
 #include "NeighbourManager.hpp"
+#include "Updater.hpp"
 
 void rpc_pong(Node node) 
 {
@@ -93,8 +94,8 @@ static void* execute(void* this_class)
                 }
                     break;
                 case RPC_PONG :
-                    std::cout << "The message is a pong: " << top->getText() << std::endl;
-                    
+                    std::cout << "The message is a pong " << std::endl;
+                    Updater::getInstance()->processPong(senderNode);
                     break;
                 case RPC_STORE :
                 {

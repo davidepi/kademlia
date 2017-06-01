@@ -21,6 +21,7 @@ public:
     
     bool operator==(const Node&)const;
     bool operator!=(const Node&)const;
+    bool operator<(const Node&)const;
 
 private:
     uint8_t* reference; //tipo shared pointer per sapere quando eliminare la key

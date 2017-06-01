@@ -47,6 +47,11 @@ bool Node::operator!=(const Node&n)const
     return !(*(this)==n);
 }
 
+bool Node::operator<(const Node& n)const
+{
+    return *(Node::id->getKey()) < *(n.id->getKey());
+}
+
 Ip Node::getIp() const
 {
 	return my_ip;
