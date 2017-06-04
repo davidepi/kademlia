@@ -15,7 +15,7 @@ public:
     ~Ip();
     uint32_t getIp() const;
     uint32_t getIpHo() const;
-    void toString(char output[16]) const;
+    void toString(char output[22]) const;
     bool isLocalhost() const;
     bool isPrivate()const;
     

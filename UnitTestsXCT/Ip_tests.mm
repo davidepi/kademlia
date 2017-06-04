@@ -16,7 +16,7 @@
 - (void)test00_Ip_creationEmpty
 {
     Ip a;
-    XCTAssertEqual(a.getIp(), 0x7F000001);
+    XCTAssertEqual(a.getIp(), htonl(0x7F000001));
 }
 
 - (void)test01_Ip_creationGivenNetworkOrdered
@@ -52,16 +52,16 @@
     Ip i8("192.36.70.144");
     Ip i9("67.169.13.16");
 
-    XCTAssertEqual(i0.getIp(),0x3F05CE92);
-    XCTAssertEqual(i1.getIp(),0xFCAC2455);
-    XCTAssertEqual(i2.getIp(),0x52F24033);
-    XCTAssertEqual(i3.getIp(),0xF625A919);
-    XCTAssertEqual(i4.getIp(),0xDF9862EA);
-    XCTAssertEqual(i5.getIp(),0x77495B52);
-    XCTAssertEqual(i6.getIp(),0x1B2F9C4C);
-    XCTAssertEqual(i7.getIp(),0x0BA49377);
-    XCTAssertEqual(i8.getIp(),0xC0244690);
-    XCTAssertEqual(i9.getIp(),0x43A90D10);
+    XCTAssertEqual(i0.getIp(),htonl(0x3F05CE92));
+    XCTAssertEqual(i1.getIp(),htonl(0xFCAC2455));
+    XCTAssertEqual(i2.getIp(),htonl(0x52F24033));
+    XCTAssertEqual(i3.getIp(),htonl(0xF625A919));
+    XCTAssertEqual(i4.getIp(),htonl(0xDF9862EA));
+    XCTAssertEqual(i5.getIp(),htonl(0x77495B52));
+    XCTAssertEqual(i6.getIp(),htonl(0x1B2F9C4C));
+    XCTAssertEqual(i7.getIp(),htonl(0x0BA49377));
+    XCTAssertEqual(i8.getIp(),htonl(0xC0244690));
+    XCTAssertEqual(i9.getIp(),htonl(0x43A90D10));
 }
 
 - (void)test03_Ip_Localhost
@@ -70,9 +70,9 @@
     Ip b("127.0.0.1");
     Ip c("localhost");
     
-    XCTAssertEqual(a.getIp(), 0x7F000001);
-    XCTAssertEqual(b.getIp(), 0x7F000001);
-    XCTAssertEqual(c.getIp(), 0x7F000001);
+    XCTAssertEqual(a.getIp(), htonl(0x7F000001));
+    XCTAssertEqual(b.getIp(), htonl(0x7F000001));
+    XCTAssertEqual(c.getIp(), htonl(0x7F000001));
 }
 
 -(void)test04_Ip_LocalhostFunctionChecking
@@ -143,7 +143,7 @@
     Ip i7("172.16.10.4");
     Ip i8("171.16.10.4");
     Ip i9("169.254.3.3");
-    Ip i10("169.255.3.3.");
+    Ip i10("169.255.3.3");
     Ip i11("8.8.8.8");
     Ip i12("8.8.4.4");
     Ip i13("126.0.0.1");

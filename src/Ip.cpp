@@ -10,49 +10,31 @@ static inline uint32_t fast_atoi(const char* str)    //~7x faster than atoi
     return val;
 }
 
+uint32_t determineLocalhost()
+{
+    struct sockaddr_in sa;
+    inet_pton(AF_INET,"127.0.0.1",&(sa.sin_addr));
+    return sa.sin_addr.s_addr;
+}
+
+//this is super ugly, but constexpr doesn't work with inet_pton and I don't
+//want to pollute the class with a simple constant
+const uint32_t _LOCALHOST_NO_ = determineLocalhost();
+
 Ip::Ip(const char* ip)
 {
-    if(strcmp(ip,"localhost")==0)
-        Ip::ip_no = 0x7F000001;
-    else
+    struct sockaddr_in sa;
+    if(strcmp(ip,"localhost")!=0)
     {
-    char a[4], b[4], c[4], d[4];
-    int i = 0,i2 = 0;
-    while(ip[i]!='\0' && ip[i]!='.') //trova il primo punto
-    {                                //e copia i valori delle 3 cifre in a
-        a[i] = ip[i];
-        i++;
+        if(inet_pton(AF_INET, ip, &(sa.sin_addr)))
+        {
+            Ip::ip_no = sa.sin_addr.s_addr;
+            return;
+        }
     }
-    a[i++] = '\0';
-    while(ip[i]!='\0' && ip[i]!='.') //idem per il secondo terzetto
-    {
-        b[i2++] = ip[i];
-        i++;
-    }
-    b[i2] = '\0';i++;i2=0;
-    while(ip[i]!='\0' && ip[i]!='.') //idem per il terzo
-    {
-        c[i2++] = ip[i];
-        i++;
-    }
-    c[i2] = '\0';i++;i2=0;
-    while(ip[i]!='\0' && ip[i]!='.') //guess what? idem per l'ultimo
-    {
-        d[i2++] = ip[i];
-        i++;
-    }
-    d[i2] = '\0';
-    
-    //shifta i numeri. Io voglio che l'ordine dei bit sia [ a ][ b ][ c ][ d ]
-    //quindi essendo che ognuno di questi e' un byte devo shiftarli in modo
-    //da posizionarli come sopra in un unico int big-endian (network ordered)
-    //Oh e' un casino da spiegare sta roba, amen.
-    Ip::ip_no = 0x00000000;
-    Ip::ip_no |= ((unsigned int)fast_atoi(a) << 24);
-    Ip::ip_no |= ((unsigned int)fast_atoi(b) << 16);
-    Ip::ip_no |= ((unsigned int)fast_atoi(c) << 8);
-    Ip::ip_no |= ((unsigned int)fast_atoi(d) << 0);
-    }
+    //default case
+    inet_pton(AF_INET, "127.0.0.1", &(sa.sin_addr));
+    Ip::ip_no = sa.sin_addr.s_addr;
 }
 
 Ip::Ip(int ip_network_ordered)
@@ -62,11 +44,15 @@ Ip::Ip(int ip_network_ordered)
 
 Ip::Ip()
 {
-    Ip::ip_no = 0x7F000001; //assegno 127.0.0.1 come default
+    struct sockaddr_in sa;
+    inet_pton(AF_INET, "127.0.0.1", &(sa.sin_addr));
+    Ip::ip_no = sa.sin_addr.s_addr;
 }
 
 Ip::~Ip()
-{}
+{
+
+}
 
 uint32_t Ip::getIp() const
 {
@@ -80,26 +66,14 @@ uint32_t Ip::getIpHo() const
 
 bool Ip::isLocalhost()const
 {
-    return Ip::ip_no == 0x7F000001;
+    return Ip::ip_no == _LOCALHOST_NO_;
 }
 
-void Ip::toString(char output[16]) const
+void Ip::toString(char output[22]) const
 {
-    uint8_t a = 0x00, b=0x00, c=0x00, d=0x00;
-    a = Ip::ip_no >> 24;
-    b = Ip::ip_no >> 16;
-    c = Ip::ip_no >> 8;
-    d = Ip::ip_no >> 0;
-    sprintf(output,"%d",a);
-    strcat(output,".");
-    output = strchr(output,'\0');
-    sprintf(output,"%d",b);
-    strcat(output,".");
-    output = strchr(output,'\0');
-    sprintf(output,"%d",c);
-    strcat(output,".");
-    output = strchr(output,'\0');
-    sprintf(output,"%d",d);
+    struct sockaddr_in sa;
+    sa.sin_addr.s_addr = ip_no;
+    inet_ntop(AF_INET, &(sa.sin_addr), output, INET_ADDRSTRLEN);
 }
 
 bool Ip::operator==(const Ip& a)const
@@ -114,12 +88,14 @@ bool Ip::operator!=(const Ip& a)const
 
 bool Ip::isPrivate()const
 {
-    uint8_t q1 = (Ip::ip_no & 0xFF000000) >> 24;
+    uint32_t ip = ntohl(Ip::ip_no);
+    
+    uint8_t q1 = (ip & 0xFF000000) >> 24;
     if(q1 == 10 || q1 == 127)
         return true;
     else
     {
-        uint8_t q2 = (Ip::ip_no & 0x00FF0000) >> 16;
+        uint8_t q2 = (ip & 0x00FF0000) >> 16;
         if((q1 == 172 && q2 > 15 && q2 < 32) || (q1 == 192 && q2 == 168) ||
            (q1 == 169 && q2 == 254))
             return true;
