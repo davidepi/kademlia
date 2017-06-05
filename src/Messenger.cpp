@@ -128,17 +128,16 @@ int Messenger::init(std::queue<Message*>* q, int port_ho)
 void Messenger::sendMessage(const Node node, Message& msg)
 {
     struct sockaddr_in dest = Messenger::dest;
-    dest.sin_addr.s_addr = htonl(node.getIp().getIp()); //get ip of the node and
-                                    //convert into an unsigned network order int
+    dest.sin_addr.s_addr = node.getIp().getIp();//get ip of the node (network ordered)
     dest.sin_port = htons(node.getPort());
     uint32_t* t = (uint32_t*)(msg.text);
     *t = (Messenger::my_ip.getIp());
     *(uint16_t*)(msg.text+4) = htons(Messenger::port_ho);
     *(uint16_t*)(msg.text+6) = msg.flags;
-#ifdef KAD_DEBUG
+#ifndef NDEBUG
     char ip[16];
     node.getIp().toString(ip);
-    std::cout<<"Sending packet to: "<<ip<<":"<<node.getPort()<<std::endl;
+    printf("Sending message to: %s:%hu\n",ip,node.getPort());
 #endif
     if(sendto(sockfd,msg.text,msg.length+RESERVED_BYTES,0,
               (struct sockaddr*)&dest,
@@ -277,23 +276,38 @@ size_t WriteCallback(void* contents,size_t size,size_t nmemb,void* userp)
 
 int Messenger::setPrivate()
 {
-    struct ifaddrs *ifap, *ifa;
-    struct sockaddr_in *sa;
-    char *addr;
+//    struct ifaddrs *ifap, *ifa;
+//    struct sockaddr_in *sa;
+//    char *addr;
+//    
+//    getifaddrs (&ifap);
+//    for (ifa = ifap; ifa; ifa = ifa->ifa_next)
+//    {
+//        if(ifa->ifa_name[0] == 'l' && ifa->ifa_name[1] == 'o')
+//            continue;
+//        else if(ifa->ifa_addr->sa_family==AF_INET)
+//        {
+//            sa = (struct sockaddr_in *) ifa->ifa_addr;
+//            uint32_t addr = sa->sin_addr.s_addr;
+//            freeifaddrs(ifap);
+//            return addr;
+//        }
+//    }
+//    freeifaddrs(ifap);
+//    return 0;
     
-    getifaddrs (&ifap);
-    for (ifa = ifap; ifa; ifa = ifa->ifa_next)
-    {
-        if(ifa->ifa_name[0] == 'l' && ifa->ifa_name[1] == 'o')
-            continue;
-        else if(ifa->ifa_addr->sa_family==AF_INET)
-        {
-            sa = (struct sockaddr_in *) ifa->ifa_addr;
-            uint32_t addr = sa->sin_addr.s_addr;
-            freeifaddrs(ifap);
-            return addr;
-        }
-    }
-    freeifaddrs(ifap);
-    return 0;
+    char myipstring[16];
+#if defined(__linux__) || defined(__unix__)
+    FILE* fp = popen("hostname -I","r");
+#elif defined(__APPLE__)
+    FILE* fp = popen("ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\\.){3}[0-9]*).*/\\2/p'","r");
+#else
+    fprintf(stderr, "%s\n", "Os not recognized");
+    exit(EXIT_FAILURE);
+#endif
+    
+    fscanf(fp,"%s",myipstring);
+    my_ip = Ip(myipstring);
+    pclose(fp);
+    return true;
 }

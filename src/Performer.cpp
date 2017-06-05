@@ -22,45 +22,49 @@ void rpc_ping(Node node)
 void Performer::rpc_find_node_request(Node askme, Node findme,
                                       uint8_t iteration)
 {
-//    uint8_t data[6];
-//    uint32_t ip = findme.getIp().getIp();
-//    uint16_t port = htons(findme.getPort());
-//    data[0] = *((uint8_t*)(&ip)+0);
-//    data[1] = *((uint8_t*)(&ip)+1);
-//    data[2] = *((uint8_t*)(&ip)+2);
-//    data[3] = *((uint8_t*)(&ip)+3);
-//    data[4] = *((uint8_t*)(&port)+0);
-//    data[5] = *((uint8_t*)(&port)+1);
-//    Message response(data,6);
-//    response.append(findme.getKey()->getKey(),NBYTE);
-    Message response(findme.getKey()->getKey(),NBYTE);
+    uint8_t data[6];
+    uint32_t ip = findme.getIp().getIp();
+    uint16_t port = htons(findme.getPort());
+    data[0] = *((uint8_t*)(&ip)+0);
+    data[1] = *((uint8_t*)(&ip)+1);
+    data[2] = *((uint8_t*)(&ip)+2);
+    data[3] = *((uint8_t*)(&ip)+3);
+    data[4] = *((uint8_t*)(&port)+0);
+    data[5] = *((uint8_t*)(&port)+1);
+    Message response(data,6);
     response.setFlags(RPC_FIND_NODE);
+    response.append(findme.getKey()->getKey(),NBYTE);
     (Messenger::getInstance()).sendMessage(askme, response);
+
+//    Message response(findme.getKey()->getKey(),NBYTE);
+//    response.setFlags(RPC_FIND_NODE);
+//    (Messenger::getInstance()).sendMessage(askme, response);
     
 }
 
 void Performer::rpc_find_node_answer(Node target, Node findme, Kbucket* bucket)
 {
-//    uint8_t data[500];
-//    uint32_t ip = findme.getIp().getIp();
-//    uint16_t port = htons(findme.getPort());
-//    data[0] = *((uint8_t*)(&ip)+0);
-//    data[1] = *((uint8_t*)(&ip)+1);
-//    data[2] = *((uint8_t*)(&ip)+2);
-//    data[3] = *((uint8_t*)(&ip)+3);
-//    data[4] = *((uint8_t*)(&port)+0);
-//    data[5] = *((uint8_t*)(&port)+1);
-//    int len = bucket->serialize(data+6);
-//    delete bucket;
-//    Message response(data,len+6);
-//    response.setFlags(RPC_FIND_NODE_ANSWER);
-//    (Messenger::getInstance()).sendMessage(target, response);
     uint8_t data[500];
-    int len = bucket->serialize(data);
+    uint32_t ip = findme.getIp().getIp();
+    uint16_t port = htons(findme.getPort());
+    data[0] = *((uint8_t*)(&ip)+0);
+    data[1] = *((uint8_t*)(&ip)+1);
+    data[2] = *((uint8_t*)(&ip)+2);
+    data[3] = *((uint8_t*)(&ip)+3);
+    data[4] = *((uint8_t*)(&port)+0);
+    data[5] = *((uint8_t*)(&port)+1);
+    int len = bucket->serialize(data+6);
     delete bucket;
-    Message response(data,len);
+    Message response(data,len+6);
     response.setFlags(RPC_FIND_NODE_ANSWER);
     (Messenger::getInstance()).sendMessage(target, response);
+    
+//    uint8_t data[500];
+//    int len = bucket->serialize(data);
+//    delete bucket;
+//    Message response(data,len);
+//    response.setFlags(RPC_FIND_NODE_ANSWER);
+//    (Messenger::getInstance()).sendMessage(target, response);
 }
 
 static void* execute(void* this_class) 
@@ -77,18 +81,17 @@ static void* execute(void* this_class)
             q->pop();
 
             Node senderNode = top->getSenderNode();
-            Node answerto = senderNode;
-#ifdef KAD_DEBUG
+#ifndef NDEBUG
             char ip[16];
-            answerto.getIp().toString(ip);
-            std::cout<<"Received a message from: "<<ip<<std::endl;
+            senderNode.getIp().toString(ip);
+            printf("Received a message from: %s:%hu\n",ip,senderNode.getPort());
 #endif
             switch(top->getFlags())
             {
                 case RPC_PING :
                 {
                     std::cout << "The message is a ping: " << top->getText() << std::endl;
-                    rpc_pong(answerto);
+                    rpc_pong(senderNode);
                     
                 }
                     break;
@@ -118,21 +121,34 @@ static void* execute(void* this_class)
                     uint32_t ip = *((uint32_t*)data);
                     uint16_t port = ntohs(*(uint16_t*)(data+4));
                     Node findme(Ip(ip),port);
-                    std::cout<<"Cercato il nodo: "<<ip<<":"<<port<<std::endl;
+#ifndef NDEBUG
+                    char stringip[16];
+                    findme.getIp().toString(stringip);
+                    printf("Searched node: %s:%hu\n",stringip,port);
+#endif
                     Key k;
                     //retrieve the key from message
                     k.craft(top->getData()+6);
                     //find closest nodes
                     Kbucket* b = p->neighbours->findKClosestNodes(&k);
                     b->print();
-                    p->rpc_find_node_answer(answerto, findme, b);
+                    p->rpc_find_node_answer(senderNode, findme, b);
                 }
                     break;
                     
                 case RPC_FIND_NODE_ANSWER :
                 {
                     std::cout << "Received a list of nodes" << std::endl;
-                    Kbucket b(top->getData());
+                    const uint8_t* data = top->getData();
+                    uint32_t ip = *((uint32_t*)data);
+                    uint16_t port = ntohs(*(uint16_t*)(data+4));
+                    Node findme(Ip(ip),port);
+#ifndef NDEBUG
+                    char stringip[16];
+                    findme.getIp().toString(stringip);
+                    printf("Searched node: %s:%hu\n",stringip,port);;
+#endif
+                    Kbucket b(top->getData()+6);
                     b.print();
                 }
                     break;

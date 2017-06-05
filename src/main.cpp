@@ -10,7 +10,8 @@ int main(int argc, char* argv[])
     unsigned short port_host = 0, port_dest = 0;
     Ip gateway;
     bool im_gateway = true;
-    while((c = getopt(argc,argv,"hi:p:P:")) != -1)
+    bool private_net = false;
+    while((c = getopt(argc,argv,"hxi:p:P:")) != -1)
     {
         switch(c)
         {
@@ -20,10 +21,12 @@ int main(int argc, char* argv[])
                 fprintf(stdout,"-i [char*] The ip to connect to on the remote host\n");
                 fprintf(stdout,"-p [ uint] The port to connect to on the remote host\n");
                 fprintf(stdout,"-P [ uint] The port to use on this host\n");
+                fprintf(stdout,"-x [     ] If gateway, use the private network");
                 fprintf(stdout,"-h [     ] Print this wonderful help :)\n");
                 exit(EXIT_SUCCESS);
                 break;
             }
+            case 'x':private_net = true;break;
             case 'p': port_dest = atoi(optarg);break;
             case 'i': gateway = Ip(optarg); im_gateway = false;break;
             case 'P': port_host = atoi(optarg);break;
@@ -51,13 +54,14 @@ int main(int argc, char* argv[])
         exit(EXIT_FAILURE);
     }
 
-
+    Node gatewaynode(gateway,port_dest);
     std::queue<Message*> a;
 
     //creating the thread that waits for incoming packets and passes them to the performer one
     Messenger* m = &(Messenger::getInstance());
     m->init(&a, port_host);
-    m->setPrivate();
+    if(im_gateway && private_net)
+        m->setPrivate();
     Performer p(&a);
     if(!im_gateway)
     {
@@ -68,15 +72,13 @@ int main(int argc, char* argv[])
         }
         else
         {
+            if(gateway.isPrivate())
+                m->setPrivate();
             char myIp[16];
             m->getIp().toString(myIp);
             Key myKey(m->getIp(),m->getPort());
             std::cout << "My ip: " << myIp << std::endl;
-            
-            Message msg(myKey.getKey(),NBYTE); //ask for neighbours to the
-                                               //gateway
-            msg.setFlags(RPC_FIND_NODE);
-            m->sendMessage(Node(gateway, port_dest), msg);
+            p.rpc_find_node_request(gatewaynode,Node(m->getIp(),m->getPort()), 0);
         }
     }
 

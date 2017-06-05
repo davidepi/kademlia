@@ -43,7 +43,7 @@ void Kbucket::setNodes(std::list<Node>* nodeList) {
 
 int Kbucket::serialize(uint8_t out[500])const
 {
-#if KBUCKET_SIZE > 83
+#if KBUCKET_SIZE > 82 //6 foreach node + 6 for the requested node
 #error A Kbucket will not fit inside a single UDP datagram
 #endif
     short index = 0;
