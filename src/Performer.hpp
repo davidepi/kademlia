@@ -11,6 +11,8 @@
 #include "Distance.hpp"
 #include "NeighbourManager.hpp"
 
+void rpc_ping(Node node);
+
 class Performer
 {
 public:

@@ -1,4 +1,5 @@
 #include "Kbucket.hpp"
+#include "Updater.hpp"
 
 Kbucket::Kbucket() 
 {
@@ -25,10 +26,10 @@ void Kbucket::add(const Node n)
     {
         //check if last node is still alive
         Node lastActiveNode = Kbucket::nodeList->back();
-        Kbucket::nodeList->pop_back();
 
-        //check ping
-        //rpc_ping(lastActiveNode);
+        //get reference to thread that manages the update bucket when it is full
+        Updater* updater = Updater::getInstance();
+        updater->checkUpdateBucket(lastActiveNode, n);
     }
    
 }
