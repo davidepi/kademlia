@@ -61,7 +61,12 @@ int main(int argc, char* argv[])
     Messenger* m = &(Messenger::getInstance());
     m->init(&a, port_host);
     if(im_gateway && private_net)
+    {
         m->setPrivate();
+        std::cout<<"Private network"<<std::endl;
+    }
+    else if(im_gateway && !private_net)
+        std::cout<<"Public network"<<std::endl;
     Performer p(&a);
     if(!im_gateway)
     {
@@ -73,7 +78,12 @@ int main(int argc, char* argv[])
         else
         {
             if(gateway.isPrivate())
+            {
+                std::cout<<"Private network"<<std::endl;
                 m->setPrivate();
+            }
+            else
+                std::cout<<"Public network"<<std::endl;
             char myIp[16];
             m->getIp().toString(myIp);
             Key myKey(m->getIp(),m->getPort());
