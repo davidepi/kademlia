@@ -11,16 +11,13 @@
 #include <mutex>
 #include <functional> //hash
 
-void hash_combine(std::size_t& seed, std::size_t value)
+void hash_combine(std::size_t& seed, std::size_t value);
+struct Key_hasher
 {
-    seed ^= value + 0x9e3779b9 + (seed<<6) + (seed>>2);
-}
-
-struct Key_hasher {
-    std::size_t operator()(const Key c) const {
+    std::size_t operator()(const Key* c) const {
         std::size_t seed = 0;
         for(int i=0;i<NBYTE;i++) {
-            hash_combine(seed, std::hash<int>()(c.getKey()[i]));
+            hash_combine(seed, std::hash<int>()(c->getKey()[i]));
         }
         return seed;
     }
@@ -32,11 +29,12 @@ public:
     SearchNode(Node n);
     ~SearchNode();
     void addAnswer(Kbucket* answer);
+    void queryTo(Node* answer);
     
 private:
     Node findme;
     std::vector<Node> askme;
-    std::unordered_map<Key,Node,Key_hasher> asked;
+    std::unordered_map<const Key*,Node,Key_hasher> asked;
     std::mutex mtx;
 };
 
