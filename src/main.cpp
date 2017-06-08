@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
                 fprintf(stdout,"-i [char*] The ip to connect to on the remote host\n");
                 fprintf(stdout,"-p [ uint] The port to connect to on the remote host\n");
                 fprintf(stdout,"-P [ uint] The port to use on this host\n");
-                fprintf(stdout,"-x [     ] If gateway, use the private network");
+                fprintf(stdout,"-x [     ] If gateway, use the private network\n");
                 fprintf(stdout,"-h [     ] Print this wonderful help :)\n");
                 exit(EXIT_SUCCESS);
                 break;

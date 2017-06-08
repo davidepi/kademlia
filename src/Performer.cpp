@@ -36,11 +36,6 @@ void Performer::rpc_find_node_request(Node askme, Node findme,
     response.setFlags(RPC_FIND_NODE);
     response.append(findme.getKey()->getKey(),NBYTE);
     (Messenger::getInstance()).sendMessage(askme, response);
-
-//    Message response(findme.getKey()->getKey(),NBYTE);
-//    response.setFlags(RPC_FIND_NODE);
-//    (Messenger::getInstance()).sendMessage(askme, response);
-    
 }
 
 void Performer::rpc_find_node_answer(Node target, Node findme, Kbucket* bucket)
@@ -59,13 +54,6 @@ void Performer::rpc_find_node_answer(Node target, Node findme, Kbucket* bucket)
     Message response(data,len+6);
     response.setFlags(RPC_FIND_NODE_ANSWER);
     (Messenger::getInstance()).sendMessage(target, response);
-    
-//    uint8_t data[500];
-//    int len = bucket->serialize(data);
-//    delete bucket;
-//    Message response(data,len);
-//    response.setFlags(RPC_FIND_NODE_ANSWER);
-//    (Messenger::getInstance()).sendMessage(target, response);
 }
 
 static void* execute(void* this_class) 
@@ -82,6 +70,9 @@ static void* execute(void* this_class)
             q->pop();
 
             Node senderNode = top->getSenderNode();
+            
+            //update bucket -> add the sender node whichever the RPC is
+            p->neighbours->insertNode(&senderNode);
 #ifndef NDEBUG
             char ip[16];
             senderNode.getIp().toString(ip);
@@ -162,9 +153,6 @@ static void* execute(void* this_class)
                     //ignore the packet with wrong type flag
                     ;
             }
-
-            //update bucket -> add the sender node whichever the RPC is
-            p->neighbours->insertNode(&senderNode);
         } 
         else 
         {

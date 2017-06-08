@@ -94,7 +94,7 @@ bool Kbucket::contains(Node* n)const {
     return false;
 }
 
-void Kbucket::print()
+void Kbucket::print()const
 {
     std::cout<<"KBucket size: "<<nodeList->size()<<std::endl;
     char ipstring[16];

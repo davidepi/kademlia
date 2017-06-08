@@ -30,5 +30,4 @@ private:
     pthread_t thread_id;
 };
 
-
 #endif

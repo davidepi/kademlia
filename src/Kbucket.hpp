@@ -18,7 +18,7 @@ public:
     //return the number of bytes written
     int serialize(uint8_t out[500])const;
     bool contains(Node* n)const;
-    void print();
+    void print()const;
 
 private:
     std::list<Node>* nodeList;
