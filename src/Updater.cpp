@@ -1,6 +1,26 @@
 #include "Updater.hpp"
 
+struct UpdaterStruct {
+    std::mutex mutex;
+    std::condition_variable cond_var;
+    std::queue<Node> queue;
+    std::map<Node, Node> updateNodesMap;
+};
+
+struct TimeoutStruct {
+    Node oldNode;
+    Node newNode;
+    std::map<Node, Node>* map;
+    Kbucket* kbucket;
+    
+    TimeoutStruct(Node oldNode, Node newNode, std::map<Node, Node>* map, Kbucket* kbucket) : oldNode(oldNode), newNode(newNode) {
+        TimeoutStruct::map = map;
+        TimeoutStruct::kbucket = kbucket;
+    }
+};
+
 void* scan_queue(void* arg);
+void* removeAfterTimeout(void* arg);
 
 Updater* Updater::instance = NULL;
 
@@ -18,19 +38,23 @@ Updater::Updater() {
 
 
 Updater::~Updater() {
+    delete vars;
 }
 
 
-void Updater::checkUpdateBucket(Node oldNode, Node newNode) {
+void Updater::checkUpdateBucket(Node oldNode, Node newNode, Kbucket* kbucket) {
     //ping least recently seen node
-    Node tmp(Ip("192.168.1.2"),oldNode.getPort()); //TODO delete when it is possible to send msg in local
-    rpc_ping(tmp);
-    
+    rpc_ping(oldNode);
     std::cout << "---send ping to port " << oldNode.getPort() << std::endl;
     
     //store the new node to add iff the older node does not answer
     vars->updateNodesMap.insert(std::pair<Node, Node>(oldNode, newNode));
-    
+
+    //launch a thread that waits at least TIMEOUT seconds, 
+    //then it substitute the node if a pong has been not received
+    pthread_t t_id;
+    struct TimeoutStruct* timeoutVars = new TimeoutStruct(oldNode, newNode, &(vars->updateNodesMap), kbucket);
+    pthread_create(&t_id, NULL, removeAfterTimeout, (void *)timeoutVars);
 }
 
 //add pong to the queue and notify the processing thread
@@ -40,6 +64,32 @@ void Updater::processPong(Node n) {
     vars->cond_var.notify_all();
 }
 
+void* removeAfterTimeout(void* args) {
+    sleep(TIMEOUT);
+    struct TimeoutStruct* argStruct = (TimeoutStruct*) args;
+    
+    std::map<Node, Node>::iterator mapIt = argStruct->map->find(argStruct->oldNode);
+    
+    //if the pair oldNode and newNode matches
+    if (mapIt != argStruct->map->end() && (*mapIt).second == argStruct->newNode) {
+        std::cout << "+++removing" << std::endl;
+        argStruct->map->erase(mapIt);
+
+        //update kbucket
+        std::list<Node>* nodeList = argStruct->kbucket->getNodes();
+
+        for (std::list<Node>::const_iterator listIt = nodeList->begin(); listIt != nodeList->end(); ++listIt) {
+            if ((*mapIt).first == *listIt) { //delete not answering node, add the new one
+                nodeList->remove(*listIt);
+                nodeList->push_front((*mapIt).second);
+                break;
+            }
+        }
+    }
+    std::cout << "+++end timeout" << std::endl;
+    
+    delete argStruct;
+}
 
 void* scan_queue(void* args) {
     
