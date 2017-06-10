@@ -20,8 +20,7 @@ void rpc_ping(Node node)
     (Messenger::getInstance()).sendMessage(node, response);
 }
 
-void Performer::rpc_find_node_request(Node askme, Node findme,
-                                      uint8_t iteration)
+Message generate_find_node_request(Node findme)
 {
     uint8_t data[6];
     uint32_t ip = findme.getIp().getIp();
@@ -35,10 +34,10 @@ void Performer::rpc_find_node_request(Node askme, Node findme,
     Message response(data,6);
     response.setFlags(RPC_FIND_NODE);
     response.append(findme.getKey()->getKey(),NBYTE);
-    (Messenger::getInstance()).sendMessage(askme, response);
+    return response;
 }
 
-void Performer::rpc_find_node_answer(Node target, Node findme, Kbucket* bucket)
+Message generate_find_node_answer(Node findme, Kbucket* bucket)
 {
     uint8_t data[500];
     uint32_t ip = findme.getIp().getIp();
@@ -53,7 +52,7 @@ void Performer::rpc_find_node_answer(Node target, Node findme, Kbucket* bucket)
     delete bucket;
     Message response(data,len+6);
     response.setFlags(RPC_FIND_NODE_ANSWER);
-    (Messenger::getInstance()).sendMessage(target, response);
+    return response;
 }
 
 static void* execute(void* this_class) 
@@ -124,7 +123,8 @@ static void* execute(void* this_class)
                     //find closest nodes
                     Kbucket* b = p->neighbours->findKClosestNodes(&k);
                     b->print();
-                    p->rpc_find_node_answer(senderNode, findme, b);
+                    Message msg = generate_find_node_answer(findme, b);
+                    Messenger::getInstance().sendMessage(senderNode, msg);
                 }
                     break;
                     
@@ -141,7 +141,29 @@ static void* execute(void* this_class)
                     printf("Searched node: %s:%hu\n",stringip,port);;
 #endif
                     Kbucket b(top->getData()+6);
-                    b.print();
+                    SearchNode* sn;
+                    std::unordered_map<const Key*,SearchNode*>::const_iterator got = p->searchInProgress.find(findme.getKey());
+                    if(got == p->searchInProgress.end())
+                    {
+                        sn = new SearchNode(findme);
+                        p->searchInProgress.insert({{findme.getKey(),sn}});
+                    }
+                    else
+                        sn = got->second;
+                    sn->addAnswer(&b);
+                    Node askto[ALPHA_REQUESTS];
+                    if(sn->queryTo(askto)) //node not found
+                    {
+                        Message msg = generate_find_node_request(findme);
+                        for(int i=0;i<ALPHA_REQUESTS;i++)
+                        {
+                            Messenger::getInstance().sendMessage(askto[i],msg);
+                        }
+                    }
+                    else //node found
+                    {
+                        //???
+                    }
                 }
                     break;
                 case RPC_FIND_VALUE :

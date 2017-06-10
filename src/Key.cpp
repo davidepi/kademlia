@@ -24,6 +24,12 @@ uint32_t rotl32 (uint32_t value, unsigned int count) //left rotate
     return (value<<count) | (value>>( (-count) & mask ));
 }
 
+void hash_combine(std::size_t& seed, std::size_t value)
+{
+    seed ^= value + 0x9e3779b9 + (seed<<6) + (seed>>2);
+}
+
+
 Key::Key(Ip ip, int port)
 {
     uint8_t input[6]; //assuming 4 byte pid
@@ -89,6 +95,16 @@ bool Key::operator==(const Key& k) const
 bool Key::operator!=(const Key& k) const
 {
     return !(*this==k);
+}
+
+std::size_t Key::operator()(const Key *c)const
+{
+    std::size_t seed = 0;
+    for(int i=0;i<NBYTE;i++)
+    {
+        hash_combine(seed, std::hash<int>()(c->getKey()[i]));
+    }
+    return seed;
 }
 
 static void sha1(const uint8_t* input, uint8_t* output, uint64_t len)

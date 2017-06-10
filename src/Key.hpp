@@ -18,7 +18,9 @@ public:
     
     bool operator==(const Key& k)const;
     bool operator!=(const Key& k)const;
-
+    
+    std::size_t operator()(const Key* c) const; //for the hash map
+    
     void craft(const uint8_t* bytes);
     void print()const;
 
@@ -27,5 +29,6 @@ private:
     uint8_t key[NBYTE];
 };
 
+void hash_combine(std::size_t& seed, std::size_t value);
 
 #endif

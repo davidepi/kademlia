@@ -88,7 +88,9 @@ int main(int argc, char* argv[])
             m->getIp().toString(myIp);
             Key myKey(m->getIp(),m->getPort());
             std::cout << "My ip: " << myIp << std::endl;
-            p.rpc_find_node_request(gatewaynode,Node(m->getIp(),m->getPort()), 0);
+            Message msg = generate_find_node_request(Node(m->getIp(),m->getPort()));
+            (Messenger::getInstance()).sendMessage(gatewaynode, msg);
+            
         }
     }
 

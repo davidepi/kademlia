@@ -10,8 +10,11 @@
 #include "Kbucket.hpp"
 #include "Distance.hpp"
 #include "NeighbourManager.hpp"
+#include "SearchNode.hpp"
 
 void rpc_ping(Node node);
+Message generate_find_node_request(Node findme);
+Message generate_find_node_answer(Node findme, Kbucket* bucket);
 
 class Performer
 {
@@ -20,10 +23,9 @@ public:
     ~Performer();
     std::queue<Message*>* message_queue;
     std::unordered_map<std::string, char*> filesMap;
+    std::unordered_map<const Key*,SearchNode*> searchInProgress;
     NeighbourManager* neighbours;
     
-    void rpc_find_node_request(Node ask_me, Node find_me, uint8_t iteration);
-    void rpc_find_node_answer(Node target, Node findme, Kbucket* bucket);
     const pthread_t getThreadID()const;
     
 private:

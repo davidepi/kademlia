@@ -1,20 +1,14 @@
 #include "SearchNode.hpp"
 
-void hash_combine(std::size_t& seed, std::size_t value)
-{
-    seed ^= value + 0x9e3779b9 + (seed<<6) + (seed>>2);
-}
-
-
-
 SearchNode::SearchNode(Node n)
 {
     findme = n;
+    search_ended = false;
 }
 
 SearchNode::~SearchNode()
 {
-    //TODO
+    
 }
 
 void SearchNode::addAnswer(Kbucket* answer)
@@ -30,19 +24,37 @@ void SearchNode::addAnswer(Kbucket* answer)
         }
     }
     sort(askme.begin(),askme.end());
+    if(askme.back()==findme)
+    {
+        search_ended = true;
+        askme.clear();
+        askme.insert(askme.begin(), findme);
+    }
     mtx.unlock();
 }
 
-void SearchNode::queryTo(Node* answer)
+int SearchNode::queryTo(Node* answer)
 {
-    mtx.lock();//to avoid processing the answer while still sending requests
-    for(int i=0;i<NBYTE;i++)
+    if(search_ended)
     {
-        answer[i] = askme.back();
-        askme.pop_back();
-        asked.insert({{answer[i].getKey(),answer[i]}});
+        answer[0] = findme;
+        return 0;
+    }
+    mtx.lock();//to avoid processing the answer while still sending requests
+    int i;
+    for(i=0;i<ALPHA_REQUESTS;i++)
+    {
+        if(askme.size()>0)
+        {
+            answer[i] = askme.back();
+            askme.pop_back();
+            asked.insert({{answer[i].getKey(),answer[i]}});
+        }
+        else
+            break;
     }
     mtx.unlock();
+    return i;
 }
 
 struct Compare

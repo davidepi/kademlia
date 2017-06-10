@@ -5,23 +5,12 @@
 #include "Key.hpp"
 #include "Kbucket.hpp"
 #include "Distance.hpp"
+#include "settings.h"
 #include <string>
 #include <vector>
 #include <unordered_map>
 #include <mutex>
-#include <functional> //hash
-
-void hash_combine(std::size_t& seed, std::size_t value);
-struct Key_hasher
-{
-    std::size_t operator()(const Key* c) const {
-        std::size_t seed = 0;
-        for(int i=0;i<NBYTE;i++) {
-            hash_combine(seed, std::hash<int>()(c->getKey()[i]));
-        }
-        return seed;
-    }
-};
+#include <algorithm>
 
 class SearchNode
 {
@@ -29,13 +18,15 @@ public:
     SearchNode(Node n);
     ~SearchNode();
     void addAnswer(Kbucket* answer);
-    void queryTo(Node* answer);
+    int queryTo(Node* answer); //return 0 if the search is completed
+                               //otherwise the size of the answer array
     
 private:
     Node findme;
     std::vector<Node> askme;
-    std::unordered_map<const Key*,Node,Key_hasher> asked;
+    std::unordered_map<const Key*,Node> asked;
     std::mutex mtx;
+    bool search_ended;
 };
 
 #endif
