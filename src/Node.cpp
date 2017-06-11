@@ -77,7 +77,7 @@ bool Node::isEmpty()
 
 Node::~Node()
 {
-    if(*(Node::reference) == 1)
+    if(--(*(Node::reference)) == 0)
     {
         delete Node::id;
         delete[] Node::reference;

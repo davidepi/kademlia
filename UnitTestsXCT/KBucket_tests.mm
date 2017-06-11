@@ -36,13 +36,14 @@
 
 - (void)test02_KBucket_addNodeNoSpace
 {
-    Kbucket k;
-    for(int i=-1;i<KBUCKET_SIZE;i++)
-    {
-        Node* n = new Node("127.0.0.1",i+1025);
-        k.add(*n);
-    }
-    
-    XCTAssertTrue(true);
+//    Kbucket k;
+//    for(int i=-1;i<KBUCKET_SIZE;i++)
+//    {
+//        Node* n = new Node("127.0.0.1",i+1025);
+//        k.add(*n);
+//    }
+//
+//TODO: Updater broke this test
+    XCTAssertTrue(false);
 }
 @end
