@@ -12,8 +12,8 @@ public:
     Kbucket();
     Kbucket(const uint8_t serialized[500]);
     ~Kbucket();
-    void add(Node n);
-    const std::list<Node>* getNodes();
+    void add(const Node n);
+    std::list<Node>* getNodes()const;
     void setNodes(std::list<Node>* nodeList);
     //return the number of bytes written
     int serialize(uint8_t out[500])const;

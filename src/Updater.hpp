@@ -7,22 +7,20 @@
 #include <iostream>
 #include <queue>
 #include <map>
+#include <list>
 #include "Node.hpp"
 #include "Performer.hpp"
+#include "Kbucket.hpp"
+#include "settings.h"
 
-struct UpdaterStruct {
-    std::mutex mutex;
-    std::condition_variable cond_var;
-    std::queue<Node> queue;
-    std::map<Node, Node> updateNodesMap;
-};
+struct UpdaterStruct;
 
 class Updater {
 public:
     static Updater* getInstance();
     ~Updater();
-    void checkUpdateBucket(Node oldNode, Node newNode);
-    void processPong(Node n);
+    void checkUpdateBucket(Node oldNode, Node newNode, Kbucket* kbucket);
+    void processPong(Node n);   
     
 private:
     Updater();

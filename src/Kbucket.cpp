@@ -29,12 +29,12 @@ void Kbucket::add(const Node n)
 
         //get reference to thread that manages the update bucket when it is full
         Updater* updater = Updater::getInstance();
-        updater->checkUpdateBucket(lastActiveNode, n);
+        updater->checkUpdateBucket(lastActiveNode, n, this);
     }
    
 }
 
-const std::list<Node>* Kbucket::getNodes() {
+std::list<Node>* Kbucket::getNodes() const {
     return Kbucket::nodeList;
 }
 
