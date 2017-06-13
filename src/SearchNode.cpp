@@ -2,21 +2,25 @@
 
 struct Compare
 {
-    Compare(Node c)
+    Compare(const Key* c)
     {
         Compare::c = c;
     }
-    Node c;
+    const Key* c;
     bool operator()(Node a, Node b)
     {
-        return Distance(*a.getKey(),*c.getKey()) > Distance(*b.getKey(),*c.getKey());
+        return Distance(*a.getKey(),*c) > Distance(*b.getKey(),*c);
         //reverse order, so I can pop_back from array the lowest distance
     }
 };
 
-SearchNode::SearchNode(Node n)
+SearchNode::SearchNode(Node n) : findkey(*(n.getKey()))
 {
-    findme = n;
+    search_ended = false;
+}
+
+SearchNode::SearchNode(Key* k) : findkey(*k)
+{
     search_ended = false;
 }
 
@@ -39,9 +43,10 @@ void SearchNode::addAnswer(Kbucket* answer)
             askme.push_back(current);
         }
     }
-    sort(askme.begin(),askme.end(),Compare(findme));
-    if(askme.back()==findme)
+    sort(askme.begin(),askme.end(),Compare(&findkey));
+    if(*(askme.back().getKey())==findkey)
     {
+        Node findme = askme.back();
         search_ended = true;
         askme.clear();
         askme.insert(askme.begin(), findme);
@@ -53,7 +58,7 @@ int SearchNode::queryTo(Node* answer)
 {
     if(search_ended)
     {
-        answer[0] = findme;
+        answer[0] = askme.back();
         return 0;
     }
     mtx.lock();//to avoid processing the answer while still sending requests

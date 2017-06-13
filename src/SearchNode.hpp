@@ -16,13 +16,14 @@ class SearchNode
 {
 public:
     SearchNode(Node n);
+    SearchNode(Key* k);
     ~SearchNode();
     void addAnswer(Kbucket* answer);
     int queryTo(Node* answer); //return 0 if the search is completed
                                //otherwise the size of the answer array
     
 private:
-    Node findme;
+    Key findkey;
     std::vector<Node> askme;
     std::unordered_map<const Key*,Node> asked;
     std::mutex mtx;

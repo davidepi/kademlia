@@ -18,7 +18,7 @@
 - (void)test01_SearchNode_insertionDistanceDesc
 {
     //add
-    srand(time(NULL));
+    srand((unsigned int)time(NULL));
     Node findme(Ip(rand()),rand()%65536);
     SearchNode sc(findme);
     Kbucket k;
@@ -53,7 +53,7 @@
 - (void)test02_SearchNode_insertionDistanceAsc
 {
     //add
-    srand(time(NULL));
+    srand((unsigned int)time(NULL));
     Node findme(Ip(rand()),rand()%65536);
     SearchNode sc(findme);
     Kbucket k;
@@ -86,7 +86,7 @@
 - (void)test03_SearchNode_insertionDistanceRand
 {
     //add
-    srand(time(NULL));
+    srand((unsigned int)time(NULL));
     Node findme(Ip(rand()),rand()%65536);
     SearchNode sc(findme);
     Kbucket k;
@@ -115,7 +115,7 @@
 - (void)test04_SearchNode_fullKbucketInsertion
 {
     //add
-    srand(time(NULL));
+    srand((unsigned int)time(NULL));
     Node findme(Ip(rand()),rand()%65536);
     SearchNode sc(findme);
     Kbucket k;
@@ -144,7 +144,7 @@
 - (void)test05_SearchNode_sameNodeInsertion
 {
     //add
-    srand(time(NULL));
+    srand((unsigned int)time(NULL));
     Node findme(Ip(rand()),rand()%65536);
     SearchNode sc(findme);
     Kbucket k;
@@ -168,7 +168,7 @@
     const int MERGE_SIZE = 5;
     
     //add
-    srand(time(NULL));
+    srand((unsigned int)time(NULL));
     Node findme(Ip(rand()),rand()%65536);
     SearchNode sc(findme);
     for(int j=0;j<MERGE_SIZE;j++)
@@ -202,7 +202,7 @@
 - (void)test07_SearchNode_foundNode
 {
     //add
-    srand(time(NULL));
+    srand((unsigned int)time(NULL));
     Node findme(Ip(rand()),rand()%65536);
     SearchNode sc(findme);
     Kbucket k;
@@ -227,7 +227,7 @@
 - (void)test08_SearchNode_tryingToAddAfterNodeFound
 {
     //add
-    srand(time(NULL));
+    srand((unsigned int)time(NULL));
     Node findme(Ip(rand()),rand()%65536);
     SearchNode sc(findme);
     Kbucket k;
@@ -249,6 +249,52 @@
     
     XCTAssertEqual(retval, 0);
     XCTAssertEqual(res[0],findme);
+}
+
+- (void)test09_SearchNode_KeyTest
+{
+    const int MERGE_SIZE = 5;
+    
+    //add
+    srand((unsigned int)time(NULL));
+    int len = 20;
+    char s[len];
+    static const char alphanum[] = "0123456789"
+                                   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                   "abcdefghijklmnopqrstuvwxyz";
+    for (int i = 0; i < len; i++)
+    {
+        s[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
+    }
+    s[len] = 0;
+    Key k(s);
+    SearchNode sc(&k);
+    for(int j=0;j<MERGE_SIZE;j++)
+    {
+        Kbucket k;
+        long i=k.getNodes()->size();
+        while(i<KBUCKET_SIZE)
+        {
+            Node askme(Ip((rand()%0xFFFFFFFF)),rand()%65536);;
+            k.add(askme);
+            i=k.getNodes()->size();
+        }
+        sc.addAnswer(&k);
+    }
+    
+    //retrieve
+    Node res[ALPHA_REQUESTS];
+    for(int i=0;i<(KBUCKET_SIZE*MERGE_SIZE/ALPHA_REQUESTS);i++)
+    {
+        int retval = sc.queryTo(res);
+        XCTAssertEqual(retval, ALPHA_REQUESTS);
+        for(int j=0;j<ALPHA_REQUESTS-1;j++)
+        {
+            int dis1 = Distance(*(res[j].getKey()),k).getDistance();
+            int dis2 = Distance(*(res[j+1].getKey()),k).getDistance();
+            XCTAssertLessThanOrEqual(dis1,dis2);
+        }
+    }
 }
 
 
