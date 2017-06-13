@@ -42,6 +42,10 @@ void Kbucket::setNodes(std::list<Node>* nodeList) {
     *(Kbucket::nodeList) = *nodeList;
 }
 
+int Kbucket::getSize() const {
+    getNodes()->size();
+}
+
 int Kbucket::serialize(uint8_t out[500])const
 {
 #if KBUCKET_SIZE > 82 //6 foreach node + 6 for the requested node

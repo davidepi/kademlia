@@ -89,6 +89,7 @@ void* removeAfterTimeout(void* args) {
     std::cout << "+++end timeout" << std::endl;
     
     delete argStruct;
+    return NULL;
 }
 
 void* scan_queue(void* args) {
@@ -119,5 +120,6 @@ void* scan_queue(void* args) {
         }
         
     }
+    return NULL;
 }
 

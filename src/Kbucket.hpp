@@ -15,6 +15,7 @@ public:
     void add(const Node n);
     std::list<Node>* getNodes()const;
     void setNodes(std::list<Node>* nodeList);
+    int getSize()const;
     //return the number of bytes written
     int serialize(uint8_t out[500])const;
     bool contains(Node* n)const;
