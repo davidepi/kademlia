@@ -10,6 +10,6 @@
 
 //LEFT_DISTANCE -> minimum distance is the most significant digit in the key
 //RIGHT_DISTANCE -> minimum distance is the least significant digit in the key
-#define RIGHT_DISTANCE
+#define LEFT_DISTANCE
 
 #endif

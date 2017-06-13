@@ -131,6 +131,7 @@ void Distance::printDistance(char* out) const
 
 short Distance::getDistance() const
 {
+#define REVERSE_DISTANCE NBYTE*8;
     uint8_t val=0;
 #ifdef LEFT_DISTANCE
     uint8_t index=0;
@@ -155,32 +156,32 @@ short Distance::getDistance() const
     // lzcnt non esiste per uint8_t, quindi ho castato a uint16_t e shiftato di
     // 8 a sx, senno' il numero di zeri prima del primo uno e' aumentato di 8.
     
-    return (8*index)+(retval)+1;
+    return 160-((8*index)+(retval)+1);
     
 #else //stessa cosa ma scritta non in assembly
       //siccome sono pro lo faccio divide et impera :D
     if((val & 0xF0) > 0) //il primo bit diverso e' tra i 1 e 4
         if((val & 0xC0) > 0) //il primo bit diverso e' tra 1 o 2
             if((val & 0x80) > 0) //la chiave e' 1xxxxxxx
-                return (8*index)+1;
+                return REVERSE_DISTANCE-(8*index)+1;
             else    //la chiave e' 01xxxxxx
-                return (8*index)+2;
+                return REVERSE_DISTANCE-(8*index)+2;
         else // primo bit diverso e' 3 o 4
             if((val & 0x20) > 0) //la chiave e' 001xxxxx
-                return (8*index)+3;
+                return REVERSE_DISTANCE-(8*index)+3;
             else    //la chiave e' 0001xxxx
-                return (8*index)+4;
+                return REVERSE_DISTANCE-(8*index)+4;
     else //il primo bit diverso e' tra 5 e 8
         if((val & 0x0C) > 0) //il primo bit diverso e' 5 o 6
             if((val & 0x08) > 0) //la chiave e' 00001xxx
-                return (8*index)+5;
+                return REVERSE_DISTANCE-(8*index)+5;
             else    //la chiave e' 000001xx
-                return (8*index)+6;
+                return REVERSE_DISTANCE-(8*index)+6;
         else //il primo bit diverso e' 7 o 8
             if((val & 0x02) > 0) //la chiave e' 0000001x
-                return (8*index)+7;
+                return REVERSE_DISTANCE-(8*index)+7;
             else
-                return (8*index)+8; //la chiave e' 00000001
+                return REVERSE_DISTANCE-(8*index)+8; //la chiave e' 00000001
     
     //soluzione per i comuni mortali molto piu' elegante ma non
     //divide et impera :p
@@ -210,31 +211,31 @@ short Distance::getDistance() const
              :"r"(vall)
              :
              );
-    return (8*index)+(retval)+1;
+    return REVERSE_DISTANCE-(8*index)+(retval)+1;
 #else
     
     if((val & 0xF) > 0) //il primo bit diverso e' tra i 5 e 8
         if((val & 0x3) > 0) //il primo bit diverso e' tra 7 o 8
             if((val & 0x1) > 0) //la chiave e' xxxxxxx1
-                return (8*index)+1;
+                return REVERSE_DISTANCE-(8*index)+1;
             else //la chiave e' xxxxxx10
-                return (8*index+2);
+                return REVERSE_DISTANCE-(8*index+2);
         else // il primo bit diverso e' 5 o 6
             if((val & 0x4)>0) //la chiave e' xxxxx100
-                return (8*index+3);
+                return REVERSE_DISTANCE-(8*index+3);
             else //la chaive e' xxxx1000
-                return (8*index+4);
+                return REVERSE_DISTANCE-(8*index+4);
     else //il primo bit diverso e' tra 1 e 4
         if((val & 0x30) > 0) //il primo bit diverso e' 3 o 4
             if((val & 0x10) > 0) //la chiave e' xxx10000
-                return (8*index+5);
+                return REVERSE_DISTANCE-(8*index+5);
             else //la chiave e' xx100000
-                return (8*index+6);
+                return REVERSE_DISTANCE-(8*index+6);
         else //il primo bit diverso e' 1 o 2
             if((val & 0x40) > 0) //la chiave e' x1000000
-                return (8*index+7);
+                return REVERSE_DISTANCE-(8*index+7);
             else // la chiave e' 10000000
-                return (8*index+8);
+                return REVERSE_DISTANCE-(8*index+8);
 #endif
 #endif
 }

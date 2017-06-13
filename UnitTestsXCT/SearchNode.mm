@@ -57,7 +57,6 @@
     Node findme(Ip(rand()),rand()%65536);
     SearchNode sc(findme);
     Kbucket k;
-    unsigned int previous_distance = 0;
     for(int i=0;i<ALPHA_REQUESTS;i++)
     {
         int dist;
@@ -66,8 +65,7 @@
         {
             askme = Node(Ip(rand()%0xFFFFFFFF),rand()%65536);
             dist = Distance(askme,findme).getDistance();
-        }while(dist <= previous_distance);
-        previous_distance = dist;
+        }while(dist != NBYTE*8-(i+1));
         k.add(askme);
     }
     sc.addAnswer(&k);
