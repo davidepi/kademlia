@@ -4,6 +4,7 @@
 #include "Kbucket.hpp"
 #include "Distance.hpp"
 #include <assert.h>
+#include <algorithm>
 
 class NeighbourManager {
 public:

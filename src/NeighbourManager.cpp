@@ -1,5 +1,17 @@
 #include "NeighbourManager.hpp"
 
+struct Compare {
+
+    Compare(const Key* c) {
+        Compare::c = c;
+    }
+    const Key* c;
+
+    bool operator()(Node a, Node b) {
+        return Distance(*a.getKey(), *c) < Distance(*b.getKey(), *c);
+    }
+};
+
 NeighbourManager::NeighbourManager(Node* myself) {
     NeighbourManager::myself = myself;
 }
@@ -45,6 +57,7 @@ Kbucket* NeighbourManager::findKClosestNodes(const Key* key) {
         otherBuckIndex--;
     }
     bucket->setNodes(resultList);
+    bucket->getNodes()->sort(Compare(key));
     return bucket;
 
 }
