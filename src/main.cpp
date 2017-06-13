@@ -4,6 +4,10 @@
 #include "Performer.hpp"
 #include "Node.hpp"
 #include <unistd.h>
+#include <string>
+
+void kadGUI();
+
 int main(int argc, char* argv[])
 {
     int c;
@@ -93,7 +97,75 @@ int main(int argc, char* argv[])
             
         }
     }
-
+   
+    while (true) {
+        kadUI();
+    }
+    
     pthread_join(p.getThreadID(), NULL);
+    
     return 0;
+}
+
+
+void kadUI() {
+    std::cout << "Choose a command:" << std::endl;
+    std::cout << "[1] Store Value" << std::endl;
+    std::cout << "[2] Find Value" << std::endl;
+    std::cout << "[3] Find Node" << std::endl;
+    std::cout << "[4] Ping" << std::endl;
+
+    int command;
+    std::cin >> command;
+    std::cin.ignore();
+
+    switch (command) {
+        case 1:
+        {
+            std::cout << "Insert the value to store:" << std::endl;
+            std::string value;
+            std::getline(std::cin, value);
+            std::cout << "value: " << value << std::endl;            
+            break;
+        }
+
+        case 2:
+        {
+            std::cout << "Insert the value to find:" << std::endl;
+            std::string value;
+            std::getline(std::cin, value);
+            std::cout << "value: " << value << std::endl;         
+            break;
+        }
+
+        case 3:
+        {
+            std::cout << "Insert the node to find:" << std::endl;
+            std::string value;
+            std::getline(std::cin, value);
+            std::cout << "value: " << value << std::endl;
+            break;
+        }
+
+        case 4:
+        {
+            std::cout << "Insert the ip:" << std::endl;
+            std::string hostname;
+            std::getline(std::cin, hostname);
+            
+            std::cout << "Insert the port:" << std::endl;
+            int port;
+            std::cin >> port;
+            std::cout << "value: " << hostname << ":" << port << std::endl;
+            rpc_ping(Node(Ip(hostname.c_str()), port));
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+
+
+    
 }
