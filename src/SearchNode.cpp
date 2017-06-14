@@ -1,27 +1,49 @@
 #include "SearchNode.hpp"
 
-struct Compare
-{
-    Compare(const Key* c)
-    {
+struct Compare {
+    
+    Compare(const Key* c) {
         Compare::c = c;
     }
     const Key* c;
-    bool operator()(Node a, Node b)
-    {
-        return Distance(*a.getKey(),*c) > Distance(*b.getKey(),*c);
-        //reverse order, so I can pop_back from array the lowest distance
+    
+    bool operator()(const pnode& a, const pnode& b) {
+        return Distance(*a.node.getKey(), *c) < Distance(*b.node.getKey(), *c);
     }
 };
 
-SearchNode::SearchNode(Node n) : findkey(*(n.getKey()))
+bool uniqueoperand(pnode* p1, pnode* p2)
 {
-    search_ended = false;
+    if(p1->node==p2->node)
+    {
+        p1->probed = p1->probed>p2->probed?p1->probed:p2->probed;
+        p2->probed = p1->probed>p2->probed?p1->probed:p2->probed;
+        return true;
+    }
+    else
+        return false;
 }
 
-SearchNode::SearchNode(Key* k) : findkey(*k)
+SearchNode::SearchNode(const Node n,const Kbucket* add) : findkey(*(n.getKey()))
 {
-    search_ended = false;
+    for(std::list<Node>::const_iterator it=add->getNodes()->begin();it!=add->getNodes()->end();++it)
+    {
+        pnode tmp;
+        tmp.node = *it;
+        tmp.probed = UNKNOWN;
+        askme.push_back(tmp);
+    }
+}
+
+SearchNode::SearchNode(const Key* k, const Kbucket* add) : findkey(*k)
+{
+    for(std::list<Node>::const_iterator it=add->getNodes()->begin();it!=add->getNodes()->end();++it)
+    {
+        pnode tmp;
+        tmp.node = *it;
+        tmp.probed = UNKNOWN;
+        askme.push_back(tmp);
+    }
 }
 
 SearchNode::~SearchNode()
@@ -29,51 +51,87 @@ SearchNode::~SearchNode()
     
 }
 
-void SearchNode::addAnswer(Kbucket* answer)
+void SearchNode::addAnswer(const Node whoanswer, const Kbucket* a)
 {
-    if(search_ended) //no need to add more nodes
-        return;
     mtx.lock();//to avoid processing the answer while still sending requests
-    const std::list<Node>* tmp = answer->getNodes();
-    for(std::list<Node>::const_iterator it=tmp->begin(); it!=tmp->end(); ++it)
+    bool found = false;
+    askme.splice(askme.end(), reserve,reserve.begin(),reserve.end());
+    reserve.clear();
+    for(std::list<pnode>::iterator it=askme.begin();it!=askme.end();it++)
     {
-        Node current = *it;
-        if(asked.find(current.getKey())==asked.end())
+        if(whoanswer == it->node)
         {
-            askme.push_back(current);
+            it->probed = ACTIVE;
+            found = true;
         }
     }
-    sort(askme.begin(),askme.end(),Compare(&findkey));
-    if(*(askme.back().getKey())==findkey)
+    //merge would be more efficient, but I need to append UNKNOWN to pnode
+    for(std::list<Node>::const_iterator it=a->getNodes()->begin();it!=a->getNodes()->end();++it)
     {
-        Node findme = askme.back();
-        search_ended = true;
-        askme.clear();
-        askme.insert(askme.begin(), findme);
+        pnode tmp;
+        tmp.node = *it;
+        tmp.probed = UNKNOWN;
+        askme.push_back(tmp);
+    }
+    askme.sort(Compare(&findkey));
+    for(std::list<pnode>::iterator it=std::next(askme.begin());it!=askme.end();it++)
+    {
+        if(uniqueoperand(&*it, &*(std::prev(it))))
+          askme.erase(it);
+    }
+    reserve.splice(reserve.end(),askme,std::next(askme.begin(),KBUCKET_SIZE),askme.end());
+    //remove unprobed nodes in the reserve list (much high distance)
+    for(std::list<pnode>::iterator i=reserve.begin();i!=reserve.end();i++)
+    {
+        if(i->probed==UNKNOWN)
+            reserve.erase(i);
     }
     mtx.unlock();
 }
 
 int SearchNode::queryTo(Node* answer)
 {
-    if(search_ended)
-    {
-        answer[0] = askme.back();
-        return 0;
-    }
     mtx.lock();//to avoid processing the answer while still sending requests
-    int i;
-    for(i=0;i<ALPHA_REQUESTS;i++)
+    bool check = true;
+    int retval;
+    //check the queue status
+    std::list<pnode>::iterator it;
+    for(it=askme.begin();it!=askme.end();it++)
     {
-        if(askme.size()>0)
+        //missing ping answer for this node
+        if(it->probed != ACTIVE)
         {
-            answer[i] = askme.back();
-            askme.pop_back();
-            asked.insert({{answer[i].getKey(),answer[i]}});
+            check = false;
+            //node not probed, set the iterator so I know I have to ping this one
+            if(it->probed == UNKNOWN)
+                break;
+            else //node already probed, but missing answer
+                continue;
         }
-        else
-            break;
+    }
+    if(check) //completed
+        retval = 0;
+    else if(it==askme.end())
+    {
+        //???
+        //TODO: every node has been pinged, but some answers are missing
+        retval = -1;
+    }
+    else
+    {
+        int i = 0;
+        while(it!=askme.end() && i!=3)
+        {
+            if(it->probed == UNKNOWN)
+            {
+                answer[i] = it->node;
+                it->probed = PENDING;
+                i++;
+            }
+            it = std::next(it);
+        }
+        retval = i;
     }
     mtx.unlock();
-    return i;
+    return retval;
 }

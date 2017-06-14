@@ -7,27 +7,34 @@
 #include "Distance.hpp"
 #include "settings.h"
 #include <string>
-#include <vector>
+#include <list>
 #include <unordered_map>
 #include <mutex>
 #include <algorithm>
 
+//numerical values are used for operator <
+enum probeStatus {UNKNOWN = 0, PENDING = 1, ACTIVE = 2};
+
+struct pnode
+{
+    Node node;
+    probeStatus probed;
+};
+
 class SearchNode
 {
 public:
-    SearchNode(Node n);
-    SearchNode(Key* k);
+    SearchNode(const Node n, const Kbucket* add);
+    SearchNode(const Key* k, const Kbucket* add);
     ~SearchNode();
-    void addAnswer(Kbucket* answer);
+    void addAnswer(const Node whoanswer, const Kbucket* answer);
     int queryTo(Node* answer); //return 0 if the search is completed
                                //otherwise the size of the answer array
-    
 private:
     Key findkey;
-    std::vector<Node> askme;
-    std::unordered_map<const Key*,Node> asked;
+    std::list<pnode> askme;
+    std::list<pnode> reserve;
     std::mutex mtx;
-    bool search_ended;
 };
 
 #endif
