@@ -137,7 +137,7 @@ void Messenger::sendMessage(const Node node, Message& msg)
 #ifndef NDEBUG
     char ip[16];
     node.getIp().toString(ip);
-    printf("Sending message to: %s:%hu\n",ip,node.getPort());
+    printf("Sending message to: %s:%hu\n",ip,(unsigned short)node.getPort());
 #endif
     if(sendto(sockfd,msg.text,msg.length+RESERVED_BYTES,0,
               (struct sockaddr*)&dest,
