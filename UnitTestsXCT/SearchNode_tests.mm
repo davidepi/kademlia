@@ -20,7 +20,6 @@
     //add
     srand((unsigned int)time(NULL));
     Node findme(Ip(rand()),rand()%65536);
-    SearchNode sc(findme);
     Kbucket k;
     unsigned int previous_distance = 0xFFFFFFFF;
     for(int i=0;i<ALPHA_REQUESTS;i++)
@@ -35,7 +34,7 @@
         previous_distance = dist;
         k.add(askme);
     }
-    sc.addAnswer(&k);
+    SearchNode sc(findme,&k);
     
     //retrieve
     Node res[ALPHA_REQUESTS];
@@ -55,7 +54,6 @@
     //add
     srand((unsigned int)time(NULL));
     Node findme(Ip(rand()),rand()%65536);
-    SearchNode sc(findme);
     Kbucket k;
     for(int i=0;i<ALPHA_REQUESTS;i++)
     {
@@ -68,7 +66,7 @@
         }while(dist != NBYTE*8-(i+1));
         k.add(askme);
     }
-    sc.addAnswer(&k);
+    SearchNode sc(findme,&k);
     
     //retrieve
     Node res[ALPHA_REQUESTS];
@@ -88,7 +86,6 @@
     //add
     srand((unsigned int)time(NULL));
     Node findme(Ip(rand()),rand()%65536);
-    SearchNode sc(findme);
     Kbucket k;
     long i=k.getNodes()->size();
     while(i<ALPHA_REQUESTS)
@@ -97,7 +94,7 @@
         k.add(askme);
         i=k.getNodes()->size();
     }
-    sc.addAnswer(&k);
+    SearchNode sc(findme,&k);
     
     //retrieve
     Node res[ALPHA_REQUESTS];
@@ -117,7 +114,6 @@
     //add
     srand((unsigned int)time(NULL));
     Node findme(Ip(rand()),rand()%65536);
-    SearchNode sc(findme);
     Kbucket k;
     long i=k.getNodes()->size();
     while(i<KBUCKET_SIZE)
@@ -126,7 +122,7 @@
         k.add(askme);
         i=k.getNodes()->size();
     }
-    sc.addAnswer(&k);
+    SearchNode sc(findme,&k);
     
     //retrieve
     Node res[ALPHA_REQUESTS];
@@ -141,161 +137,225 @@
     }
 }
 
-- (void)test05_SearchNode_sameNodeInsertion
+- (void)test05_SearchNode_fullKbucketInsertionKey
 {
     //add
     srand((unsigned int)time(NULL));
     Node findme(Ip(rand()),rand()%65536);
-    SearchNode sc(findme);
-    Kbucket k;
-    Node askme(Ip((rand()%0xFFFFFFFF)),rand()%65536);;
-    for(int i=0;i<KBUCKET_SIZE;i++)
-    {
-        k.add(askme);
-    }
-    sc.addAnswer(&k);
-    
-    //retrieve
-    Node res[ALPHA_REQUESTS];
-    int retval = sc.queryTo(res);
-    
-    XCTAssertEqual(retval, 1);
-    XCTAssertEqual(res[0],askme);
-}
-
-- (void)test06_SearchNode_KBucketMerging
-{
-    const int MERGE_SIZE = 5;
-    
-    //add
-    srand((unsigned int)time(NULL));
-    Node findme(Ip(rand()),rand()%65536);
-    SearchNode sc(findme);
-    for(int j=0;j<MERGE_SIZE;j++)
-    {
-        Kbucket k;
-        long i=k.getNodes()->size();
-        while(i<KBUCKET_SIZE)
-        {
-            Node askme(Ip((rand()%0xFFFFFFFF)),rand()%65536);;
-            k.add(askme);
-            i=k.getNodes()->size();
-        }
-        sc.addAnswer(&k);
-    }
-    
-    //retrieve
-    Node res[ALPHA_REQUESTS];
-    for(int i=0;i<(KBUCKET_SIZE*MERGE_SIZE/ALPHA_REQUESTS);i++)
-    {
-        int retval = sc.queryTo(res);
-        XCTAssertEqual(retval, ALPHA_REQUESTS);
-        for(int j=0;j<ALPHA_REQUESTS-1;j++)
-        {
-            int dis1 = Distance(res[j],findme).getDistance();
-            int dis2 = Distance(res[j+1],findme).getDistance();
-            XCTAssertLessThanOrEqual(dis1,dis2);
-        }
-    }
-}
-
-- (void)test07_SearchNode_foundNode
-{
-    //add
-    srand((unsigned int)time(NULL));
-    Node findme(Ip(rand()),rand()%65536);
-    SearchNode sc(findme);
     Kbucket k;
     long i=k.getNodes()->size();
-    while(i<KBUCKET_SIZE-1)
+    while(i<KBUCKET_SIZE)
     {
         Node askme(Ip((rand()%0xFFFFFFFF)),rand()%65536);;
         k.add(askme);
         i=k.getNodes()->size();
     }
-    k.add(findme);
-    sc.addAnswer(&k);
+    SearchNode sc(findme.getKey(),&k);
     
     //retrieve
     Node res[ALPHA_REQUESTS];
     int retval = sc.queryTo(res);
     
-    XCTAssertEqual(retval, 0);
-    XCTAssertEqual(res[0],findme);
+    XCTAssertEqual(retval, ALPHA_REQUESTS);
+    for(int i=0;i<ALPHA_REQUESTS-1;i++)
+    {
+        int dis1 = Distance(res[i],findme).getDistance();
+        int dis2 = Distance(res[i+1],findme).getDistance();
+        XCTAssertLessThanOrEqual(dis1,dis2);
+    }
 }
 
-- (void)test08_SearchNode_tryingToAddAfterNodeFound
+- (void)test06_SearchNode_sequentialInsertion
 {
-    //add
+    //generate first answer from my kbucket
     srand((unsigned int)time(NULL));
     Node findme(Ip(rand()),rand()%65536);
-    SearchNode sc(findme);
     Kbucket k;
-    k.add(findme);
-    sc.addAnswer(&k);
-    Kbucket g;
-    long i=g.getNodes()->size();
-    while(i<KBUCKET_SIZE)
+    long i=k.getNodes()->size();
+    Node requester[ALPHA_REQUESTS];
+    while(i<ALPHA_REQUESTS)
     {
-        Node askme(Ip((rand()%0xFFFFFFFF)),rand()%65536);;
-        g.add(askme);
-        i=g.getNodes()->size();
+        requester[i] = Node(Ip((rand()%0xFFFFFFFF)),rand()%65536);;
+        k.add(requester[i]);
+        i=k.getNodes()->size();
     }
-    sc.addAnswer(&g);
+    SearchNode sc(findme,&k);
     
-    //retrieve
+    //generate anwer from the first three pinged nodes
+    for(int i=0;i<ALPHA_REQUESTS;i++)
+    {
+        Kbucket k;
+        for(int i=0;i<KBUCKET_SIZE;i++)
+        {
+            Node addme(Ip(rand()),rand()%65536);
+            k.add(addme);
+        }
+        sc.addAnswer(requester[i], &k);
+    }
+    
+    //check answers
     Node res[ALPHA_REQUESTS];
     int retval = sc.queryTo(res);
     
-    XCTAssertEqual(retval, 0);
-    XCTAssertEqual(res[0],findme);
+    XCTAssertEqual(retval, ALPHA_REQUESTS);
+    for(int i=0;i<ALPHA_REQUESTS-1;i++)
+    {
+        int dis1 = Distance(res[i],findme).getDistance();
+        int dis2 = Distance(res[i+1],findme).getDistance();
+        XCTAssertLessThanOrEqual(dis1,dis2);
+    }
 }
 
-- (void)test09_SearchNode_KeyTest
+- (void)test06_SearchNode_sequentialInsertionWithDuplicates
 {
-    const int MERGE_SIZE = 5;
-    
-    //add
+    //generate first answer from my kbucket
     srand((unsigned int)time(NULL));
-    int len = 20;
-    char s[len];
-    static const char alphanum[] = "0123456789"
-                                   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                   "abcdefghijklmnopqrstuvwxyz";
-    for (int i = 0; i < len; i++)
+    Node findme(Ip(rand()),rand()%65536);
+    Kbucket k;
+    long i=k.getNodes()->size();
+    Node requester[ALPHA_REQUESTS];
+    while(i<ALPHA_REQUESTS)
     {
-        s[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
+        requester[i] = Node(Ip((rand()%0xFFFFFFFF)),rand()%65536);;
+        k.add(requester[i]);
+        i=k.getNodes()->size();
     }
-    s[len] = 0;
-    Key k(s);
-    SearchNode sc(&k);
-    for(int j=0;j<MERGE_SIZE;j++)
+    SearchNode sc(findme,&k);
+    
+    //generate answer from the first three pinged nodes
+    for(int i=0;i<ALPHA_REQUESTS;i++)
     {
         Kbucket k;
-        long i=k.getNodes()->size();
-        while(i<KBUCKET_SIZE)
+        for(int i=0;i<KBUCKET_SIZE;i++)
         {
-            Node askme(Ip((rand()%0xFFFFFFFF)),rand()%65536);;
-            k.add(askme);
-            i=k.getNodes()->size();
+            Node addme(Ip(rand()),rand()%65536);
+            k.add(addme);
         }
-        sc.addAnswer(&k);
+        sc.addAnswer(requester[i], &k);
     }
     
-    //retrieve
+    //check answers
     Node res[ALPHA_REQUESTS];
-    for(int i=0;i<(KBUCKET_SIZE*MERGE_SIZE/ALPHA_REQUESTS);i++)
+    int retval = sc.queryTo(res);
+    
+    
+    //add some duplicates to kbucket
+    Kbucket k2;
+    for(int i=0;i<ALPHA_REQUESTS;i++)
     {
-        int retval = sc.queryTo(res);
-        XCTAssertEqual(retval, ALPHA_REQUESTS);
-        for(int j=0;j<ALPHA_REQUESTS-1;j++)
+        k2.add(res[i]);
+    }
+    //fill remaining kbucket
+    for(int i=0;i<KBUCKET_SIZE-ALPHA_REQUESTS;i++)
+    {
+        Node addme(Ip(rand()),rand()%65536);
+        k2.add(addme);
+    }
+    sc.addAnswer(res[0], &k2);
+    
+    retval = sc.queryTo(res);
+    XCTAssertEqual(retval, ALPHA_REQUESTS);
+    for(int i=0;i<ALPHA_REQUESTS-1;i++)
+    {
+        int dis1 = Distance(res[i],findme).getDistance();
+        int dis2 = Distance(res[i+1],findme).getDistance();
+        XCTAssertLessThanOrEqual(dis1,dis2);
+    }
+}
+
+- (void)test07_SearchNode_everythingQueriedButPending
+{
+    //generate first answer from my kbucket
+    srand((unsigned int)time(NULL));
+    Node findme(Ip(rand()),rand()%65536);
+    Kbucket k;
+    long i=k.getNodes()->size();
+    Node requester[ALPHA_REQUESTS];
+    while(i<ALPHA_REQUESTS)
+    {
+        requester[i] = Node(Ip((rand()%0xFFFFFFFF)),rand()%65536);;
+        k.add(requester[i]);
+        i=k.getNodes()->size();
+    }
+    SearchNode sc(findme,&k);
+    
+    //generate answer from the first three pinged nodes
+    for(int i=0;i<ALPHA_REQUESTS;i++)
+    {
+        Kbucket k;
+        for(int i=0;i<KBUCKET_SIZE;i++)
         {
-            int dis1 = Distance(*(res[j].getKey()),k).getDistance();
-            int dis2 = Distance(*(res[j+1].getKey()),k).getDistance();
+            Node addme(Ip(rand()),rand()%65536);
+            k.add(addme);
+        }
+        sc.addAnswer(requester[i], &k);
+    }
+    
+    //check answers
+    Node res[ALPHA_REQUESTS];
+    for(int i=0;i<KBUCKET_SIZE/ALPHA_REQUESTS;i++)
+    {
+        XCTAssertEqual(sc.queryTo(res),ALPHA_REQUESTS);
+        for(int i=0;i<ALPHA_REQUESTS-1;i++)
+        {
+            int dis1 = Distance(res[i],findme).getDistance();
+            int dis2 = Distance(res[i+1],findme).getDistance();
             XCTAssertLessThanOrEqual(dis1,dis2);
         }
     }
+    XCTAssertEqual(sc.queryTo(res),2);
+    XCTAssertEqual(sc.queryTo(res),-1);
 }
 
+- (void)test07_SearchNode_everythingQueriedAndCompleted
+{
+    //generate first answer from my kbucket
+    srand((unsigned int)time(NULL));
+    Node findme(Ip(rand()),rand()%65536);
+    Kbucket k;
+    long i=k.getNodes()->size();
+    Node requester[ALPHA_REQUESTS];
+    while(i<ALPHA_REQUESTS)
+    {
+        requester[i] = Node(Ip((rand()%0xFFFFFFFF)),rand()%65536);;
+        k.add(requester[i]);
+        i=k.getNodes()->size();
+    }
+    SearchNode sc(findme,&k);
+    
+    //generate answer from the first three pinged nodes
+    for(int i=0;i<ALPHA_REQUESTS;i++)
+    {
+        Kbucket k;
+        for(int i=0;i<KBUCKET_SIZE;i++)
+        {
+            Node addme(Ip(rand()),rand()%65536);
+            k.add(addme);
+        }
+        sc.addAnswer(requester[i], &k);
+    }
+    
+    
+    //generate default answer
+    Kbucket ke;
+    for(int i=0;i<KBUCKET_SIZE;i++)
+    {
+        Node addme(Ip(rand()),rand()%65536);
+        ke.add(addme);
+    }
+    
+    //check answers
+    Node res[ALPHA_REQUESTS];
+    while(sc.queryTo(res)!=0)
+    {
+        for(int i=0;i<ALPHA_REQUESTS-1;i++)
+        {
+            int dis1 = Distance(res[i],findme).getDistance();
+            int dis2 = Distance(res[i+1],findme).getDistance();
+            XCTAssertLessThanOrEqual(dis1,dis2);
+        }
+        
+    }
+}
 
 @end
