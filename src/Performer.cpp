@@ -20,21 +20,14 @@ void rpc_ping(Node node)
     (Messenger::getInstance()).sendMessage(node, response);
 }
 
-Message generate_find_node_request(Node findme)
-{
-    uint8_t data[6];
-    uint32_t ip = findme.getIp().getIp();
-    uint16_t port = htons(findme.getPort());
-    data[0] = *((uint8_t*)(&ip)+0);
-    data[1] = *((uint8_t*)(&ip)+1);
-    data[2] = *((uint8_t*)(&ip)+2);
-    data[3] = *((uint8_t*)(&ip)+3);
-    data[4] = *((uint8_t*)(&port)+0);
-    data[5] = *((uint8_t*)(&port)+1);
-    Message response(data,6);
+Message generate_find_node_request(const Key* key) {
+    Message response(key->getKey(), NBYTE);
     response.setFlags(RPC_FIND_NODE);
-    response.append(findme.getKey()->getKey(),NBYTE);
     return response;
+}
+
+Message generate_find_node_request(Node findme) {
+    return generate_find_node_request(findme.getKey());
 }
 
 Message generate_find_node_answer(Node findme, Kbucket* bucket)

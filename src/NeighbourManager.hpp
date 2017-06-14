@@ -11,6 +11,7 @@ public:
     NeighbourManager(Node* myself);
     ~NeighbourManager();
     Kbucket* findKClosestNodes(const Key* key);
+    Node findClosestNode(const Key* key);
     const Kbucket* getNeighbourManager();
     const Node* getMyself();
     void insertNode(const Node* node);

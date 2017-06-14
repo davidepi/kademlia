@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <string>
 
-void kadGUI();
+void kadUI();
 
 int main(int argc, char* argv[])
 {
@@ -125,7 +125,7 @@ void kadUI() {
             std::cout << "Insert the value to store:" << std::endl;
             std::string value;
             std::getline(std::cin, value);
-            std::cout << "value: " << value << std::endl;            
+            std::cout << "value: " << value << std::endl;          
             break;
         }
 
@@ -156,7 +156,6 @@ void kadUI() {
             std::cout << "Insert the port:" << std::endl;
             int port;
             std::cin >> port;
-            std::cout << "value: " << hostname << ":" << port << std::endl;
             rpc_ping(Node(Ip(hostname.c_str()), port));
             break;
         }

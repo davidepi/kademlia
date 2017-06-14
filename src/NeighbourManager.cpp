@@ -62,6 +62,20 @@ Kbucket* NeighbourManager::findKClosestNodes(const Key* key) {
 
 }
 
+Node NeighbourManager::findClosestNode(const Key* key) {
+    Distance dist(*(myself->getKey()), *key);
+
+    Kbucket* bucket = new Kbucket();
+
+    int index = dist.getDistance() - 1;
+    bucket->setNodes(neighboursArray[index].getNodes());
+    bucket->getNodes()->sort(Compare(key));
+    
+    Node node = *(bucket->getNodes()->begin());
+    delete bucket;
+    return node;
+}
+
 void NeighbourManager::addNodesToList(std::list<Node>* list, int index) {
     const std::list<Node>* otherList = neighboursArray[index].getNodes();
     for (std::list<Node>::const_iterator it = otherList->begin(); it != otherList->end(); ++it) {
