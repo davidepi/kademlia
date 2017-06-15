@@ -16,7 +16,7 @@
 #define RPC_PING 0x1
 #define RPC_PONG 0x2
 #define RPC_STORE 0x3
-#define RPC_FIND_NODE 0x4
+#define RPC_FIND_NODE_REQUEST 0x4
 #define RPC_FIND_NODE_ANSWER 0x5
 #define RPC_FIND_VALUE 0x6
 

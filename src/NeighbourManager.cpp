@@ -28,52 +28,49 @@ const Node* NeighbourManager::getMyself() {
     return myself;
 }
 
-Kbucket* NeighbourManager::findKClosestNodes(const Key* key) {
+void NeighbourManager::findKClosestNodes(const Key* key, Kbucket* bucket) {
+    findKClosestNodes(key, bucket, false);
+}
+
+Node NeighbourManager::findClosestNode(const Key* key) {
+    Kbucket bucket;
+    findKClosestNodes(key, &bucket, true);
+    
+    std::list<Node>::const_iterator it = bucket.getNodes()->begin();
+    return it != bucket.getNodes()->end() ? *it : Node();
+}
+
+void NeighbourManager::findKClosestNodes(const Key* key, Kbucket* bucket, bool justOneNode) {
     Distance dist(*(myself->getKey()), *key);
 
-    Kbucket* bucket = new Kbucket();
-
     int index = dist.getDistance() - 1;
-    std::list<Node>* resultList = new std::list<Node>();
-    *resultList = *(neighboursArray[index].getNodes());
+    std::list<Node> resultList = *(neighboursArray[index].getNodes());
 
-    assert(resultList->size() <= KBUCKET_SIZE);
+    assert(resultList.size() <= KBUCKET_SIZE);
 
-    if (resultList->size() == KBUCKET_SIZE) {
-        bucket->setNodes(resultList);
-        return bucket;
+    if (resultList.size() == KBUCKET_SIZE || (justOneNode && resultList.size() >= 1)) {
+        bucket->setNodes(&resultList);
+        bucket->getNodes()->sort(Compare(key));
+        return;
     }
 
     int otherBuckIndex = index + 1;
 
-    while (resultList->size() < KBUCKET_SIZE && otherBuckIndex < NBYTE * 8) {
-        addNodesToList(resultList, otherBuckIndex);
+    while (otherBuckIndex < NBYTE * 8 && 
+            (resultList.size() < KBUCKET_SIZE || (justOneNode && resultList.size() == 0))) {
+        addNodesToList(&resultList, otherBuckIndex);
         otherBuckIndex++;
     }
 
     otherBuckIndex = index - 1;
-    while (resultList->size() < KBUCKET_SIZE && otherBuckIndex >= 0) {
-        addNodesToList(resultList, otherBuckIndex);
+    while (otherBuckIndex >= 0 &&
+            (resultList.size() < KBUCKET_SIZE || (justOneNode && resultList.size() == 0))) {
+        addNodesToList(&resultList, otherBuckIndex);
         otherBuckIndex--;
     }
-    bucket->setNodes(resultList);
+    bucket->setNodes(&resultList);
     bucket->getNodes()->sort(Compare(key));
-    return bucket;
 
-}
-
-Node NeighbourManager::findClosestNode(const Key* key) {
-    Distance dist(*(myself->getKey()), *key);
-
-    Kbucket* bucket = new Kbucket();
-
-    int index = dist.getDistance() - 1;
-    bucket->setNodes(neighboursArray[index].getNodes());
-    bucket->getNodes()->sort(Compare(key));
-    
-    Node node = *(bucket->getNodes()->begin());
-    delete bucket;
-    return node;
 }
 
 void NeighbourManager::addNodesToList(std::list<Node>* list, int index) {

@@ -5,8 +5,9 @@
 #include "Node.hpp"
 #include <unistd.h>
 #include <string>
+#include <sstream>
 
-void kadUI();
+void kadUI(Performer* p);
 
 int main(int argc, char* argv[])
 {
@@ -99,7 +100,7 @@ int main(int argc, char* argv[])
     }
    
     while (true) {
-        kadUI();
+        kadUI(&p);
     }
     
     pthread_join(p.getThreadID(), NULL);
@@ -108,7 +109,7 @@ int main(int argc, char* argv[])
 }
 
 
-void kadUI() {
+void kadUI(Performer* p) {
     std::cout << "Choose a command:" << std::endl;
     std::cout << "[1] Store Value" << std::endl;
     std::cout << "[2] Find Value" << std::endl;
@@ -116,8 +117,9 @@ void kadUI() {
     std::cout << "[4] Ping" << std::endl;
 
     int command;
-    std::cin >> command;
-    std::cin.ignore();
+    std::string commandString;
+    getline(std::cin, commandString);
+    std::stringstream(commandString) >> command;
 
     switch (command) {
         case 1:
@@ -125,7 +127,7 @@ void kadUI() {
             std::cout << "Insert the value to store:" << std::endl;
             std::string value;
             std::getline(std::cin, value);
-            std::cout << "value: " << value << std::endl;          
+            rpc_store_request(value.c_str(), p);
             break;
         }
 
@@ -161,6 +163,7 @@ void kadUI() {
         }
         default:
         {
+            std::cout << "No valid input" << std::endl;
             break;
         }
     }
