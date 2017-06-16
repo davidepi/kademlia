@@ -20,6 +20,7 @@ struct pnode
 {
     Node node;
     probeStatus probed;
+    unsigned short distance;
 };
 
 class SearchNode

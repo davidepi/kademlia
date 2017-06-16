@@ -130,6 +130,95 @@
     XCTAssertEqual(sc.getActive(), 1);
 }
 
+- (void)test06_SearchNode_importanceOrdering
+{
+    //ensure that active nodes are always before unknown nodes at the same
+    //distance
+    srand((unsigned int)time(NULL));
+    Node findme(Ip(rand()),rand()%65536);
+    Kbucket k;
+    Kbucket closer;
+    
+    //distance KEY-1
+    long i=k.getNodes()->size();
+    while(i<KBUCKET_SIZE)
+    {
+        Node askme(Ip((rand()%0xFFFFFFFF)),rand()%65536);
+        int distance = Distance(*(askme.getKey()),*(findme.getKey())).getDistance();
+        if(distance==NBYTE*8-1)
+            k.add(askme);
+        i=k.getNodes()->size();
+    }
+    SearchNode sc(findme,&k);
+    
+    //distance KEY-2
+    i=closer.getNodes()->size();
+    while(i<KBUCKET_SIZE-1)
+    {
+        Node askme(Ip((rand()%0xFFFFFFFF)),rand()%65536);
+        int distance = Distance(*(askme.getKey()),*(findme.getKey())).getDistance();
+        if(distance==NBYTE*8-2)
+            closer.add(askme);
+        i=closer.getNodes()->size();
+    }
+    
+    Node res[ALPHA_REQUESTS];
+    sc.queryTo(res);
+    XCTAssertEqual(sc.getPending(), ALPHA_REQUESTS);
+    sc.addAnswer(res[2],&closer);
+    XCTAssertEqual(sc.getUnknown(),KBUCKET_SIZE-1);
+    XCTAssertEqual(sc.getActive(), 1);
+}
+
+- (void)test06_SearchNode_nonDuplication
+{
+    //generate some nodes with max distance
+    //set some of them as pending
+    //add 1 node closer than the others more than KBUCKET_SIZE times
+    //ensure that the pending nodes are still there
+    srand((unsigned int)time(NULL));
+    
+    //otherwise the test will fail
+    XCTAssertLessThan(ALPHA_REQUESTS, KBUCKET_SIZE/2);
+    
+    Node findme(Ip(rand()),rand()%65536);
+    Kbucket k;
+    Kbucket closer;
+    int closer_added = 0;
+    long i=k.getNodes()->size();
+    while(i<KBUCKET_SIZE || closer_added<KBUCKET_SIZE/2)
+    {
+        Node askme(Ip((rand()%0xFFFFFFFF)),rand()%65536);
+        int distance = Distance(*(askme.getKey()),*(findme.getKey())).getDistance();
+        if(distance==NBYTE*8-1 && i<KBUCKET_SIZE)
+        {
+            k.add(askme);
+        }
+        else if(distance==NBYTE*8-2 && closer_added<KBUCKET_SIZE/2)
+        {
+            closer_added++;
+            closer.add(askme);
+        }
+        else
+            continue;
+        i=k.getNodes()->size();
+    }
+    SearchNode sc(findme,&k);
+    
+    //generate some pending nodes
+    Node res[ALPHA_REQUESTS];
+    sc.queryTo(res);
+    XCTAssertEqual(sc.getPending(), ALPHA_REQUESTS);
+    XCTAssertEqual(sc.getUnknown(), KBUCKET_SIZE-sc.getPending());
+    
+    //continuously add the closer ones
+    for(int i=0;i<KBUCKET_SIZE+1;i++)
+        sc.addAnswer(res[0], &closer);
+    
+    XCTAssertEqual(sc.getPending(), ALPHA_REQUESTS-1);
+    XCTAssertEqual(sc.getActive(), 1);
+}
+
 - (void)test05_SearchNode_nonFull
 {
     //add
@@ -147,8 +236,9 @@
     Node res[ALPHA_REQUESTS];
     XCTAssertEqual(sc.queryTo(res),ALPHA_REQUESTS);
     for(int i=0;i<ALPHA_REQUESTS;i++)
+    {
         sc.addAnswer(res[i], &k);
-    sc.print();
+    }
     XCTAssertEqual(sc.queryTo(res), 0);
     XCTAssertEqual(sc.getUnknown(), 0);
     XCTAssertEqual(sc.getPending(), 0);

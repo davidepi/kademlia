@@ -1,19 +1,14 @@
 #include "SearchNode.hpp"
 
-struct Compare {
-    
-    Compare(const Key* c) {
-        Compare::c = c;
-    }
-    const Key* c;
-    
-    bool operator()(const pnode& a, const pnode& b) {
-        return Distance(*a.node.getKey(), *c) < Distance(*b.node.getKey(), *c);
-    }
-};
+//comparators ----
 
-bool uniqueoperand(pnode* p1, pnode* p2)
-{
+bool operator<(const pnode& p1, const pnode& p2) //order by distance
+{                                                //higher status first
+    return p1.distance!=p2.distance?p1.distance<p2.distance:p1.probed>p2.probed;
+}
+
+bool uniqueoperand(pnode* p1, pnode* p2) //uniqueness, keep the one with
+{                                        //higher status
     if(p1->node==p2->node)
     {
         p1->probed = p1->probed>p2->probed?p1->probed:p2->probed;
@@ -24,6 +19,8 @@ bool uniqueoperand(pnode* p1, pnode* p2)
         return false;
 }
 
+// ------
+
 SearchNode::SearchNode(const Node n,const Kbucket* add) : findkey(*(n.getKey()))
 {
     for(std::list<Node>::const_iterator it=add->getNodes()->begin();it!=add->getNodes()->end();++it)
@@ -31,9 +28,10 @@ SearchNode::SearchNode(const Node n,const Kbucket* add) : findkey(*(n.getKey()))
         pnode tmp;
         tmp.node = *it;
         tmp.probed = UNKNOWN;
+        tmp.distance = Distance(findkey,*(tmp.node.getKey())).getDistance();
         askme.push_back(tmp);
     }
-    askme.sort(Compare(&findkey));
+    askme.sort();
 }
 
 SearchNode::SearchNode(const Key* k, const Kbucket* add) : findkey(*k)
@@ -43,9 +41,10 @@ SearchNode::SearchNode(const Key* k, const Kbucket* add) : findkey(*k)
         pnode tmp;
         tmp.node = *it;
         tmp.probed = UNKNOWN;
+        tmp.distance = Distance(findkey,*(tmp.node.getKey())).getDistance();
         askme.push_back(tmp);
     }
-    askme.sort(Compare(&findkey));
+    askme.sort();
 }
 
 SearchNode::~SearchNode()
@@ -69,15 +68,23 @@ void SearchNode::addAnswer(const Node whoanswer, const Kbucket* a)
         pnode tmp;
         tmp.node = *it;
         tmp.probed = UNKNOWN;
+        tmp.distance = Distance(findkey,*(tmp.node.getKey())).getDistance();
         askme.push_back(tmp);
     }
-    askme.sort(Compare(&findkey));
-    if(askme.size()>1)
-        for(std::list<pnode>::iterator it=std::next(askme.begin());it!=askme.end();it++)
+    askme.sort();
+    
+    //erase duplicates
+    for(std::list<pnode>::iterator it=askme.begin();it!=askme.end();it++)
+    {
+        std::list<pnode>::iterator second = std::next(it);
+        while(second!=askme.end() && second->distance==it->distance)
         {
-            if(uniqueoperand(&*it, &*(std::prev(it))))
-                askme.erase(it);
+            //if node is equal, keep higher probed status and return true
+            if(uniqueoperand(&*it, &*second))
+                askme.erase(second); //then erase the second
+            second++;
         }
+    }
     
     //if list < kbucket.size EVERYTHING is moved in the reserve
     //probably because of the safety of std::next(askme.begin()
