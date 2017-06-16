@@ -106,18 +106,18 @@
     Message q(RPC_PING);
     Message w(RPC_PONG);
     Message e(RPC_STORE);
-    Message r(RPC_FIND_NODE);
-    Message t(RPC_FIND_VALUE);
-    Message y(RPC_PING | RPC_PONG);
-    Message a(RPC_PING | RPC_STORE);
-    Message s(RPC_PING | RPC_FIND_NODE);
-    Message f(RPC_PING | RPC_FIND_VALUE);
-    Message g(RPC_PONG | RPC_STORE);
-    Message z(RPC_PONG | RPC_FIND_NODE);
-    Message x(RPC_PONG | RPC_FIND_VALUE);
-    Message c(RPC_STORE | RPC_FIND_NODE);
-    Message v(RPC_STORE | RPC_FIND_VALUE);
-    Message b(RPC_FIND_NODE | RPC_FIND_VALUE);
+    Message r(RPC_FIND_NODE_REQUEST);
+    Message t(RPC_FIND_NODE_ANSWER);
+    Message y(RPC_FIND_NODE_RESPONSE);
+    Message u(RPC_FIND_NODE_REQUEST  | FIND_VALUE_FLAG);
+    Message i(RPC_FIND_NODE_ANSWER   | FIND_VALUE_FLAG);
+    Message o(RPC_FIND_NODE_RESPONSE | FIND_VALUE_FLAG);
+    Message p(RPC_FIND_NODE_REQUEST  | FIND_START_FLAG);
+    Message a(RPC_FIND_NODE_ANSWER   | FIND_START_FLAG);
+    Message s(RPC_FIND_NODE_RESPONSE | FIND_START_FLAG);
+    Message d(RPC_FIND_NODE_REQUEST  | FIND_VALUE_FLAG | FIND_START_FLAG);
+    Message f(RPC_FIND_NODE_ANSWER   | FIND_VALUE_FLAG | FIND_START_FLAG);
+    Message g(RPC_FIND_NODE_RESPONSE | FIND_VALUE_FLAG | FIND_START_FLAG);
     
     //combinazioni da 3 sono inutili, gia' alcune di queste lo sono
     //tipo la ping e la pong assieme. Mi basta sapere che la getFlags funziona
@@ -126,18 +126,18 @@
     XCTAssertEqual(RPC_PING, q.getFlags());
     XCTAssertEqual(RPC_PONG, w.getFlags());
     XCTAssertEqual(RPC_STORE, e.getFlags());
-    XCTAssertEqual(RPC_FIND_NODE, r.getFlags());
-    XCTAssertEqual(RPC_PING | RPC_PONG, y.getFlags());
-    XCTAssertEqual(RPC_PING | RPC_STORE, a.getFlags());
-    XCTAssertEqual(RPC_PING | RPC_FIND_NODE, s.getFlags());
-    XCTAssertEqual(RPC_FIND_VALUE, t.getFlags());
-    XCTAssertEqual(RPC_PING | RPC_FIND_VALUE, f.getFlags());
-    XCTAssertEqual(RPC_PONG | RPC_STORE, g.getFlags());
-    XCTAssertEqual(RPC_PONG | RPC_FIND_NODE, z.getFlags());
-    XCTAssertEqual(RPC_PONG | RPC_FIND_VALUE, x.getFlags());
-    XCTAssertEqual(RPC_STORE | RPC_FIND_NODE, c.getFlags());
-    XCTAssertEqual(RPC_STORE | RPC_FIND_VALUE, v.getFlags());
-    XCTAssertEqual(RPC_FIND_NODE | RPC_FIND_VALUE, b.getFlags());
+    XCTAssertEqual(RPC_FIND_NODE_REQUEST, r.getFlags());
+    XCTAssertEqual(RPC_FIND_NODE_ANSWER, t.getFlags());
+    XCTAssertEqual(RPC_FIND_NODE_RESPONSE, y.getFlags());
+    XCTAssertEqual(RPC_FIND_NODE_REQUEST| FIND_VALUE_FLAG, u.getFlags());
+    XCTAssertEqual(RPC_FIND_NODE_ANSWER| FIND_VALUE_FLAG, i.getFlags());
+    XCTAssertEqual(RPC_FIND_NODE_RESPONSE| FIND_VALUE_FLAG, o.getFlags());
+    XCTAssertEqual(RPC_FIND_NODE_REQUEST| FIND_START_FLAG, p.getFlags());
+    XCTAssertEqual(RPC_FIND_NODE_ANSWER| FIND_START_FLAG, a.getFlags());
+    XCTAssertEqual(RPC_FIND_NODE_RESPONSE| FIND_START_FLAG, s.getFlags());
+    XCTAssertEqual(RPC_FIND_NODE_REQUEST| FIND_VALUE_FLAG|FIND_START_FLAG, d.getFlags());
+    XCTAssertEqual(RPC_FIND_NODE_ANSWER|FIND_VALUE_FLAG|FIND_START_FLAG, f.getFlags());
+    XCTAssertEqual(RPC_FIND_NODE_RESPONSE|FIND_VALUE_FLAG|FIND_START_FLAG, g.getFlags());
 }
 
 - (void)test08_Message_dataLength
@@ -229,10 +229,10 @@
 
 - (void)test14_Message_setText
 {
-    Message m(RPC_FIND_NODE);
+    Message m(RPC_FIND_NODE_REQUEST);
     m.setText("Kuřecí maso");
     XCTAssertEqual(strcmp("Kuřecí maso", (char*)m.getText()),0);
-    XCTAssertEqual(m.getFlags(), RPC_FIND_NODE);
+    XCTAssertEqual(m.getFlags(), RPC_FIND_NODE_REQUEST);
 }
 
 @end

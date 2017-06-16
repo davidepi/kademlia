@@ -19,9 +19,10 @@
 #define RPC_FIND_NODE_REQUEST 0x4
 #define RPC_FIND_NODE_ANSWER 0x5
 #define RPC_FIND_NODE_RESPONSE 0x6
-#define RPC_UNUSED 0x7
+#define RPC_MASK 0x7 // ping|pong|store... etc.
+
 #define FIND_START_FLAG 0x8
-#define FIND_VALUE_FLAG 0x10;
+#define FIND_VALUE_FLAG 0x10
 
 #define NULL_QUEUE -2
 #define ALREADY_INITIALIZED -3

@@ -48,7 +48,7 @@ int Kbucket::getSize() const {
 
 int Kbucket::serialize(uint8_t out[500])const
 {
-#if KBUCKET_SIZE > 82 //6 foreach node + 6 for the requested node
+#if KBUCKET_SIZE > 80 //6 foreach node + 20 for the requested key
 #error A Kbucket will not fit inside a single UDP datagram
 #endif
     short index = 0;

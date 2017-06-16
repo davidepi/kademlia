@@ -49,7 +49,7 @@ Message generate_find_node_answer(const Key* key, Kbucket* bucket)
 {
     uint8_t data[500-NBYTE];
     Message response(key->getKey(), NBYTE);
-    int len = bucket->serialize(data+6);
+    int len = bucket->serialize(data+NBYTE);
     
     response.append(data,len+NBYTE);
     response.setFlags(RPC_FIND_NODE_ANSWER);
@@ -60,7 +60,6 @@ static void* execute(void* this_class)
 {
     Performer* p = (Performer*)this_class;
     std::queue<Message*>* q = p->message_queue;
-    std::cout << "Executing... " << std::endl;
     while(1) 
     {
         Message* top;
@@ -76,9 +75,9 @@ static void* execute(void* this_class)
 #ifndef NDEBUG
             char ip[16];
             senderNode.getIp().toString(ip);
-            printf("Received a message from: %s:%hu\n",ip,senderNode.getPort());
+            printf("Received a message from: %s:%hu\n",ip,(unsigned short)senderNode.getPort());
 #endif
-            switch(top->getFlags())
+            switch(top->getFlags() & RPC_MASK)
             {
                 case RPC_PING :
                 {
@@ -96,7 +95,6 @@ static void* execute(void* this_class)
                     std::cout << "The message is a store: " << top->getText() << std::endl;
 
                     Key key(top->getText(), NBYTE);
-
                     short textLength = top->getLength();
                     char* text = new char[textLength];
                     for(int i = NBYTE; i < textLength; i++)
@@ -154,11 +152,6 @@ static void* execute(void* this_class)
 //                    {
 //                        //???
 //                    }
-                }
-                    break;
-                case RPC_FIND_VALUE :
-                {
-                    std::cout << "The message is a find value: " << top->getText() << std::endl;
                 }
                     break;
                 default:
