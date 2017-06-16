@@ -43,7 +43,7 @@ void Kbucket::setNodes(std::list<Node>* nodeList) {
 }
 
 int Kbucket::getSize() const {
-    getNodes()->size();
+    return getNodes()->size();
 }
 
 int Kbucket::serialize(uint8_t out[500])const

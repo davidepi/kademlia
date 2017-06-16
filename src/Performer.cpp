@@ -1,6 +1,4 @@
 #include "Performer.hpp"
-#include "NeighbourManager.hpp"
-#include "Updater.hpp"
 
 void rpc_pong(Node node) 
 {
@@ -20,37 +18,40 @@ void rpc_ping(Node node)
     (Messenger::getInstance()).sendMessage(node, response);
 }
 
-Message generate_find_node_request(Node findme)
-{
-    uint8_t data[6];
-    uint32_t ip = findme.getIp().getIp();
-    uint16_t port = htons(findme.getPort());
-    data[0] = *((uint8_t*)(&ip)+0);
-    data[1] = *((uint8_t*)(&ip)+1);
-    data[2] = *((uint8_t*)(&ip)+2);
-    data[3] = *((uint8_t*)(&ip)+3);
-    data[4] = *((uint8_t*)(&port)+0);
-    data[5] = *((uint8_t*)(&port)+1);
-    Message response(data,6);
-    response.setFlags(RPC_FIND_NODE);
-    response.append(findme.getKey()->getKey(),NBYTE);
+void rpc_store_request(const char* text, Performer* p) {
+    //store text temporarily
+    Key key(text);
+    p->storeTmpMap.insert({{&key, text}});
+    
+    //find the closest node known to ask for other closest nodes
+    Node node = p->neighbours->findClosestNode(&key);
+    if(node.isEmpty()) {
+        std::cout << "WARNING: no node found in all kbuckets" << std::endl;
+        return;
+    } 
+    
+    //send message to find closest node where to store the data
+    Message findNodeMsg = generate_find_node_request(&key);
+    (Messenger::getInstance()).sendMessage(node, findNodeMsg);
+}
+
+Message generate_find_node_request(const Key* key) {
+    Message response(key->getKey(), NBYTE);
+    response.setFlags(RPC_FIND_NODE_REQUEST);
     return response;
 }
 
-Message generate_find_node_answer(Node findme, Kbucket* bucket)
+Message generate_find_node_request(const Node findme) {
+    return generate_find_node_request(findme.getKey());
+}
+
+Message generate_find_node_answer(const Key* key, Kbucket* bucket)
 {
-    uint8_t data[500];
-    uint32_t ip = findme.getIp().getIp();
-    uint16_t port = htons(findme.getPort());
-    data[0] = *((uint8_t*)(&ip)+0);
-    data[1] = *((uint8_t*)(&ip)+1);
-    data[2] = *((uint8_t*)(&ip)+2);
-    data[3] = *((uint8_t*)(&ip)+3);
-    data[4] = *((uint8_t*)(&port)+0);
-    data[5] = *((uint8_t*)(&port)+1);
+    uint8_t data[500-NBYTE];
+    Message response(key->getKey(), NBYTE);
     int len = bucket->serialize(data+6);
-    delete bucket;
-    Message response(data,len+6);
+    
+    response.append(data,len+NBYTE);
     response.setFlags(RPC_FIND_NODE_ANSWER);
     return response;
 }
@@ -81,49 +82,39 @@ static void* execute(void* this_class)
             {
                 case RPC_PING :
                 {
-                    std::cout << "The message is a ping: " << top->getText() << std::endl;
+                    std::cout << "The message is a ping" << std::endl;
                     rpc_pong(senderNode);
                     
                 }
                     break;
                 case RPC_PONG :
-                    std::cout << "The message is a pong " << std::endl;
+                    std::cout << "The message is a pong" << std::endl;
                     Updater::getInstance()->processPong(senderNode);
                     break;
                 case RPC_STORE :
                 {
                     std::cout << "The message is a store: " << top->getText() << std::endl;
 
-                    std::string key(top->getText(), 20);
+                    Key key(top->getText(), NBYTE);
 
                     short textLength = top->getLength();
                     char* text = new char[textLength];
-                    for(int i = 20; i < textLength; i++)
+                    for(int i = NBYTE; i < textLength; i++)
                     {
                         text[i] = top->getText()[i];
                     }
 
-                    p->filesMap.insert({{key.c_str(), text}});
+                    p->filesMap.insert({{&key, text}});
                 }
                     break;
-                case RPC_FIND_NODE :
+                case RPC_FIND_NODE_REQUEST :
                 {
-                    const uint8_t* data = top->getData();
-                    uint32_t ip = *((uint32_t*)data);
-                    uint16_t port = ntohs(*(uint16_t*)(data+4));
-                    Node findme(Ip(ip),port);
-#ifndef NDEBUG
-                    char stringip[16];
-                    findme.getIp().toString(stringip);
-                    printf("Searched node: %s:%hu\n",stringip,port);
-#endif
-                    Key k;
-                    //retrieve the key from message
-                    k.craft(top->getData()+6);
+                    Key key(top->getText(), NBYTE);
                     //find closest nodes
-                    Kbucket* b = p->neighbours->findKClosestNodes(&k);
-                    b->print();
-                    Message msg = generate_find_node_answer(findme, b);
+                    Kbucket kbucket;
+                    p->neighbours->findKClosestNodes(&key, &kbucket);
+                    kbucket.print();
+                    Message msg = generate_find_node_answer(&key, &kbucket);
                     Messenger::getInstance().sendMessage(senderNode, msg);
                 }
                     break;
@@ -131,39 +122,38 @@ static void* execute(void* this_class)
                 case RPC_FIND_NODE_ANSWER :
                 {
                     std::cout << "Received a list of nodes" << std::endl;
-                    const uint8_t* data = top->getData();
-                    uint32_t ip = *((uint32_t*)data);
-                    uint16_t port = ntohs(*(uint16_t*)(data+4));
-                    Node findme(Ip(ip),port);
-#ifndef NDEBUG
-                    char stringip[16];
-                    findme.getIp().toString(stringip);
-                    printf("Searched node: %s:%hu\n",stringip,port);;
-#endif
-                    Kbucket b(top->getData()+6);
-                    SearchNode* sn;
-                    std::unordered_map<const Key*,SearchNode*>::const_iterator got = p->searchInProgress.find(findme.getKey());
-                    if(got == p->searchInProgress.end())
-                    {
-                        sn = new SearchNode(findme);
-                        p->searchInProgress.insert({{findme.getKey(),sn}});
-                    }
-                    else
-                        sn = got->second;
-                    sn->addAnswer(&b);
-                    Node askto[ALPHA_REQUESTS];
-                    if(sn->queryTo(askto)) //node not found
-                    {
-                        Message msg = generate_find_node_request(findme);
-                        for(int i=0;i<ALPHA_REQUESTS;i++)
-                        {
-                            Messenger::getInstance().sendMessage(askto[i],msg);
-                        }
-                    }
-                    else //node found
-                    {
-                        //???
-                    }
+//                    uint32_t ip = *((uint32_t*)data);
+//                    uint16_t port = ntohs(*(uint16_t*)(data+4));
+//                    Node findme(Ip(ip),port);
+//#ifndef NDEBUG
+//                    char stringip[16];
+//                    findme.getIp().toString(stringip);
+//                    printf("Searched node: %s:%hu\n",stringip,port);;
+//#endif
+//                    Kbucket b(top->getData()+6);
+//                    SearchNode* sn;
+//                    std::unordered_map<const Key*,SearchNode*>::const_iterator got = p->searchInProgress.find(findme.getKey());
+//                    if(got == p->searchInProgress.end())
+//                    {
+//                        sn = new SearchNode(findme);
+//                        p->searchInProgress.insert({{findme.getKey(),sn}});
+//                    }
+//                    else
+//                        sn = got->second;
+//                    sn->addAnswer(&b);
+//                    Node askto[ALPHA_REQUESTS];
+//                    if(sn->queryTo(askto)) //node not found
+//                    {
+//                        Message msg = generate_find_node_request(findme);
+//                        for(int i=0;i<ALPHA_REQUESTS;i++)
+//                        {
+//                            Messenger::getInstance().sendMessage(askto[i],msg);
+//                        }
+//                    }
+//                    else //node found
+//                    {
+//                        //???
+//                    }
                 }
                     break;
                 case RPC_FIND_VALUE :

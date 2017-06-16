@@ -11,10 +11,12 @@
 #include "Distance.hpp"
 #include "NeighbourManager.hpp"
 #include "SearchNode.hpp"
+#include "Updater.hpp"
 
 void rpc_ping(Node node);
-Message generate_find_node_request(Node findme);
-Message generate_find_node_answer(Node findme, Kbucket* bucket);
+Message generate_find_node_request(const Key* key);
+Message generate_find_node_request(const Node findme);
+Message generate_find_node_answer(const Key* key, Kbucket* bucket);
 
 class Performer
 {
@@ -22,7 +24,8 @@ public:
     Performer(std::queue<Message*>* q);
     ~Performer();
     std::queue<Message*>* message_queue;
-    std::unordered_map<std::string, char*> filesMap;
+    std::unordered_map<const Key*, const char*> filesMap;
+    std::unordered_map<const Key*, const char*> storeTmpMap;
     std::unordered_map<const Key*,SearchNode*> searchInProgress;
     NeighbourManager* neighbours;
     
@@ -31,5 +34,7 @@ public:
 private:
     pthread_t thread_id;
 };
+
+void rpc_store_request(const char* text, Performer* p);
 
 #endif
