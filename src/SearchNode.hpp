@@ -11,6 +11,7 @@
 #include <unordered_map>
 #include <mutex>
 #include <algorithm>
+#include <assert.h>
 
 //numerical values are used for operator <
 enum probeStatus {UNKNOWN = 0, PENDING = 1, ACTIVE = 2};
@@ -28,6 +29,11 @@ public:
     SearchNode(const Key* k, const Kbucket* add);
     ~SearchNode();
     void addAnswer(const Node whoanswer, const Kbucket* answer);
+    void print()const;
+    int getActive()const;
+    int getUnknown()const;
+    int getPending()const;
+    void evict(const Node n); //remove a pending node
     int queryTo(Node* answer); //return 0 if the search is completed
                                //otherwise the size of the answer array
 private:

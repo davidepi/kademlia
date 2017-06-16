@@ -20,6 +20,7 @@
 "XCTAssertTrue"               {printf("EXPECT_TRUE");}
 "XCTAssertFalse"              {printf("EXPECT_FALSE");}
 "XCTAssertEqual"              {printf("EXPECT_EQ");}
+"XCTAssertNotEqual"           {printf("EXPECT_NE");}
 "XCTAssertGreaterThan"        {printf("EXPECT_GT");}
 "XCTAssertGreaterThanOrEqual" {printf("EXPECT_GE");}
 "XCTAssertLessThan"           {printf("EXPECT_LT");}
