@@ -49,9 +49,9 @@ Message generate_find_node_answer(const Key* key, Kbucket* bucket)
 {
     uint8_t data[500-NBYTE];
     Message response(key->getKey(), NBYTE);
-    int len = bucket->serialize(data+NBYTE);
+    int len = bucket->serialize(data);
     
-    response.append(data,len+NBYTE);
+    response.append(data,len);
     response.setFlags(RPC_FIND_NODE_ANSWER);
     return response;
 }
@@ -123,6 +123,7 @@ static void* execute(void* this_class)
                 p->neighbours->findKClosestNodes(&key, &kbucket);
                 kbucket.print();
                 Message msg = generate_find_node_answer(&key, &kbucket);
+                msg.setFlags(msg.getFlags()|(top->getFlags()&~RPC_MASK));
                 Messenger::getInstance().sendMessage(senderNode, msg);
             }
                 break;
@@ -150,10 +151,9 @@ static void* execute(void* this_class)
                     }
                     else
                         //received a message from a queried node, but the Kbucket has been completed
-                        ;
+                        break;
                 }
                 else //SearchNode found
-                {
                     sn = got->second;
                     sn->addAnswer(senderNode,&b);
                     Node askto[ALPHA_REQUESTS];
@@ -161,7 +161,7 @@ static void* execute(void* this_class)
                     if(retval > 0) //need to query somebody
                     {
                         Message msg = generate_find_node_request(&k);
-                        for(int i=0;i<ALPHA_REQUESTS;i++)
+                        for(int i=0;i<retval;i++)
                         {
                             Messenger::getInstance().sendMessage(askto[i],msg);
                         }
@@ -183,7 +183,19 @@ static void* execute(void* this_class)
                         //need to wait the pending nodes
                         ;
                     }
-                }
+            }
+                break;
+            case RPC_FIND_NODE_RESPONSE:
+            {
+                Key k;
+                k.craft(top->getData());
+                Kbucket b(top->getData()+NBYTE);
+#ifndef NDEBUG
+                std::cout<<"Completed KBucket for key ";
+                k.print();
+                b.print();
+#endif
+                
             }
                 break;
             default:

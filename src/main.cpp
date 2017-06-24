@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
                 exit(EXIT_SUCCESS);
                 break;
             }
-            case 'x':private_net = true;break;
+            case 'x': private_net = true;break;
             case 'p': port_dest = atoi(optarg);break;
             case 'i': gateway = Ip(optarg); im_gateway = false;break;
             case 'P': port_host = atoi(optarg);break;
@@ -93,7 +93,8 @@ int main(int argc, char* argv[])
             m->getIp().toString(myIp);
             Key myKey(m->getIp(),m->getPort());
             std::cout << "My ip: " << myIp << std::endl;
-            Message msg = generate_find_node_request(Node(m->getIp(),m->getPort()));
+            Message msg = generate_find_node_request(&myKey);
+            msg.setFlags(msg.getFlags()|FIND_START_FLAG);
             (Messenger::getInstance()).sendMessage(gatewaynode, msg);
             
         }
