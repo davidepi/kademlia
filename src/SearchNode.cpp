@@ -81,8 +81,9 @@ void SearchNode::addAnswer(const Node whoanswer, const Kbucket* a)
         {
             //if node is equal, keep higher probed status and return true
             if(uniqueoperand(&*it, &*second))
-                askme.erase(second); //then erase the second
-            second++;
+                second = askme.erase(second); //then erase the second
+            else 
+                second++;
         }
     }
     
@@ -95,7 +96,7 @@ void SearchNode::addAnswer(const Node whoanswer, const Kbucket* a)
     for(std::list<pnode>::iterator i=reserve.begin();i!=reserve.end();i++)
     {
         if(i->probed==UNKNOWN)
-            reserve.erase(i);
+            i = reserve.erase(i);
     }
     mtx.unlock();
 }
