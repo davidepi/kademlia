@@ -165,6 +165,11 @@ int kadUI(Performer* p) {
             std::cout << "Bye" << std::endl;
             break;
         }
+        case 6:
+        {
+            p->printFilesMap();
+            break;
+        }
         default:
         {
             std::cout << "No valid input" << std::endl;

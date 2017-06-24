@@ -32,7 +32,7 @@ void rpc_store_request(const char* text, Performer* p) {
     
     //send message to find closest node where to store the data
     Message findNodeMsg = generate_find_node_request(&key);
-    findNodeMsg.setFlags(findNodeMsg.getFlags() | FIND_STORE_REQUEST);
+    findNodeMsg.setFlags(findNodeMsg.getFlags() | FIND_STORE_REQUEST | FIND_START_FLAG);
     (Messenger::getInstance()).sendMessage(node, findNodeMsg);
 }
 
@@ -190,6 +190,7 @@ static void* execute(void* this_class)
                 if(retval > 0) //need to query somebody
                 {
                     Message msg = generate_find_node_request(&k);
+                    msg.setFlags(msg.getFlags() | (top->getFlags() & ~RPC_MASK));
                     for(int i=0;i<retval;i++)
                     {
                         Messenger::getInstance().sendMessage(askto[i],msg);
@@ -258,4 +259,12 @@ const pthread_t Performer::getThreadID()const
 Performer::~Performer()
 {
     delete neighbours;
+}
+
+void Performer::printFilesMap()
+{
+    Key k("ciao");
+    std::unordered_map<const Key*,const char*>::const_iterator got = filesMap.find(&k);
+    if(got!=filesMap.end())
+        std::cout<<"FOUND! "<<std::endl;
 }

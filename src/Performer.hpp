@@ -30,6 +30,7 @@ public:
     NeighbourManager* neighbours;
     
     const pthread_t getThreadID()const;
+    void printFilesMap();
     
 private:
     pthread_t thread_id;
