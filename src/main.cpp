@@ -161,6 +161,7 @@ int kadUI(Performer* p) {
         case 5:
         {
             res = 0;
+            std::cout << "Bye" << std::endl;
             break;
         }
         default:

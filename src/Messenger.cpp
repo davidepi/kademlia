@@ -1,6 +1,5 @@
 #include "Messenger.hpp"
 #include "assert.h" //TODO: rimuovere una volta che compila anche con -DNDEBUG
-#include <ifaddrs.h>
 
 #define CRITICAL_ERROR {fprintf(stderr,"[%s,line %d]%s\n",__FILE__,__LINE__,\
         strerror(errno));exit(EXIT_FAILURE);}
@@ -53,6 +52,7 @@ static void* listener(void* p)
             if(q->size() < QUEUE_LENGTH)
             {
                 q->push(m);
+                (Messenger::getInstance()).cond_var.notify_all();
             }
         }
     }
