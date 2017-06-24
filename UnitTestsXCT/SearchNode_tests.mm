@@ -443,8 +443,11 @@
         }
         hardterminator--;
     }
+    sc.print();
     XCTAssertNotEqual(hardterminator, 0);
-    XCTAssertEqual(sc.getUnknown(),sc.queryTo(res));
+    //gtest executes the assertEqual in undefined order
+    int unknown_before = sc.getUnknown();
+    XCTAssertEqual(unknown_before,sc.queryTo(res));
     XCTAssertEqual(sc.getUnknown(), 0);
     XCTAssertEqual(sc.queryTo(res),-1);
     XCTAssertEqual(sc.getPending(), KBUCKET_SIZE-sc.getActive());
@@ -505,7 +508,8 @@
     }
     XCTAssertGreaterThan(hardterminator, 0);
     XCTAssertLessThan(sc.getUnknown(), sc.getActive());
-    XCTAssertEqual(sc.getUnknown(), sc.queryTo(res));
+    int unknown_before = sc.getUnknown();
+    XCTAssertEqual(unknown_before, sc.queryTo(res));
     for(int i=0;i<ALPHA_REQUESTS;i++)
         sc.addAnswer(res[i], &ke);
     XCTAssertEqual(sc.getActive(), KBUCKET_SIZE);
