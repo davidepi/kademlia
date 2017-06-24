@@ -32,7 +32,24 @@ void rpc_store_request(const char* text, Performer* p) {
     
     //send message to find closest node where to store the data
     Message findNodeMsg = generate_find_node_request(&key);
+    findNodeMsg.setFlags(findNodeMsg.getFlags() | FIND_STORE_REQUEST);
     (Messenger::getInstance()).sendMessage(node, findNodeMsg);
+}
+
+void rpc_store(const Key* key, const Kbucket* bucket, Performer* p) {
+    Message response(key->getKey(), NBYTE);
+    const char* text = p->storeTmpMap.at(key);
+    p->storeTmpMap.erase(key);
+    
+    if (text == NULL){
+        return;
+    }
+    response.append((uint8_t*)text, strlen(text) + 1);
+    response.setFlags(RPC_STORE);
+    
+    for (std::list<Node>::const_iterator it = bucket->getNodes()->begin(); it != bucket->getNodes()->end(); ++it) {
+        (Messenger::getInstance()).sendMessage(*it, response);
+    }
 }
 
 Message generate_find_node_request(const Key* key) {
@@ -206,6 +223,9 @@ static void* execute(void* this_class)
                 k.print();
                 b.print();
 #endif
+                if(top->getFlags() & FIND_STORE_REQUEST) {
+                    rpc_store(&k, &b, p);
+                }
                 
             }
                 break;
