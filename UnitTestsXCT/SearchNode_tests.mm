@@ -443,7 +443,6 @@
         }
         hardterminator--;
     }
-    sc.print();
     XCTAssertNotEqual(hardterminator, 0);
     //gtest executes the assertEqual in undefined order
     int unknown_before = sc.getUnknown();

@@ -160,7 +160,7 @@ void SearchNode::print()const
         it->node.getIp().toString(ipstring);
         const char* status = status = it->probed==UNKNOWN?"UNKNOWN":it->probed==ACTIVE?"ACTIVE":"PENDING";
         printf("%s:%hu [%s]",ipstring,(unsigned short)it->node.getPort(),status);
-        printf(" Distance: %d]\n",Distance(*(it->node.getKey()),findkey).getDistance());
+        printf(" Distance: %d\n",Distance(*(it->node.getKey()),findkey).getDistance());
     }
     printf(" -- Reserve list -- (%d)\n",(int)reserve.size());
     for(std::list<pnode>::const_iterator it=reserve.begin();it!=reserve.end();it++)
@@ -169,7 +169,7 @@ void SearchNode::print()const
         it->node.getIp().toString(ipstring);
         const char* status = status = it->probed==UNKNOWN?"UNKNOWN":it->probed==ACTIVE?"ACTIVE":"PENDING";
         printf("%s:%hu [%s]",ipstring,(unsigned short)it->node.getPort(),status);
-        printf(" Distance: %d]\n",Distance(*(it->node.getKey()),findkey).getDistance());
+        printf(" Distance: %d\n",Distance(*(it->node.getKey()),findkey).getDistance());
     }
 }
 
