@@ -168,7 +168,7 @@ static void* execute(void* this_class)
                 k.print();
 #endif
                 Kbucket b(top->getData()+NBYTE);
-                SearchNode* sn;
+                SearchNode* sn = NULL;
                 std::unordered_map<const Key*,SearchNode*>::const_iterator got = p->searchInProgress.find(&k);
                 if(got == p->searchInProgress.end()) //SearchNode not found
                 {
@@ -183,34 +183,36 @@ static void* execute(void* this_class)
                 }
                 else //SearchNode found
                     sn = got->second;
-                    sn->addAnswer(senderNode,&b);
-                    Node askto[ALPHA_REQUESTS];
-                    int retval = sn->queryTo(askto);
-                    if(retval > 0) //need to query somebody
+                
+                sn->addAnswer(senderNode,&b);
+                Node askto[ALPHA_REQUESTS];
+                int retval = sn->queryTo(askto);
+                if(retval > 0) //need to query somebody
+                {
+                    Message msg = generate_find_node_request(&k);
+                    for(int i=0;i<retval;i++)
                     {
-                        Message msg = generate_find_node_request(&k);
-                        for(int i=0;i<retval;i++)
-                        {
-                            Messenger::getInstance().sendMessage(askto[i],msg);
-                        }
+                        Messenger::getInstance().sendMessage(askto[i],msg);
                     }
-                    else if (retval == 0) //Kbucket ready
-                    {
-                        Kbucket res;
-                        sn->getAnswer(&res);
-                        delete sn;
-                        Message msg = generate_find_node_answer(&k, &res);
-                        msg.setFlags(RPC_FIND_NODE_RESPONSE |
-                                     (top->getFlags() & ~RPC_MASK));
-                        Node me(Messenger::getInstance().getIp(),
-                                Messenger::getInstance().getPort());
-                        Messenger::getInstance().sendMessage(me, msg);
-                    }
-                    else
-                    {
-                        //need to wait the pending nodes
-                        ;
-                    }
+                }
+                else if (retval == 0) //Kbucket ready
+                {
+                    Kbucket res;
+                    sn->getAnswer(&res);
+                    delete sn;
+                    p->searchInProgress.erase(got);
+                    Message msg = generate_find_node_answer(&k, &res);
+                    msg.setFlags(RPC_FIND_NODE_RESPONSE |
+                                 (top->getFlags() & ~RPC_MASK));
+                    Node me(Messenger::getInstance().getIp(),
+                            Messenger::getInstance().getPort());
+                    Messenger::getInstance().sendMessage(me, msg);
+                }
+                else
+                {
+                    //need to wait the pending nodes
+                    ;
+                }
             }
                 break;
             case RPC_FIND_NODE_RESPONSE:
