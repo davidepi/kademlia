@@ -7,7 +7,7 @@
 #include <string>
 #include <sstream>
 
-void kadUI(Performer* p);
+int kadUI(Performer* p);
 
 int main(int argc, char* argv[])
 {
@@ -99,22 +99,19 @@ int main(int argc, char* argv[])
         }
     }
    
-    while (true) {
-        kadUI(&p);
-    }
-    
-    pthread_join(p.getThreadID(), NULL);
-    
+    while (kadUI(&p));
     return 0;
 }
 
 
-void kadUI(Performer* p) {
+int kadUI(Performer* p) {
+    int res = 1;
     std::cout << "Choose a command:" << std::endl;
     std::cout << "[1] Store Value" << std::endl;
     std::cout << "[2] Find Value" << std::endl;
     std::cout << "[3] Find Node" << std::endl;
     std::cout << "[4] Ping" << std::endl;
+    std::cout << "[5] Exit" << std::endl;
 
     int command;
     std::string commandString;
@@ -161,13 +158,17 @@ void kadUI(Performer* p) {
             rpc_ping(Node(Ip(hostname.c_str()), port));
             break;
         }
+        case 5:
+        {
+            res = 0;
+            break;
+        }
         default:
         {
             std::cout << "No valid input" << std::endl;
             break;
         }
     }
-
-
     
+    return res;
 }

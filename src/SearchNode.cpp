@@ -232,3 +232,10 @@ void SearchNode::evict(const Node n)
     }
     mtx.unlock();
 }
+
+void SearchNode::getAnswer(Kbucket *answer)
+{
+    for(std::list<pnode>::const_iterator it=askme.begin();it!=askme.end();it++)
+        if(it->probed==ACTIVE)
+            answer->add(it->node);
+}

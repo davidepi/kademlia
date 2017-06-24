@@ -108,6 +108,10 @@ static void* execute(void* this_class)
                 case RPC_FIND_NODE_REQUEST :
                 {
                     Key key(top->getText(), NBYTE);
+#ifndef NDEBUG
+                    printf("Somebody asked for Kbucket of key: ");
+                    key.print();
+#endif
                     //find closest nodes
                     Kbucket kbucket;
                     p->neighbours->findKClosestNodes(&key, &kbucket);
@@ -120,38 +124,60 @@ static void* execute(void* this_class)
                 case RPC_FIND_NODE_ANSWER :
                 {
                     std::cout << "Received a list of nodes" << std::endl;
-//                    uint32_t ip = *((uint32_t*)data);
-//                    uint16_t port = ntohs(*(uint16_t*)(data+4));
-//                    Node findme(Ip(ip),port);
-//#ifndef NDEBUG
-//                    char stringip[16];
-//                    findme.getIp().toString(stringip);
-//                    printf("Searched node: %s:%hu\n",stringip,port);;
-//#endif
-//                    Kbucket b(top->getData()+6);
-//                    SearchNode* sn;
-//                    std::unordered_map<const Key*,SearchNode*>::const_iterator got = p->searchInProgress.find(findme.getKey());
-//                    if(got == p->searchInProgress.end())
-//                    {
-//                        sn = new SearchNode(findme);
-//                        p->searchInProgress.insert({{findme.getKey(),sn}});
-//                    }
-//                    else
-//                        sn = got->second;
-//                    sn->addAnswer(&b);
-//                    Node askto[ALPHA_REQUESTS];
-//                    if(sn->queryTo(askto)) //node not found
-//                    {
-//                        Message msg = generate_find_node_request(findme);
-//                        for(int i=0;i<ALPHA_REQUESTS;i++)
-//                        {
-//                            Messenger::getInstance().sendMessage(askto[i],msg);
-//                        }
-//                    }
-//                    else //node found
-//                    {
-//                        //???
-//                    }
+                    Key k;
+                    k.craft(top->getData());
+                    
+#ifndef NDEBUG
+                    printf("Received answer for key: ");
+                    k.print();
+#endif
+                    
+                    Kbucket b(top->getData()+NBYTE);
+                    SearchNode* sn;
+                    std::unordered_map<const Key*,SearchNode*>::const_iterator got = p->searchInProgress.find(&k);
+                    if(got == p->searchInProgress.end()) //SearchNode not found
+                    {
+                        if(top->getFlags() & FIND_START_FLAG)
+                        {
+                            sn = new SearchNode(&k,&b);
+                            p->searchInProgress.insert({{&k,sn}});
+                        }
+                        else
+                            //received a message from a queried node, but the Kbucket has been completed
+                            ;
+                    }
+                    else //SearchNode found
+                    {
+                        sn = got->second;
+                        sn->addAnswer(senderNode,&b);
+                        Node askto[ALPHA_REQUESTS];
+                        int retval = sn->queryTo(askto);
+                        if(retval > 0) //need to query somebody
+                        {
+                            Message msg = generate_find_node_request(&k);
+                            for(int i=0;i<ALPHA_REQUESTS;i++)
+                            {
+                                Messenger::getInstance().sendMessage(askto[i],msg);
+                            }
+                        }
+                        else if (retval == 0) //Kbucket ready
+                        {
+                            Kbucket res;
+                            sn->getAnswer(&res);
+                            delete sn;
+                            Message msg = generate_find_node_answer(&k, &res);
+                            msg.setFlags(RPC_FIND_NODE_RESPONSE |
+                                         (top->getFlags() & ~RPC_MASK));
+                            Node me(Messenger::getInstance().getIp(),
+                                    Messenger::getInstance().getPort());
+                            Messenger::getInstance().sendMessage(me, msg);
+                        }
+                        else
+                        {
+                            //need to wait the pending nodes
+                            ;
+                        }
+                    }
                 }
                     break;
                 default:

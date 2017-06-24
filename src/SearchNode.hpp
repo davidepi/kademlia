@@ -37,6 +37,8 @@ public:
     void evict(const Node n); //remove a pending node
     int queryTo(Node* answer); //return 0 if the search is completed
                                //otherwise the size of the answer array
+    void getAnswer(Kbucket* answer);
+    
 private:
     Key findkey;
     std::list<pnode> askme;
