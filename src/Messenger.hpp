@@ -3,6 +3,8 @@
 
 #include <queue>
 #include <pthread.h>
+#include <mutex> // std::mutex, std::unique_lock
+#include <condition_variable> // std::condition_variable
 #include "Ip.hpp"
 #include "Node.hpp"
 #include <string.h>     //memset
@@ -11,6 +13,7 @@
 #include <netinet/in.h> //sockaddr_in, sostituisce arpa/inet.h in alcuni sistemi
 #include <arpa/inet.h>  //htons, htonl e cosi' via
 #include <curl/curl.h>
+#include <ifaddrs.h>
 #include "settings.h"
 
 #define RPC_PING 0x1
@@ -42,6 +45,8 @@ public:
     uint16_t getPort() const;
     std::queue<Message*>* getBindedQueue() const;
     int setPrivate();
+    std::mutex mutex;
+    std::condition_variable cond_var;
 
 private:
     Messenger();

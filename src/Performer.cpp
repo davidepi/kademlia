@@ -60,66 +60,69 @@ static void* execute(void* this_class)
 {
     Performer* p = (Performer*)this_class;
     std::queue<Message*>* q = p->message_queue;
-    while(1) 
-    {
+    while (true) {
+        Messenger* m = &(Messenger::getInstance());
+        std::unique_lock<std::mutex> mlock(m->mutex);
+
+        while (p->message_queue->size() == 0) {
+            m->cond_var.wait(mlock);
+        }
         Message* top;
-        if (q->size() > 0)
-        {
-            top = q->front();
-            q->pop();
+        top = q->front();
+        q->pop();
 
-            Node senderNode = top->getSenderNode();
-            
-            //update bucket -> add the sender node whichever the RPC is
-            p->neighbours->insertNode(&senderNode);
+        Node senderNode = top->getSenderNode();
+
+        //update bucket -> add the sender node whichever the RPC is
+        p->neighbours->insertNode(&senderNode);
 #ifndef NDEBUG
-            char ip[16];
-            senderNode.getIp().toString(ip);
-            printf("Received a message from: %s:%hu\n",ip,(unsigned short)senderNode.getPort());
+        char ip[16];
+        senderNode.getIp().toString(ip);
+        printf("Received a message from: %s:%hu\n",ip,(unsigned short)senderNode.getPort());
 #endif
-            switch(top->getFlags() & RPC_MASK)
+        switch(top->getFlags() & RPC_MASK)
+        {
+            case RPC_PING :
             {
-                case RPC_PING :
-                {
-                    std::cout << "The message is a ping" << std::endl;
-                    rpc_pong(senderNode);
-                    
-                }
-                    break;
-                case RPC_PONG :
-                    std::cout << "The message is a pong" << std::endl;
-                    Updater::getInstance()->processPong(senderNode);
-                    break;
-                case RPC_STORE :
-                {
-                    std::cout << "The message is a store: " << top->getText() << std::endl;
+                std::cout << "The message is a ping" << std::endl;
+                rpc_pong(senderNode);
 
-                    Key key(top->getText(), NBYTE);
-                    short textLength = top->getLength();
-                    char* text = new char[textLength];
-                    for(int i = NBYTE; i < textLength; i++)
-                    {
-                        text[i] = top->getText()[i];
-                    }
+            }
+                break;
+            case RPC_PONG :
+                std::cout << "The message is a pong" << std::endl;
+                Updater::getInstance()->processPong(senderNode);
+                break;
+            case RPC_STORE :
+            {
+                std::cout << "The message is a store: " << top->getText() << std::endl;
 
-                    p->filesMap.insert({{&key, text}});
-                }
-                    break;
-                case RPC_FIND_NODE_REQUEST :
+                Key key(top->getText(), NBYTE);
+                short textLength = top->getLength();
+                char* text = new char[textLength];
+                for(int i = NBYTE; i < textLength; i++)
                 {
-                    Key key(top->getText(), NBYTE);
-                    //find closest nodes
-                    Kbucket kbucket;
-                    p->neighbours->findKClosestNodes(&key, &kbucket);
-                    kbucket.print();
-                    Message msg = generate_find_node_answer(&key, &kbucket);
-                    Messenger::getInstance().sendMessage(senderNode, msg);
+                    text[i] = top->getText()[i];
                 }
-                    break;
-                    
-                case RPC_FIND_NODE_ANSWER :
-                {
-                    std::cout << "Received a list of nodes" << std::endl;
+
+                p->filesMap.insert({{&key, text}});
+            }
+                break;
+            case RPC_FIND_NODE_REQUEST :
+            {
+                Key key(top->getText(), NBYTE);
+                //find closest nodes
+                Kbucket kbucket;
+                p->neighbours->findKClosestNodes(&key, &kbucket);
+                kbucket.print();
+                Message msg = generate_find_node_answer(&key, &kbucket);
+                Messenger::getInstance().sendMessage(senderNode, msg);
+            }
+                break;
+
+            case RPC_FIND_NODE_ANSWER :
+            {
+                std::cout << "Received a list of nodes" << std::endl;
 //                    uint32_t ip = *((uint32_t*)data);
 //                    uint16_t port = ntohs(*(uint16_t*)(data+4));
 //                    Node findme(Ip(ip),port);
@@ -152,16 +155,11 @@ static void* execute(void* this_class)
 //                    {
 //                        //???
 //                    }
-                }
-                    break;
-                default:
-                    //ignore the packet with wrong type flag
-                    ;
             }
-        } 
-        else 
-        {
-            sleep(2);
+                break;
+            default:
+                //ignore the packet with wrong type flag
+                ;
         }
     }
     pthread_exit((void*)0);
