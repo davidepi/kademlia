@@ -118,13 +118,25 @@ static void* execute(void* this_class)
                 printf("Somebody asked for Kbucket of key: ");
                 key.print();
 #endif
-                //find closest nodes
-                Kbucket kbucket;
-                p->neighbours->findKClosestNodes(&key, &kbucket);
-                kbucket.print();
-                Message msg = generate_find_node_answer(&key, &kbucket);
-                msg.setFlags(msg.getFlags()|(top->getFlags()&~RPC_MASK));
-                Messenger::getInstance().sendMessage(senderNode, msg);
+                if(top->getFlags() & FIND_VALUE_FLAG)
+                {
+                    std::unordered_map<const Key*,const char*>::const_iterator got = p->filesMap.find(&key);
+                    if(got!=p->filesMap.end())
+                    {
+                        Message msg(key.getKey(),NBYTE);
+                        msg.append((const uint8_t*)got->second,strlen(got->second)+1);
+                        msg.setFlags(RPC_FIND_NODE_RESPONSE|FIND_VALUE_FLAG|FIND_VALUE_FOUND);
+                        Messenger::getInstance().sendMessage(senderNode, msg);
+                        break;
+                    }
+                }
+                    //find closest nodes
+                    Kbucket kbucket;
+                    p->neighbours->findKClosestNodes(&key, &kbucket);
+                    kbucket.print();
+                    Message msg = generate_find_node_answer(&key, &kbucket);
+                    msg.setFlags(msg.getFlags()|(top->getFlags()&~RPC_MASK));
+                    Messenger::getInstance().sendMessage(senderNode, msg);
             }
                 break;
                 
@@ -138,7 +150,6 @@ static void* execute(void* this_class)
                 printf("Received answer for key: ");
                 k.print();
 #endif
-                
                 Kbucket b(top->getData()+NBYTE);
                 SearchNode* sn;
                 std::unordered_map<const Key*,SearchNode*>::const_iterator got = p->searchInProgress.find(&k);
