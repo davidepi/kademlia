@@ -97,7 +97,8 @@ static void* execute(void* this_class)
             {
                 std::cout << "The message is a store: " << top->getText() << std::endl;
                 
-                Key key(top->getText(), NBYTE);
+                Key key;
+                key.craft(top->getData());
                 short textLength = top->getLength();
                 char* text = new char[textLength];
                 for(int i = NBYTE; i < textLength; i++)
@@ -110,7 +111,8 @@ static void* execute(void* this_class)
                 break;
             case RPC_FIND_NODE_REQUEST :
             {
-                Key key(top->getText(), NBYTE);
+                Key key;
+                key.craft(top->getData());
                 //find closest nodes
 #ifndef NDEBUG
                 printf("Somebody asked for Kbucket of key: ");
