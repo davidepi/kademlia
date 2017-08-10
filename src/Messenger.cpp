@@ -81,6 +81,7 @@ int Messenger::init(std::queue<Message*>* q, int port_ho)
                             //ancora non ho garanzie, ma chissene
     char myipstring[16];
     myipstring[0] = 0;
+#ifdef CURL_FOUND
     CURL *curl;
     CURLcode res;
     
@@ -101,6 +102,8 @@ int Messenger::init(std::queue<Message*>* q, int port_ho)
         curl_easy_cleanup(curl);
         curl_global_cleanup();
     }
+#endif
+    
     Messenger::binded_queue = q;
     Messenger::sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if(Messenger::sockfd < 0)

@@ -12,9 +12,11 @@
 #include <sys/socket.h> //socket, AF_INET, SOCK_DGRAM
 #include <netinet/in.h> //sockaddr_in, sostituisce arpa/inet.h in alcuni sistemi
 #include <arpa/inet.h>  //htons, htonl e cosi' via
-#include <curl/curl.h>
 #include <ifaddrs.h>
 #include "settings.h"
+#ifdef CURL_FOUND
+#include <curl/curl.h>
+#endif
 
 #define RPC_PING 0x1
 #define RPC_PONG 0x2

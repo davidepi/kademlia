@@ -85,5 +85,9 @@ void NeighbourManager::addNodesToList(std::list<Node>* list, int index) {
 
 void NeighbourManager::insertNode(const Node* node) {
     Distance dist(*myself, *node);
-    neighboursArray[dist.getDistance() - 1].add(*node);
+    int index = dist.getDistance() - 1;
+    if(index < 0) {
+        return; //not adding myself to the neighbours
+    }
+    neighboursArray[index].add(*node);
 }
