@@ -21,7 +21,7 @@ void rpc_ping(Node node)
 void rpc_store_request(const char* text, Performer* p) {
     //store text temporarily
     Key key(text);
-    p->storeTmpMap.insert({{&key, text}});
+    p->storeTmpMap.push_back(std::make_pair(key, text));
     
     //find the closest node known to ask for other closest nodes
     Node node = p->neighbours->findClosestNode(&key);
@@ -38,18 +38,26 @@ void rpc_store_request(const char* text, Performer* p) {
 
 void rpc_store(const Key* key, const Kbucket* bucket, Performer* p) {
     Message response(key->getKey(), NBYTE);
-    const char* text = p->storeTmpMap.at(key);
-    p->storeTmpMap.erase(key);
-    
-    if (text == NULL){
-        return;
+
+    const char* text = NULL;
+    for (std::list<std::pair<const Key, const char*>>::iterator it = p->storeTmpMap.begin(); it != p->storeTmpMap.end(); ++it) {        
+        if(it->first == *key) {
+            text = it->second;
+            p->storeTmpMap.erase(it);
+            break;
+        }
+
     }
-    response.append((uint8_t*)text, strlen(text) + 1);
-    response.setFlags(RPC_STORE);
+
+    if(text != NULL) {
+        response.append((uint8_t*) text, strlen(text) + 1);
+        response.setFlags(RPC_STORE);
+
+        for (std::list<Node>::const_iterator it = bucket->getNodes()->begin(); it != bucket->getNodes()->end(); ++it) {
+            (Messenger::getInstance()).sendMessage(*it, response);
+        }
+    } 
     
-    for (std::list<Node>::const_iterator it = bucket->getNodes()->begin(); it != bucket->getNodes()->end(); ++it) {
-        (Messenger::getInstance()).sendMessage(*it, response);
-    }
 }
 
 Message generate_find_node_request(const Key* key) {
@@ -112,18 +120,19 @@ static void* execute(void* this_class)
                 break;
             case RPC_STORE :
             {
-                std::cout << "The message is a store: " << top->getText() << std::endl;
+                std::cout << "The message is a store " << std::endl;
                 
                 Key key;
                 key.craft(top->getData());
                 short textLength = top->getLength();
-                char* text = new char[textLength];
+                char* text = new char[textLength - NBYTE];
                 for(int i = NBYTE; i < textLength; i++)
                 {
-                    text[i] = top->getText()[i];
+                    text[i - NBYTE] = top->getText()[i];
                 }
-                
-                p->filesMap.insert({{&key, text}});
+                if(p->filesMap.insert(std::make_pair(key, text)).second == false) {
+                    std::cout << "ERROR: key already inserted" << std::endl;
+                }
             }
                 break;
             case RPC_FIND_NODE_REQUEST :
@@ -137,7 +146,7 @@ static void* execute(void* this_class)
 #endif
                 if(top->getFlags() & FIND_VALUE_FLAG)
                 {
-                    std::unordered_map<const Key*,const char*>::const_iterator got = p->filesMap.find(&key);
+                    std::set<std::pair<const Key,const char*>>::iterator got = p->filesMap.find(std::pair<const Key,const char*>(key,NULL));
                     if(got!=p->filesMap.end())
                     {
                         Message msg(key.getKey(),NBYTE);
@@ -262,9 +271,12 @@ Performer::~Performer()
 }
 
 void Performer::printFilesMap()
-{
-    Key k("ciao");
-    std::unordered_map<const Key*,const char*>::const_iterator got = filesMap.find(&k);
-    if(got!=filesMap.end())
-        std::cout<<"FOUND! "<<std::endl;
+{ 
+    std::cout << "---------FILES STORED ON THIS SERVER-----------------------------" << std::endl;
+    for (std::set<std::pair<const Key, const char*>>::iterator it = filesMap.begin(); it != filesMap.end(); ++it) {
+        std::cout << "KEY: ";
+        it->first.print();
+        std::cout << "TEXT: " << it->second << std::endl << std::endl;
+    }
+    std::cout << "---------END OF FILES STORED ON THIS SERVER----------------------" << std::endl;
 }

@@ -18,6 +18,7 @@ public:
     
     bool operator==(const Key& k)const;
     bool operator!=(const Key& k)const;
+    bool operator<(const Key& k)const;
     
     std::size_t operator()(const Key* c) const; //for the hash map
     

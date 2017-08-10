@@ -4,6 +4,7 @@
 #include <queue>
 #include <unistd.h>
 #include <unordered_map>
+#include <set>
 #include <cstring> //strncpy
 #include "Messenger.hpp"
 #include "Node.hpp"
@@ -18,14 +19,22 @@ Message generate_find_node_request(const Key* key);
 Message generate_find_node_request(const Node findme);
 Message generate_find_node_answer(const Key* key, Kbucket* bucket);
 
+struct filesMapComparator
+{
+    bool operator()(std::pair<const Key,const char*> a, std::pair<const Key, const char *> b)const
+    {
+        return a.first < b.first;
+    }
+};
+
 class Performer
 {
 public:
     Performer(std::queue<Message*>* q);
     ~Performer();
     std::queue<Message*>* message_queue;
-    std::unordered_map<const Key*, const char*> filesMap;
-    std::unordered_map<const Key*, const char*> storeTmpMap;
+    std::set<std::pair<const Key, const char*>,filesMapComparator> filesMap;
+    std::list<std::pair<const Key, const char*>> storeTmpMap;
     std::unordered_map<const Key*,SearchNode*> searchInProgress;
     NeighbourManager* neighbours;
     

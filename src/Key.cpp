@@ -1,4 +1,5 @@
 #include "Key.hpp"
+#include "Distance.hpp"
 
 //se non c'e' una #define di una funzione di hashing usa SHA1 come default
 #ifndef HASHFN
@@ -95,6 +96,11 @@ bool Key::operator==(const Key& k) const
 bool Key::operator!=(const Key& k) const
 {
     return !(*this==k);
+}
+
+bool Key::operator<(const Key& k)const {
+    short distance = Distance(*this, k).getDistance() / 8; //first byte is different
+    return key[distance] < k.getKey()[distance];
 }
 
 std::size_t Key::operator()(const Key *c)const

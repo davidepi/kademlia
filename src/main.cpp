@@ -112,7 +112,8 @@ int kadUI(Performer* p) {
     std::cout << "[2] Find Value" << std::endl;
     std::cout << "[3] Find Node" << std::endl;
     std::cout << "[4] Ping" << std::endl;
-    std::cout << "[5] Exit" << std::endl;
+    std::cout << "[5] Print value map" << std::endl;
+    std::cout << "[6] Exit" << std::endl;
 
     int command;
     std::string commandString;
@@ -154,20 +155,20 @@ int kadUI(Performer* p) {
             std::getline(std::cin, hostname);
             
             std::cout << "Insert the port:" << std::endl;
-            int port;
-            std::cin >> port;
-            rpc_ping(Node(Ip(hostname.c_str()), port));
+            std::string port;
+            std::getline(std::cin, port);
+            rpc_ping(Node(Ip(hostname.c_str()), atoi(port.c_str())));
             break;
         }
         case 5:
         {
-            res = 0;
-            std::cout << "Bye" << std::endl;
+            p->printFilesMap();
             break;
         }
         case 6:
         {
-            p->printFilesMap();
+            res = 0;
+            std::cout << "Bye" << std::endl;
             break;
         }
         default:
