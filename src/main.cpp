@@ -65,39 +65,40 @@ int main(int argc, char* argv[])
     //creating the thread that waits for incoming packets and passes them to the performer one
     Messenger* m = &(Messenger::getInstance());
     m->init(&a, port_host);
-    if(im_gateway && private_net)
-    {
-        m->setPrivate();
-        std::cout<<"Private network"<<std::endl;
-    }
-    else if(im_gateway && !private_net)
-        std::cout<<"Public network"<<std::endl;
-    Performer p(&a);
-    if(!im_gateway)
-    {
-        if(gateway.isLocalhost() || port_dest == 0)
-        {
+    
+    if(im_gateway) {
+        if(private_net) {
+            m->setPrivate();
+            std::cout<<"Private network"<<std::endl;
+        } 
+        else {
+            std::cout<<"Public network"<<std::endl;
+        }
+    } 
+    else {
+        if(gateway.isLocalhost() || port_dest == 0) {
             fprintf(stderr, "%s\n", "Missing gateway ip or port");
             exit(EXIT_FAILURE);
         }
-        else
-        {
-            if(gateway.isPrivate())
-            {
-                std::cout<<"Private network"<<std::endl;
-                m->setPrivate();
-            }
-            else
-                std::cout<<"Public network"<<std::endl;
-            char myIp[16];
-            m->getIp().toString(myIp);
-            Key myKey(m->getIp(),m->getPort());
-            std::cout << "My ip: " << myIp << std::endl;
-            Message msg = generate_find_node_request(&myKey);
-            msg.setFlags(msg.getFlags()|FIND_START_FLAG);
-            (Messenger::getInstance()).sendMessage(gatewaynode, msg);
-            
+        if (gateway.isPrivate()) {
+            m->setPrivate();
+            std::cout<<"Private network"<<std::endl;
+        }        
+        else {
+            std::cout<<"Public network"<<std::endl;
         }
+    }
+    
+    Performer p(&a);
+    if(!im_gateway)
+    {
+        char myIp[16];
+        m->getIp().toString(myIp);
+        Key myKey(m->getIp(),m->getPort());
+        std::cout << "My ip: " << myIp << std::endl;
+        Message msg = generate_find_node_request(&myKey);
+        msg.setFlags(msg.getFlags()|FIND_START_FLAG);
+        (Messenger::getInstance()).sendMessage(gatewaynode, msg);
     }
    
     while (kadUI(&p));

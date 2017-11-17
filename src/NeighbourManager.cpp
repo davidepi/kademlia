@@ -35,7 +35,7 @@ void NeighbourManager::printNeighbours() {
         for (std::list<Node>::iterator it = neighboursArray[i].getNodes()->begin(); it != neighboursArray[i].getNodes()->end(); ++it) {
             char string[64];
             it->getIp().toString(string);
-            std::cout << "element " << string << std::endl;
+            std::cout << "element " << string << ":" << it->getPort() << std::endl;
         }
     }
 
@@ -57,6 +57,9 @@ void NeighbourManager::findKClosestNodes(const Key* key, Kbucket* bucket, bool j
     Distance dist(*(myself->getKey()), *key);
 
     int index = dist.getDistance() - 1;
+    if(index < 0) {
+        index = 0; //if I am new, search for nearest neighbours
+    }
     std::list<Node> resultList = *(neighboursArray[index].getNodes());
 
     assert(resultList.size() <= KBUCKET_SIZE);
