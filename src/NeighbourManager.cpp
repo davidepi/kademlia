@@ -28,6 +28,19 @@ const Node* NeighbourManager::getMyself() {
     return myself;
 }
 
+void NeighbourManager::printNeighbours() {
+    for (int i = 0; i < NBYTE * 8; i++) {
+        std::cout << "KBUCKET NUMBER " << i << std::endl;
+        
+        for (std::list<Node>::iterator it = neighboursArray[i].getNodes()->begin(); it != neighboursArray[i].getNodes()->end(); ++it) {
+            char string[64];
+            it->getIp().toString(string);
+            std::cout << "element " << string << std::endl;
+        }
+    }
+
+}
+
 void NeighbourManager::findKClosestNodes(const Key* key, Kbucket* bucket) {
     findKClosestNodes(key, bucket, false);
 }

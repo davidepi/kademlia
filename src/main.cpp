@@ -113,7 +113,8 @@ int kadUI(Performer* p) {
     std::cout << "[3] Find Node" << std::endl;
     std::cout << "[4] Ping" << std::endl;
     std::cout << "[5] Print value map" << std::endl;
-    std::cout << "[6] Exit" << std::endl;
+    std::cout << "[6] Print kbucket" << std::endl;
+    std::cout << "[7] Exit" << std::endl;
 
     int command;
     std::string commandString;
@@ -166,6 +167,11 @@ int kadUI(Performer* p) {
             break;
         }
         case 6:
+        {
+            p->neighbours->printNeighbours();
+            break;
+        }
+        case 7:
         {
             res = 0;
             std::cout << "Bye" << std::endl;

@@ -13,6 +13,7 @@ public:
     void findKClosestNodes(const Key* key, Kbucket* bucket);
     Node findClosestNode(const Key* key);
     const Kbucket* getNeighbourManager();
+    void printNeighbours();
     const Node* getMyself();
     void insertNode(const Node* node);
 
