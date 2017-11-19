@@ -134,10 +134,18 @@ int kadUI(Performer* p) {
 
         case 2:
         {
-            std::cout << "Insert the value to find:" << std::endl;
+            std::cout << "Insert the key to find the value:" << std::endl;
             std::string value;
             std::getline(std::cin, value);
-            std::cout << "value: " << value << std::endl;         
+            
+            //create the key converting the string to bytes
+            uint8_t keyBytes[NBYTE];
+            for (int i = 0; i < NBYTE; i++) { 
+                keyBytes[i] = (uint8_t)(std::stoi(value.substr(i*2 + 2, 2), nullptr, 16));
+            } 
+            Key myKey;
+            myKey.craft(keyBytes);
+            myKey.print();
             break;
         }
 
