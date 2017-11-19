@@ -146,6 +146,9 @@ int kadUI(Performer* p) {
             Key myKey;
             myKey.craft(keyBytes);
             myKey.print();
+                        
+            rpc_find_value(&myKey, p);
+            
             break;
         }
 
