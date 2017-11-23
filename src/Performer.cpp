@@ -174,7 +174,7 @@ static void* execute(void* this_class)
                 
 #ifndef NDEBUG
                 printf("Received answer for key: ");
-                k.print();
+                std::cout<<k<<std::endl;
 #endif
                 Kbucket b(top->getData()+NBYTE);
                 SearchNode* sn = NULL;
@@ -201,9 +201,7 @@ static void* execute(void* this_class)
                     Message msg = generate_find_node_request(&k);
                     msg.setFlags(msg.getFlags() | (top->getFlags() & ~RPC_MASK));
                     for(int i=0;i<retval;i++)
-                    {
                         Messenger::getInstance().sendMessage(askto[i],msg);
-                    }
                 }
                 else if (retval == 0) //Kbucket ready
                 {

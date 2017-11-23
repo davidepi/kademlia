@@ -108,6 +108,7 @@ int SearchNode::queryTo(Node* answer)
     int retval;
     //check the queue status
     std::list<pnode>::iterator it;
+    //fast check only if queue is ready
     for(it=askme.begin();it!=askme.end();it++)
     {
         //missing ping answer for this node
@@ -210,14 +211,14 @@ void SearchNode::evict(const Node n)
 {
     mtx.lock();
     std::list<pnode>::iterator it;
-    for(it=askme.begin();it!=askme.end();it++)
+    for(it=askme.begin();it!=askme.end();it++) //search for the correct node
     {
         if(it->probed==PENDING && it->node==n)
         {
             break;
         }
     }
-    if(it!=askme.end())
+    if(it!=askme.end()) //node not found
     {
         askme.erase(it);
         for(std::list<pnode>::iterator i=reserve.begin();i!=reserve.end();i++)

@@ -3,6 +3,7 @@
 #include "Messenger.hpp"
 #include "Performer.hpp"
 #include "Node.hpp"
+#include "Logger.hpp"
 #include <unistd.h>
 #include <string>
 #include <sstream>
@@ -100,7 +101,7 @@ int main(int argc, char* argv[])
         msg.setFlags(msg.getFlags()|FIND_START_FLAG);
         (Messenger::getInstance()).sendMessage(gatewaynode, msg);
     }
-   
+    Logger::getInstance();
     while (kadUI(&p));
     return 0;
 }

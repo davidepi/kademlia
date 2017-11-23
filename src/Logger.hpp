@@ -13,6 +13,7 @@ public:
     Logger(Logger const&)      = delete;
     void operator=(Logger const&) = delete;
     void log(const char*);
+    
 private:
     Logger();
     ~Logger();

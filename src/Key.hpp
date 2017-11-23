@@ -3,6 +3,8 @@
 
 #include <cstdlib> //uint32_t
 #include <climits> //CHAR_BIT
+#include <cstdio>
+#include <sstream>
 #include "Ip.hpp"
 #include "settings.h"
 
@@ -31,5 +33,6 @@ private:
 };
 
 void hash_combine(std::size_t& seed, std::size_t value);
+std::ostream& operator<<(std::ostream& strm, const Key& k);
 
 #endif
