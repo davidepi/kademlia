@@ -1,4 +1,5 @@
 #include "Performer.hpp"
+#include "Logger.hpp"
 
 void rpc_pong(Node node)
 {
@@ -58,6 +59,22 @@ void rpc_store(const Key* key, const Kbucket* bucket, Performer* p) {
         }
     } 
     
+}
+
+void rpc_find_value(const Key* key, Performer* p) {
+    
+    if(p->myselfHasValue(key))
+        return;
+    
+    Message msg = generate_find_node_request(key);
+    msg.setFlags(msg.getFlags() | FIND_START_FLAG | FIND_VALUE_FLAG);
+
+    //find the closest node known to ask for other closest nodes
+    Node node = p->neighbours->findClosestNode(key);
+    if (node.isEmpty()) {
+        std::cout << "WARNING: no node found in all kbuckets" << std::endl;
+    } else
+        (Messenger::getInstance()).sendMessage(node, msg);
 }
 
 Message generate_find_node_request(const Key* key) {
@@ -156,22 +173,22 @@ static void* execute(void* this_class)
                         break;
                     }
                 }
-                    //find closest nodes
-                    Kbucket kbucket;
-                    p->neighbours->findKClosestNodes(&key, &kbucket);
-                    kbucket.print();
-                    Message msg = generate_find_node_answer(&key, &kbucket);
-                    msg.setFlags(msg.getFlags()|(top->getFlags()&~RPC_MASK));
-                    Messenger::getInstance().sendMessage(senderNode, msg);
+                //find closest nodes
+                Kbucket kbucket;
+                p->neighbours->findKClosestNodes(&key, &kbucket);
+                kbucket.print();
+                Message msg = generate_find_node_answer(&key, &kbucket);
+                msg.setFlags(msg.getFlags()|(top->getFlags()&~RPC_MASK));
+                Messenger::getInstance().sendMessage(senderNode, msg);
             }
-                break;
+            break;
                 
             case RPC_FIND_NODE_ANSWER :
             {
                 std::cout << "Received a list of nodes" << std::endl;
                 Key k;
                 k.craft(top->getData());
-                
+
 #ifndef NDEBUG
                 printf("Received answer for key: ");
                 std::cout<<k<<std::endl;
@@ -192,7 +209,7 @@ static void* execute(void* this_class)
                 }
                 else //SearchNode found
                     sn = got->second;
-                
+
                 sn->addAnswer(senderNode,&b);
                 Node askto[ALPHA_REQUESTS];
                 int retval = sn->queryTo(askto);
@@ -222,19 +239,24 @@ static void* execute(void* this_class)
                     ;
                 }
             }
-                break;
+            break;
             case RPC_FIND_NODE_RESPONSE:
             {
-                Key k;
-                k.craft(top->getData());
-                Kbucket b(top->getData()+NBYTE);
-#ifndef NDEBUG
-                std::cout<<"Completed KBucket for key ";
-                k.print();
-                b.print();
-#endif
-                if(top->getFlags() & FIND_STORE_REQUEST) {
-                    rpc_store(&k, &b, p);
+                if (top->getFlags() & FIND_VALUE_FOUND) {
+                    std::cout << "Found value: " << top->getData()+NBYTE << std::endl;
+                } else {
+                
+                    Key k;
+                    k.craft(top->getData());
+                    Kbucket b(top->getData()+NBYTE);
+    #ifndef NDEBUG
+                    std::cout<<"Completed KBucket for key ";
+                    k.print();
+                    b.print();
+    #endif
+                    if(top->getFlags() & FIND_STORE_REQUEST) {
+                        rpc_store(&k, &b, p);
+                    }
                 }
                 
             }
@@ -277,4 +299,14 @@ void Performer::printFilesMap()
         std::cout << "TEXT: " << it->second << std::endl << std::endl;
     }
     std::cout << "---------END OF FILES STORED ON THIS SERVER----------------------" << std::endl;
+}
+
+bool Performer::myselfHasValue(const Key* key) {
+    std::set<std::pair<const Key, const char*>>::iterator got = filesMap.find(std::pair<const Key, const char*>(*key, NULL));
+    if (got != filesMap.end()) {       
+        std::cout << "Found value: " << got->second << std::endl;
+        return true;
+    } else {
+        return false;
+    }
 }

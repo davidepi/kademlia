@@ -40,11 +40,13 @@ public:
     
     const pthread_t getThreadID()const;
     void printFilesMap();
+    bool myselfHasValue(const Key* key);
     
 private:
     pthread_t thread_id;
 };
 
 void rpc_store_request(const char* text, Performer* p);
+void rpc_find_value(const Key* key, Performer* p);
 
 #endif
