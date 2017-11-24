@@ -47,6 +47,7 @@ private:
 };
 
 void rpc_store_request(const char* text, Performer* p);
+void rpc_find_node(const Key* key, Performer* p);
 void rpc_find_value(const Key* key, Performer* p);
 
 #endif

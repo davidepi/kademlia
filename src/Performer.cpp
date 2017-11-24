@@ -61,6 +61,22 @@ void rpc_store(const Key* key, const Kbucket* bucket, Performer* p) {
     
 }
 
+void rpc_find_node(const Key* key, Performer* p)
+{
+    if(p->myselfHasValue(key))
+        return;
+    
+    Message msg = generate_find_node_request(key);
+    msg.setFlags(msg.getFlags() | FIND_START_FLAG);
+    
+    //find the closest node known to ask for other closest nodes
+    Node node = p->neighbours->findClosestNode(key);
+    if (node.isEmpty())
+        std::cout << "WARNING: no node found in all kbuckets" << std::endl;
+    else
+        (Messenger::getInstance()).sendMessage(node, msg);
+}
+
 void rpc_find_value(const Key* key, Performer* p) {
     
     if(p->myselfHasValue(key))
@@ -228,7 +244,7 @@ static void* execute(void* this_class)
                     p->searchInProgress.erase(got);
                     Message msg = generate_find_node_answer(&k, &res);
                     msg.setFlags(RPC_FIND_NODE_RESPONSE |
-                                 (top->getFlags() & ~RPC_MASK));
+                                 (top->getFlags()&~RPC_MASK));
                     Node me(Messenger::getInstance().getIp(),
                             Messenger::getInstance().getPort());
                     Messenger::getInstance().sendMessage(me, msg);

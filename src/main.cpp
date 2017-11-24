@@ -91,12 +91,13 @@ int main(int argc, char* argv[])
     }
     
     Performer p(&a);
+    char myIp[16];
+    m->getIp().toString(myIp);
+    Key myKey(m->getIp(),m->getPort());
+    std::cout << "My ip: " << myIp  << std::endl
+    << "My key: "<< myKey << std::endl;
     if(!im_gateway)
     {
-        char myIp[16];
-        m->getIp().toString(myIp);
-        Key myKey(m->getIp(),m->getPort());
-        std::cout << "My ip: " << myIp << std::endl;
         Message msg = generate_find_node_request(&myKey);
         msg.setFlags(msg.getFlags()|FIND_START_FLAG);
         (Messenger::getInstance()).sendMessage(gatewaynode, msg);
@@ -146,7 +147,6 @@ int kadUI(Performer* p) {
             } 
             Key myKey;
             myKey.craft(keyBytes);
-            myKey.print();
                         
             rpc_find_value(&myKey, p);
             
@@ -155,10 +155,20 @@ int kadUI(Performer* p) {
 
         case 3:
         {
-            std::cout << "Insert the node to find:" << std::endl;
+            std::cout << "Insert the key to find the node:" << std::endl;
             std::string value;
             std::getline(std::cin, value);
-            std::cout << "value: " << value << std::endl;
+            
+            //create the key converting the string to bytes
+            uint8_t keyBytes[NBYTE];
+            for (int i = 0; i < NBYTE; i++) {
+                keyBytes[i] = (uint8_t)(std::stoi(value.substr(i*2 + 2, 2), nullptr, 16));
+            }
+            Key myKey;
+            myKey.craft(keyBytes);
+            
+            rpc_find_node(&myKey, p);
+        
             break;
         }
 
