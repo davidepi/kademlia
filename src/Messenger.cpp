@@ -1,5 +1,6 @@
 #include "Messenger.hpp"
-#include "assert.h" //TODO: rimuovere una volta che compila anche con -DNDEBUG
+#include "assert.h"
+#include "Logger.hpp" //TODO: rimuovere una volta che compila anche con -DNDEBUG
 
 #define CRITICAL_ERROR {fprintf(stderr,"[%s,line %d]%s\n",__FILE__,__LINE__,\
         strerror(errno));exit(EXIT_FAILURE);}
@@ -130,6 +131,8 @@ int Messenger::init(std::queue<Message*>* q, int port_ho)
 
 void Messenger::sendMessage(const Node node, Message& msg)
 {
+    uint8_t flags = msg.getFlags();
+    Logger::getInstance().logFormat("ssnsf", Logger::OUTGOING, "Message to", &node, "with flags:", &flags);
     struct sockaddr_in dest = Messenger::dest;
     dest.sin_addr.s_addr = node.getIp().getIp();//get ip of the node (network ordered)
     dest.sin_port = htons(node.getPort());
@@ -207,9 +210,9 @@ void Message::setFlags(uint8_t flags)
     Message::flags = flags;
 }
 
-short Message::getFlags() const
+uint8_t Message::getFlags() const
 {
-    return (short)flags;
+    return flags;
 }
 
 const char* Message::getText() const

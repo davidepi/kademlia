@@ -45,13 +45,14 @@ Updater::~Updater() {
 void Updater::checkUpdateBucket(Node oldNode, Node newNode, Kbucket* kbucket) {
     //ping least recently seen node
     rpc_ping(oldNode);
+    Logger::getInstance().logFormat("ssns", Logger::UPDATER, "Sent ping to ", &oldNode, " to check if it is alive");
     std::cout << "---send ping to port " << oldNode.getPort() << std::endl;
     
     //store the new node to add iff the older node does not answer
     vars->updateNodesMap.insert(std::pair<Node, Node>(oldNode, newNode));
 
     //launch a thread that waits at least TIMEOUT seconds, 
-    //then it substitute the node if a pong has been not received
+    //then it substitute the node if a pong has not been received
     pthread_t t_id;
     struct TimeoutStruct* timeoutVars = new TimeoutStruct(oldNode, newNode, &(vars->updateNodesMap), kbucket);
     pthread_create(&t_id, NULL, removeAfterTimeout, (void *)timeoutVars);
@@ -82,11 +83,13 @@ void* removeAfterTimeout(void* args) {
             if ((*mapIt).first == *listIt) { //delete not answering node, add the new one
                 nodeList->remove(*listIt);
                 nodeList->push_front((*mapIt).second);
+                Logger::getInstance().logFormat("ssn", Logger::UPDATER, "Removing not answering ", &(argStruct->oldNode));
+                Logger::getInstance().logFormat("ssns", Logger::UPDATER, "Adding new ", &(argStruct->newNode), " to bucket");
+                std::cout << "+++end timeout: the new node was inserted and the old one was removed" << std::endl;
                 break;
             }
         }
     }
-    std::cout << "+++end timeout" << std::endl;
     
     delete argStruct;
     return NULL;
@@ -109,14 +112,15 @@ void* scan_queue(void* args) {
         argStruct->queue.pop();
         char myIp[16];
         aliveNode.getIp().toString(myIp);
-        std::cout << "---got pong from " << myIp << " -- " << aliveNode.getPort() <<  std::endl;
+        Logger::getInstance().logFormat("ssn", Logger::UPDATER, "Received pong from ", &aliveNode);
+        std::cout << "---got pong from " << myIp << " -- " << aliveNode <<  std::endl;
 
         //find the node who sent the PONG in the map end remove the entry
         std::map<Node, Node>::iterator it;
         it=argStruct->updateNodesMap.find(aliveNode);
         if (it != argStruct->updateNodesMap.end()) {
             argStruct->updateNodesMap.erase(it);
-            std::cout << "---removed from map" << std::endl;
+            std::cout << "---removed from tmp map (the node is alive, no need of adding new node)" << std::endl;
         }
         
     }

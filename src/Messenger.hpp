@@ -81,7 +81,7 @@ public:
     void append(const uint8_t* data, short len);
     Node getSenderNode() const;
     void setFlags(uint8_t flags);
-    short getFlags() const;
+    uint8_t getFlags() const;
     void setText(const char* text);
     void setData(const uint8_t* binary_data, short len);
     short getLength() const;

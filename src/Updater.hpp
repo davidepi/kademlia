@@ -12,6 +12,7 @@
 #include "Performer.hpp"
 #include "Kbucket.hpp"
 #include "settings.h"
+#include "Logger.hpp"
 
 struct UpdaterStruct;
 

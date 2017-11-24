@@ -1,5 +1,4 @@
 #include "Performer.hpp"
-#include "Logger.hpp"
 
 void rpc_pong(Node node)
 {
@@ -133,6 +132,8 @@ static void* execute(void* this_class)
         
         //update bucket -> add the sender node whichever the RPC is
         p->neighbours->insertNode(&senderNode);
+        uint8_t flags = top->getFlags();
+        Logger::getInstance().logFormat("ssnsf", Logger::INCOMING, "Message from", &senderNode, "with flags:", &flags);
 #ifndef NDEBUG
         char ip[16];
         senderNode.getIp().toString(ip);
@@ -164,6 +165,7 @@ static void* execute(void* this_class)
                     text[i - NBYTE] = top->getText()[i];
                 }
                 if(p->filesMap.insert(std::make_pair(key, text)).second == false) {
+                    Logger::getInstance().logFormat("s", "ERROR: key already inserted");
                     std::cout << "ERROR: key already inserted" << std::endl;
                 }
             }
@@ -257,13 +259,17 @@ static void* execute(void* this_class)
             }
             break;
             case RPC_FIND_NODE_RESPONSE:
-            {
+            {   
+                Key k;
+                k.craft(top->getData());
+                
                 if (top->getFlags() & FIND_VALUE_FOUND) {
+                    Logger::getInstance().logFormat("sksss", "Found value (key:", &k, "Value:", top->getData()+NBYTE, ")");
                     std::cout << "Found value: " << top->getData()+NBYTE << std::endl;
+                    p->searchInProgress.erase(&k);
                 } else {
                 
-                    Key k;
-                    k.craft(top->getData());
+
                     Kbucket b(top->getData()+NBYTE);
     #ifndef NDEBUG
                     std::cout<<"Completed KBucket for key ";

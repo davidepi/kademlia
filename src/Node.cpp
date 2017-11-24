@@ -1,5 +1,12 @@
 #include "Node.hpp"
 
+std::ostream& operator<<(std::ostream &strm, const Node& n)
+{ 
+    char ip[16];
+    n.getIp().toString(ip);
+    return strm << ip << ":" << n.getPort();
+}
+
 Node::Node()
 {
     Node::reference = new uint8_t[1];
