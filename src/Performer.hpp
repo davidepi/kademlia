@@ -13,6 +13,7 @@
 #include "NeighbourManager.hpp"
 #include "SearchNode.hpp"
 #include "Updater.hpp"
+#include "Logger.hpp"
 
 void rpc_ping(Node node);
 Message generate_find_node_request(const Key* key);

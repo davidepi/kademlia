@@ -3,6 +3,7 @@
 
 #include "Ip.hpp"
 #include "Key.hpp"
+#include <sstream>
 
 class Node
 {
@@ -31,5 +32,7 @@ private:
     Key* id;
     
 };
+
+std::ostream& operator<<(std::ostream &strm, const Node& n);
 
 #endif
