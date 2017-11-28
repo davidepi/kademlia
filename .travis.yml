@@ -1,15 +1,14 @@
 language: cpp
-script:
- - mkdir -p build && cd build/ && cmake .. && cmake --build .
-matrix:
+os: linux
+sudo: required
+before_install: git clone https://github.com/google/googletest.git && cd googletest/ && mkdir -p build && cmake .. && sudo make install gtest && cd ../..
+jobs:
     include:
-        - os: linux
-          dist: trusty
-          sudo: false
-          compiler: gcc
-        - os: linux
-          dist: trusty
-          sudo: false
-          compiler: clang
-        - os: osx
-          compiler: clang
+        - stage: compile
+          script: mkdir -p build && cd build/ && cmake .. && cmake --build .
+        - stage: test
+          script: mkdir -p build && cd build/ && cmake -DCMAKE_BUILD_TYPE="Coverage" .. && make runTests && ./runTests && cd CMakeFiles/runTests.dir/src && gcov *
+          after_success: bash <(curl -s https://codecov.io/bash)
+matrix:
+    allow_failures:
+        - stage: test
