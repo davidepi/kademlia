@@ -139,7 +139,7 @@
 
 - (void)test08_Key_ostream
 {
-#if NBYTE==0
+#if NBYTE==20
     uint8_t key[NBYTE];
     for(int i=0;i<NBYTE;i++)
         key[i] = i;
