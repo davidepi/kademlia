@@ -56,7 +56,7 @@ bool Node::operator!=(const Node&n)const
 
 bool Node::operator<(const Node& n)const
 {
-    return *(Node::id->getKey()) < *(n.id->getKey());
+    return *(Node::id) < *(n.id);
 }
 
 Ip Node::getIp() const

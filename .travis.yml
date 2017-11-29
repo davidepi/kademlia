@@ -8,7 +8,7 @@ jobs:
           script: mkdir -p build && cd build/ && cmake .. && cmake --build .
         - stage: test
           script: mkdir -p build && cd build/ && cmake -DCMAKE_BUILD_TYPE="Coverage" .. && make runTests && ./runTests && cd CMakeFiles/runTests.dir/src && gcov *
-          after_success: bash <(curl -s https://codecov.io/bash)
+          after_script: bash <(curl -s https://codecov.io/bash)
 matrix:
     allow_failures:
         - stage: test

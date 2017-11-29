@@ -38,23 +38,20 @@
 {
     Messenger* m = &(Messenger::getInstance());
     std::queue<Message*>* q = new std::queue<Message*>();
+    m->init(q, 3400);
     int retval = m->init(q, 3400);
-    delete q;
     XCTAssertEqual(retval,ALREADY_INITIALIZED);
 }
 
-- (void)test03_Messenger_getIp
+- (void)test03_Messenger_getIpPublic
 {
     Messenger* m = &(Messenger::getInstance());
     std::queue<Message*>*q = new std::queue<Message*>();
     m->init(q,3400);
     
-    
-    
-    //If fails: check the interface and change en0 to a proper one
-    FILE* fp = popen("/usr/sbin/ipconfig getifaddr en0 | xargs echo -n","r");
+    //-s -N is otherwise curl does not close the buffer correctly
+    FILE* fp = popen("curl -s -N http://ipinfo.io/ip | xargs echo -n","r");
     //xargs echo -n becuse otherwise it will print a line break at the end
-    //and strcmp will fail
     char ip[20];
     char ip2[20];
     fgets(ip,sizeof(ip)-1,fp);
@@ -175,7 +172,10 @@
 - (void)test11_Messenger_sendAndReceive
 {
     Messenger* m = &(Messenger::getInstance());
-    std::queue<Message*>* q = m->getBindedQueue();
+    std::queue<Message*>* q;
+    m->init(q,3400);
+    q = m->getBindedQueue();
+    m->setPrivate();
     Message msg("Přijet pozdě");
     m->sendMessage(Node(m->getIp(), 3400), msg);
     sleep(1);
@@ -193,7 +193,10 @@
 - (void)test12_Messenger_sendAndReceiveCorrectPort
 {
     Messenger* m = &(Messenger::getInstance());
-    std::queue<Message*>* q = m->getBindedQueue();
+    std::queue<Message*>* q;
+    m->init(q,3400);
+    m->setPrivate();
+    q = m->getBindedQueue();
     Message msg("Bořislavka");
     m->sendMessage(Node(m->getIp(), 3400), msg);
     sleep(1);
