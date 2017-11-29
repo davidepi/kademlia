@@ -34,7 +34,7 @@ public:
     Performer(std::queue<Message*>* q);
     ~Performer();
     std::queue<Message*>* message_queue;
-    std::set<std::pair<const Key, const char*>,filesMapComparator> filesMap;
+    std::unordered_map<Key, const char*> filesMap;
     std::list<std::pair<const Key, const char*>> storeTmpMap;
     std::unordered_map<const Key*,SearchNode*> searchInProgress;
     NeighbourManager* neighbours;

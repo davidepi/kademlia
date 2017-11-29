@@ -164,7 +164,7 @@ static void* execute(void* this_class)
                 {
                     text[i - NBYTE] = top->getText()[i];
                 }
-                if(p->filesMap.insert(std::make_pair(key, text)).second == false) {
+                if(p->filesMap.insert(std::make_pair(key,text)).second == false) {
                     Logger::getInstance().logFormat("s", "ERROR: key already inserted");
                     std::cout << "ERROR: key already inserted" << std::endl;
                 }
@@ -181,7 +181,7 @@ static void* execute(void* this_class)
 #endif
                 if(top->getFlags() & FIND_VALUE_FLAG)
                 {
-                    std::set<std::pair<const Key,const char*>>::iterator got = p->filesMap.find(std::pair<const Key,const char*>(key,NULL));
+                    std::unordered_map<Key,const char*>::iterator got = p->filesMap.find(key);
                     if(got!=p->filesMap.end())
                     {
                         Message msg(key.getKey(),NBYTE);
@@ -226,7 +226,10 @@ static void* execute(void* this_class)
                         break;
                 }
                 else //SearchNode found
+                {
+                    volatile int i =0;
                     sn = got->second;
+                }
 
                 sn->addAnswer(senderNode,&b);
                 Node askto[ALPHA_REQUESTS];
@@ -315,7 +318,7 @@ Performer::~Performer()
 void Performer::printFilesMap()
 { 
     std::cout << "---------FILES STORED ON THIS SERVER-----------------------------" << std::endl;
-    for (std::set<std::pair<const Key, const char*>>::iterator it = filesMap.begin(); it != filesMap.end(); ++it) {
+    for (std::unordered_map<Key,const char*>::iterator it = filesMap.begin(); it != filesMap.end(); ++it) {
         std::cout << "KEY: ";
         it->first.print();
         std::cout << "TEXT: " << it->second << std::endl << std::endl;
@@ -324,7 +327,8 @@ void Performer::printFilesMap()
 }
 
 bool Performer::myselfHasValue(const Key* key) {
-    std::set<std::pair<const Key, const char*>>::iterator got = filesMap.find(std::pair<const Key, const char*>(*key, NULL));
+    
+    std::unordered_map<Key,const char*>::const_iterator got = filesMap.find(*key);
     if (got != filesMap.end()) {       
         std::cout << "Found value: " << got->second << std::endl;
         return true;
