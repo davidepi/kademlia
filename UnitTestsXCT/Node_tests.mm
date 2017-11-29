@@ -103,4 +103,22 @@
     XCTAssertFalse(n.isEmpty());
 }
 
+- (void)test07_Node_less
+{
+    Node n1("10.0.0.1",4593);
+    Node n2("127.0.0.1",6500);
+    XCTAssertTrue(n1<n2);
+}
+
+- (void)test08_Node_ostream
+{
+    
+    Node n("10.0.0.1",3400);
+    std::ostringstream stream;
+    stream << n;
+    std::string str =  stream.str();
+    const char* chr = str.c_str();
+    XCTAssertEqual(strcmp("10.0.0.1:3400",chr),0);
+}
+
 @end

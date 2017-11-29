@@ -137,43 +137,24 @@
     XCTAssertTrue(a == b);
 }
 
-//- (void) test06
-//{
-//    srand(time(NULL));
-//    static const char alphanum[] =
-//    "0123456789"
-//    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-//    "abcdefghijklmnopqrstuvwxyz";
-//    
-//    int len = 20;
-//    char s[21]; char s2[21];
-//    bool found = false;
-//    for(int i=0; i<1000;i++)
-//    {
-//        for (int i = 0; i < len; ++i) {
-//            s[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
-//        }
-//        
-//        for (int i = 0; i < len; ++i) {
-//            s2[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
-//        }
-//        
-//        s[len] = 0;
-//        s2[len] = 0;
-//        Key a(s);
-//        Key b(s2);
-//        if((a.key[0] ^ b.key[0]) == 0)
-//        {
-//            printf("%#x\n",a.key[1] ^ b.key[1]);
-//            found = true;
-//            break;
-//        }
-//    }
-//    if(found)
-//    std::cout<<"Key a(\""<<s<<"\");"<<"Key b(\""<<s2<<"\");"<<std::endl;
-//    
-//    else
-//        std::cout<<"sfigato"<<std::endl;
-//}
+- (void)test08_Key_ostream
+{
+#if NBYTE==0
+    uint8_t key[NBYTE];
+    for(int i=0;i<NBYTE;i++)
+        key[i] = i;
+    Key k;
+    k.craft(key);
+    
+    std::ostringstream stream;
+    stream << k;
+    std::string str =  stream.str();
+    const char* chr = str.c_str();
+    XCTAssertEqual(strcmp("0x000102030405060708090a0b0c0d0e0f10111213",chr),0);
+#else
+    XCTAssertTrue(false);
+#endif
+}
+
 
 @end
