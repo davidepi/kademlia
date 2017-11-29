@@ -1,7 +1,7 @@
 language: cpp
 os: linux
 sudo: required
-before_install: git clone https://github.com/google/googletest.git && cd googletest/ && mkdir -p build && cmake .. && sudo make install gtest && cd ../..
+before_install: git clone https://github.com/google/googletest.git && cd googletest/ && mkdir -p build && cd build/ && cmake .. && sudo make install gtest && cd ../..
 jobs:
     include:
         - stage: compile
