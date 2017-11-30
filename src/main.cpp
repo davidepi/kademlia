@@ -141,15 +141,21 @@ int kadUI(Performer* p) {
             std::getline(std::cin, value);
             
             //create the key converting the string to bytes
-            uint8_t keyBytes[NBYTE];
-            for (int i = 0; i < NBYTE; i++) { 
-                keyBytes[i] = (uint8_t)(std::stoi(value.substr(i*2 + 2, 2), nullptr, 16));
-            } 
-            Key myKey;
-            myKey.craft(keyBytes);
-                        
-            rpc_find_value(&myKey, p);
-            
+            try {
+                if (value.length() >= (NBYTE * 2 + 2)) {
+                    std::cout << "WARNING: key was truncated" << std::endl;
+                }
+                uint8_t keyBytes[NBYTE];
+                for (int i = 0; i < NBYTE; i++) { 
+                    keyBytes[i] = (uint8_t)(std::stoi(value.substr(i*2 + 2, 2), nullptr, 16));
+                } 
+                Key myKey;
+                myKey.craft(keyBytes);
+
+                rpc_find_value(&myKey, p);
+            } catch (const std::exception& e) {
+                std::cout << "No valid input" << std::endl;
+            }
             break;
         }
 
@@ -160,14 +166,18 @@ int kadUI(Performer* p) {
             std::getline(std::cin, value);
             
             //create the key converting the string to bytes
-            uint8_t keyBytes[NBYTE];
-            for (int i = 0; i < NBYTE; i++) {
-                keyBytes[i] = (uint8_t)(std::stoi(value.substr(i*2 + 2, 2), nullptr, 16));
+            try {
+                uint8_t keyBytes[NBYTE];
+                for (int i = 0; i < NBYTE; i++) {
+                    keyBytes[i] = (uint8_t)(std::stoi(value.substr(i*2 + 2, 2), nullptr, 16));
+                }
+                Key myKey;
+                myKey.craft(keyBytes);
+                std::cout << "KEY: " << myKey << std::endl;
+                rpc_find_node(&myKey, p);
+            } catch (const std::exception& e) {
+                std::cout << "No valid input" << std::endl;
             }
-            Key myKey;
-            myKey.craft(keyBytes);
-            
-            rpc_find_node(&myKey, p);
         
             break;
         }

@@ -61,10 +61,7 @@ void rpc_store(const Key* key, const Kbucket* bucket, Performer* p) {
 }
 
 void rpc_find_node(const Key* key, Performer* p)
-{
-    if(p->myselfHasValue(key))
-        return;
-    
+{    
     Message msg = generate_find_node_request(key);
     msg.setFlags(msg.getFlags() | FIND_START_FLAG);
     
