@@ -208,13 +208,13 @@ static void* execute(void* this_class)
 #endif
                 Kbucket b(top->getData()+NBYTE);
                 SearchNode* sn = NULL;
-                std::unordered_map<const Key*,SearchNode*>::const_iterator got = p->searchInProgress.find(&k);
+                std::unordered_map<Key,SearchNode*>::const_iterator got = p->searchInProgress.find(k);
                 if(got == p->searchInProgress.end()) //SearchNode not found
                 {
                     if(top->getFlags() & FIND_START_FLAG)
                     {
                         sn = new SearchNode(&k,&b);
-                        p->searchInProgress.insert({{&k,sn}});
+                        p->searchInProgress.insert({{k,sn}});
                     }
                     else
                         //received a message from a queried node, but the Kbucket has been completed
@@ -264,7 +264,7 @@ static void* execute(void* this_class)
                 if (top->getFlags() & FIND_VALUE_FOUND) {
                     Logger::getInstance().logFormat("sksss", "Found value (key:", &k, "Value:", top->getData()+NBYTE, ")");
                     std::cout << "Found value: " << top->getData()+NBYTE << std::endl;
-                    p->searchInProgress.erase(&k);
+                    p->searchInProgress.erase(k);
                 } else {
                 
 
