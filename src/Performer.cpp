@@ -18,11 +18,10 @@ void rpc_ping(Node node)
     (Messenger::getInstance()).sendMessage(node, response);
 }
 
-void rpc_store_request(const char* text, Performer* p) {
+void rpc_store_request(const std::string& value, Performer* p) {
     //store text temporarily
-    Key key(text);
-    p->storeTmpMap.push_back(std::make_pair(key, text));
-    
+    Key key(value.c_str());
+    p->storeTmpMap.insert(std::make_pair(key, value));
     //find the closest node known to ask for other closest nodes
     Node node = p->neighbours->findClosestNode(&key);
     if(node.isEmpty()) {
@@ -38,26 +37,25 @@ void rpc_store_request(const char* text, Performer* p) {
 
 void rpc_store(const Key* key, const Kbucket* bucket, Performer* p) {
     Message response(key->getKey(), NBYTE);
-
-    const char* text = NULL;
-    for (std::list<std::pair<const Key, const char*>>::iterator it = p->storeTmpMap.begin(); it != p->storeTmpMap.end(); ++it) {        
-        if(it->first == *key) {
-            text = it->second;
-            p->storeTmpMap.erase(it);
-            break;
-        }
-
-    }
-
-    if(text != NULL) {
-        response.append((uint8_t*) text, strlen(text) + 1);
-        response.setFlags(RPC_STORE);
-
-        for (std::list<Node>::const_iterator it = bucket->getNodes()->begin(); it != bucket->getNodes()->end(); ++it) {
-            (Messenger::getInstance()).sendMessage(*it, response);
-        }
-    } 
     
+    std::string value;
+    std::unordered_map<Key,const std::string>::const_iterator got = p->storeTmpMap.find(*key);
+    {
+        if(got != p->storeTmpMap.end())
+        {
+            value = std::string(got->second);
+            p->storeTmpMap.erase(got);
+        }
+        else
+            return;
+    }
+    
+    response.append((uint8_t*) value.c_str(), strlen(value.c_str()) + 1);
+    response.setFlags(RPC_STORE);
+    
+    for (std::list<Node>::const_iterator it = bucket->getNodes()->begin(); it != bucket->getNodes()->end(); ++it) {
+        (Messenger::getInstance()).sendMessage(*it, response);
+    }
 }
 
 void rpc_find_node(const Key* key, Performer* p)

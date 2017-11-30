@@ -104,7 +104,8 @@ int Messenger::init(std::queue<Message*>* q, int port_ho)
         curl_global_cleanup();
     }
 #else
-#warning "No CURL found, tests will fail"
+#warning "No CURL found, public IP won't be resolved"
+    Messenger::setPrivate();
 #endif
     
     Messenger::binded_queue = q;

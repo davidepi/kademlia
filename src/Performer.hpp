@@ -35,7 +35,7 @@ public:
     ~Performer();
     std::queue<Message*>* message_queue;
     std::unordered_map<Key, const char*> filesMap;
-    std::list<std::pair<const Key, const char*>> storeTmpMap;
+    std::unordered_map<Key, const std::string> storeTmpMap;
     std::unordered_map<const Key*,SearchNode*> searchInProgress;
     NeighbourManager* neighbours;
     
@@ -47,7 +47,7 @@ private:
     pthread_t thread_id;
 };
 
-void rpc_store_request(const char* text, Performer* p);
+void rpc_store_request(const std::string& value, Performer* p);
 void rpc_find_node(const Key* key, Performer* p);
 void rpc_find_value(const Key* key, Performer* p);
 
