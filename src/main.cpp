@@ -142,7 +142,7 @@ int kadUI(Performer* p) {
             
             //create the key converting the string to bytes
             try {
-                if (value.length() >= (NBYTE * 2 + 2)) {
+                if (value.length() > (NBYTE * 2 + 2)) {
                     std::cout << "WARNING: key was truncated" << std::endl;
                 }
                 uint8_t keyBytes[NBYTE];
