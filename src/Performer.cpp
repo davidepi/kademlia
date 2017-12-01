@@ -1,12 +1,24 @@
 #include "Performer.hpp"
 
-void rpc_pong(Node node)
-{
-    //create message
-    Message response(RPC_PONG);
-    
-    //send PONG
-    (Messenger::getInstance()).sendMessage(node, response);
+static inline void startSearch(const Key* key, Performer* p, const Message* message) {
+
+    //find the closest nodes known to send the message
+    Kbucket bucket;
+    p->neighbours->findKClosestNodes(key, &bucket);
+    if (bucket.getSize() == 0) {
+        std::cout << "WARNING: no node found in all kbuckets" << std::endl;
+        return;
+    }
+
+    SearchNode* sn = new SearchNode(key, &bucket);
+    p->searchInProgress.insert({{*key, sn}});
+
+    Node askto[ALPHA_REQUESTS];
+    int retval = sn->queryTo(askto);
+
+    for (int i = 0; i < retval; i++) {
+        (Messenger::getInstance()).sendMessage(askto[i], *message);
+    }
 }
 
 void rpc_ping(Node node)
@@ -18,57 +30,52 @@ void rpc_ping(Node node)
     (Messenger::getInstance()).sendMessage(node, response);
 }
 
-void rpc_store_request(const std::string& value, Performer* p) {
-    //store text temporarily
-    Key key(value.c_str());
-    p->storeTmpMap.insert(std::make_pair(key, value));
-    //find the closest node known to ask for other closest nodes
-    Node node = p->neighbours->findClosestNode(&key);
-    if(node.isEmpty()) {
-        std::cout << "WARNING: no node found in all kbuckets" << std::endl;
-        return;
-    }
-    
-    //send message to find closest node where to store the data
-    Message findNodeMsg = generate_find_node_request(&key);
-    findNodeMsg.setFlags(findNodeMsg.getFlags() | FIND_STORE_REQUEST | FIND_START_FLAG);
-    (Messenger::getInstance()).sendMessage(node, findNodeMsg);
+void rpc_pong(Node node) {
+    //create message
+    Message response(RPC_PONG);
+
+    //send PONG
+    (Messenger::getInstance()).sendMessage(node, response);
 }
 
 void rpc_store(const Key* key, const Kbucket* bucket, Performer* p) {
     Message response(key->getKey(), NBYTE);
-    
+
     std::string value;
-    std::unordered_map<Key,const std::string>::const_iterator got = p->storeTmpMap.find(*key);
+    std::unordered_map<Key, const std::string>::const_iterator got = p->storeTmpMap.find(*key);
     {
-        if(got != p->storeTmpMap.end())
-        {
+        if (got != p->storeTmpMap.end()) {
             value = std::string(got->second);
             p->storeTmpMap.erase(got);
-        }
-        else
+        } else
             return;
     }
-    
+
     response.append((uint8_t*) value.c_str(), strlen(value.c_str()) + 1);
     response.setFlags(RPC_STORE);
-    
+
     for (std::list<Node>::const_iterator it = bucket->getNodes()->begin(); it != bucket->getNodes()->end(); ++it) {
         (Messenger::getInstance()).sendMessage(*it, response);
     }
 }
 
+void rpc_store_request(const std::string& value, Performer* p) {
+    //store text temporarily
+    Key key(value.c_str());
+    p->storeTmpMap.insert(std::make_pair(key, value));
+
+    //create store message
+    Message storeMsg = generate_find_node_request(&key);
+    storeMsg.setFlags(storeMsg.getFlags() | FIND_STORE_REQUEST);
+    startSearch(&key, p, &storeMsg);
+}
+
 void rpc_find_node(const Key* key, Performer* p)
 {    
-    Message msg = generate_find_node_request(key);
-    msg.setFlags(msg.getFlags() | FIND_START_FLAG);
+    Message findNodeMsg = generate_find_node_request(key);
+    findNodeMsg.setFlags(findNodeMsg.getFlags());
     
-    //find the closest node known to ask for other closest nodes
-    Node node = p->neighbours->findClosestNode(key);
-    if (node.isEmpty())
-        std::cout << "WARNING: no node found in all kbuckets" << std::endl;
-    else
-        (Messenger::getInstance()).sendMessage(node, msg);
+    startSearch(key, p, &findNodeMsg);
 }
 
 void rpc_find_value(const Key* key, Performer* p) {
@@ -76,15 +83,10 @@ void rpc_find_value(const Key* key, Performer* p) {
     if(p->myselfHasValue(key))
         return;
     
-    Message msg = generate_find_node_request(key);
-    msg.setFlags(msg.getFlags() | FIND_START_FLAG | FIND_VALUE_FLAG);
+    Message findValueMsg = generate_find_node_request(key);
+    findValueMsg.setFlags(findValueMsg.getFlags() | FIND_VALUE_FLAG);
 
-    //find the closest node known to ask for other closest nodes
-    Node node = p->neighbours->findClosestNode(key);
-    if (node.isEmpty()) {
-        std::cout << "WARNING: no node found in all kbuckets" << std::endl;
-    } else
-        (Messenger::getInstance()).sendMessage(node, msg);
+    startSearch(key, p, &findValueMsg);
 }
 
 Message generate_find_node_request(const Key* key) {
@@ -209,50 +211,37 @@ static void* execute(void* this_class)
                 Kbucket b(top->getData()+NBYTE);
                 SearchNode* sn = NULL;
                 std::unordered_map<Key,SearchNode*>::const_iterator got = p->searchInProgress.find(k);
-                if(got == p->searchInProgress.end()) //SearchNode not found
+                
+                //SearchNode found, otherwise received a message from a queried node, but the Kbucket has been completed
+                if(got != p->searchInProgress.end()) 
                 {
-                    if(top->getFlags() & FIND_START_FLAG)
-                    {
-                        sn = new SearchNode(&k,&b);
-                        p->searchInProgress.insert({{k,sn}});
-                    }
-                    else
-                        //received a message from a queried node, but the Kbucket has been completed
-                        break;
-                }
-                else //SearchNode found
-                {
-                    volatile int i =0;
                     sn = got->second;
-                }
-
-                sn->addAnswer(senderNode,&b);
-                Node askto[ALPHA_REQUESTS];
-                int retval = sn->queryTo(askto);
-                if(retval > 0) //need to query somebody
-                {
-                    Message msg = generate_find_node_request(&k);
-                    msg.setFlags(msg.getFlags() | (top->getFlags() & ~RPC_MASK));
-                    for(int i=0;i<retval;i++)
-                        Messenger::getInstance().sendMessage(askto[i],msg);
-                }
-                else if (retval == 0) //Kbucket ready
-                {
-                    Kbucket res;
-                    sn->getAnswer(&res);
-                    delete sn;
-                    p->searchInProgress.erase(got);
-                    Message msg = generate_find_node_answer(&k, &res);
-                    msg.setFlags(RPC_FIND_NODE_RESPONSE |
-                                 (top->getFlags()&~RPC_MASK));
-                    Node me(Messenger::getInstance().getIp(),
-                            Messenger::getInstance().getPort());
-                    Messenger::getInstance().sendMessage(me, msg);
-                }
-                else
-                {
-                    //need to wait the pending nodes
-                    ;
+                    
+                    sn->addAnswer(senderNode, &b);
+                    Node askto[ALPHA_REQUESTS];
+                    int retval = sn->queryTo(askto);
+                    if (retval > 0) //need to query somebody
+                    {
+                        Message msg = generate_find_node_request(&k);
+                        msg.setFlags(msg.getFlags() | (top->getFlags() & ~RPC_MASK));
+                        for (int i = 0; i < retval; i++)
+                            Messenger::getInstance().sendMessage(askto[i], msg);
+                    } else if (retval == 0) //Kbucket ready
+                    {
+                        Kbucket res;
+                        sn->getAnswer(&res);
+                        delete sn;
+                        p->searchInProgress.erase(got);
+                        Message msg = generate_find_node_answer(&k, &res);
+                        msg.setFlags(RPC_FIND_NODE_RESPONSE |
+                                (top->getFlags()&~RPC_MASK));
+                        Node me(Messenger::getInstance().getIp(),
+                                Messenger::getInstance().getPort());
+                        Messenger::getInstance().sendMessage(me, msg);
+                    } else {
+                        //need to wait the pending nodes
+                        ;
+                    }
                 }
             }
             break;

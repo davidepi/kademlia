@@ -47,11 +47,6 @@ SearchNode::SearchNode(const Key* k, const Kbucket* add) : findkey(*k)
     askme.sort();
 }
 
-SearchNode::~SearchNode()
-{
-    
-}
-
 void SearchNode::addAnswer(const Node whoanswer, const Kbucket* a)
 {
     mtx.lock();//to avoid processing the answer while still sending requests

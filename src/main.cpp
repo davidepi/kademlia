@@ -98,8 +98,12 @@ int main(int argc, char* argv[])
     << "My key: "<< myKey << std::endl;
     if(!im_gateway)
     {
+        Kbucket gatewayBucket;
+        gatewayBucket.add(gatewaynode);
+        
         Message msg = generate_find_node_request(&myKey);
-        msg.setFlags(msg.getFlags()|FIND_START_FLAG);
+        SearchNode* sn = new SearchNode(&myKey, &gatewayBucket);
+        p.searchInProgress.insert({{myKey, sn}});
         (Messenger::getInstance()).sendMessage(gatewaynode, msg);
     }
     Logger::getInstance();

@@ -85,8 +85,6 @@ void Logger::logFormat(const void* format...)
                 ss << "RPC_FIND_NODE_ANSWER ";
             if ((f & RPC_MASK) == RPC_FIND_NODE_RESPONSE)
                 ss << "RPC_FIND_NODE_RESPONSE ";
-            if((f & FIND_START_FLAG) > 0)
-                ss << "FIND_START_FLAG ";
             if((f & FIND_VALUE_FLAG) > 0)
                 ss << "FIND_VALUE_FLAG ";
             if ((f & FIND_VALUE_FOUND) > 0)

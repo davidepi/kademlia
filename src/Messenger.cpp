@@ -132,7 +132,7 @@ int Messenger::init(std::queue<Message*>* q, int port_ho)
     
 }
 
-void Messenger::sendMessage(const Node node, Message& msg)
+void Messenger::sendMessage(const Node node, const Message& msg) const
 {
     uint8_t flags = msg.getFlags();
     Logger::getInstance().logFormat("ssnsf", Logger::OUTGOING, "Message to", &node, "with flags:", &flags);

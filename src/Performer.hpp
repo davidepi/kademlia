@@ -15,10 +15,6 @@
 #include "Updater.hpp"
 #include "Logger.hpp"
 
-void rpc_ping(Node node);
-Message generate_find_node_request(const Key* key);
-Message generate_find_node_request(const Node findme);
-Message generate_find_node_answer(const Key* key, Kbucket* bucket);
 
 class Performer
 {
@@ -39,8 +35,14 @@ private:
     pthread_t thread_id;
 };
 
+void rpc_ping(Node node);
+void rpc_pong(Node node);
 void rpc_store_request(const std::string& value, Performer* p);
 void rpc_find_node(const Key* key, Performer* p);
 void rpc_find_value(const Key* key, Performer* p);
+
+Message generate_find_node_request(const Key* key);
+Message generate_find_node_request(const Node findme);
+Message generate_find_node_answer(const Key* key, Kbucket* bucket);
 
 #endif

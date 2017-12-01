@@ -28,7 +28,7 @@ class SearchNode
 public:
     SearchNode(const Node n, const Kbucket* add);
     SearchNode(const Key* k, const Kbucket* add);
-    ~SearchNode();
+    ~SearchNode() = default;
     void addAnswer(const Node whoanswer, const Kbucket* answer);
     void print()const;
     int getActive()const;

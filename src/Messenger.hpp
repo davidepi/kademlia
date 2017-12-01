@@ -26,10 +26,9 @@
 #define RPC_FIND_NODE_RESPONSE 0x6
 #define RPC_MASK 0x7 // ping|pong|store... etc.
 
-#define FIND_START_FLAG 0x8
-#define FIND_VALUE_FLAG 0x10
-#define FIND_VALUE_FOUND 0x20
-#define FIND_STORE_REQUEST 0x40
+#define FIND_VALUE_FLAG 0x8
+#define FIND_VALUE_FOUND 0x10
+#define FIND_STORE_REQUEST 0x20
 
 #define NULL_QUEUE -2
 #define ALREADY_INITIALIZED -3
@@ -44,7 +43,7 @@ public:
     Messenger(Messenger const&)      = delete;
     void operator=(Messenger const&) = delete;
     int init(std::queue<Message*>* queue, int port_ho);
-    void sendMessage(const Node node, Message& msg);
+    void sendMessage(const Node node, const Message& msg) const;
     Ip getIp() const;
     uint16_t getPort() const;
     std::queue<Message*>* getBindedQueue() const;
