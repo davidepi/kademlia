@@ -109,12 +109,6 @@
     Message u(RPC_FIND_NODE_REQUEST  | FIND_VALUE_FLAG);
     Message i(RPC_FIND_NODE_ANSWER   | FIND_VALUE_FLAG);
     Message o(RPC_FIND_NODE_RESPONSE | FIND_VALUE_FLAG);
-    Message p(RPC_FIND_NODE_REQUEST  | FIND_START_FLAG);
-    Message a(RPC_FIND_NODE_ANSWER   | FIND_START_FLAG);
-    Message s(RPC_FIND_NODE_RESPONSE | FIND_START_FLAG);
-    Message d(RPC_FIND_NODE_REQUEST  | FIND_VALUE_FLAG | FIND_START_FLAG);
-    Message f(RPC_FIND_NODE_ANSWER   | FIND_VALUE_FLAG | FIND_START_FLAG);
-    Message g(RPC_FIND_NODE_RESPONSE | FIND_VALUE_FLAG | FIND_START_FLAG);
     
     //combinazioni da 3 sono inutili, gia' alcune di queste lo sono
     //tipo la ping e la pong assieme. Mi basta sapere che la getFlags funziona
@@ -129,12 +123,6 @@
     XCTAssertEqual(RPC_FIND_NODE_REQUEST| FIND_VALUE_FLAG, u.getFlags());
     XCTAssertEqual(RPC_FIND_NODE_ANSWER| FIND_VALUE_FLAG, i.getFlags());
     XCTAssertEqual(RPC_FIND_NODE_RESPONSE| FIND_VALUE_FLAG, o.getFlags());
-    XCTAssertEqual(RPC_FIND_NODE_REQUEST| FIND_START_FLAG, p.getFlags());
-    XCTAssertEqual(RPC_FIND_NODE_ANSWER| FIND_START_FLAG, a.getFlags());
-    XCTAssertEqual(RPC_FIND_NODE_RESPONSE| FIND_START_FLAG, s.getFlags());
-    XCTAssertEqual(RPC_FIND_NODE_REQUEST| FIND_VALUE_FLAG|FIND_START_FLAG, d.getFlags());
-    XCTAssertEqual(RPC_FIND_NODE_ANSWER|FIND_VALUE_FLAG|FIND_START_FLAG, f.getFlags());
-    XCTAssertEqual(RPC_FIND_NODE_RESPONSE|FIND_VALUE_FLAG|FIND_START_FLAG, g.getFlags());
 }
 
 - (void)test08_Message_dataLength
