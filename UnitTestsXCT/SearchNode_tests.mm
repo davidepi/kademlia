@@ -831,5 +831,26 @@
     XCTAssertEqual(sc.getActive(), KBUCKET_SIZE);
 }
 
+- (void)test17_SearchNode_getAnswer
+{
+    //add
+    srand((unsigned int)time(NULL));
+    Node findme(Ip(rand()),rand()%65536);
+    Kbucket k;
+    long i=k.getNodes()->size();
+    Node askme;
+    while(i<ALPHA_REQUESTS)
+    {
+        askme = Node(Ip((rand()%0xFFFFFFFF)),rand()%65536);;
+        k.add(askme);
+        i=k.getNodes()->size();
+    }
+    SearchNode sc(findme,&k);
+    XCTAssertEqual(sc.getActive(),0);
+    XCTAssertEqual(sc.getUnknown(), ALPHA_REQUESTS);
+    sc.addAnswer(askme, &k);
+    sc.getAnswer(&k);
+    XCTAssertTrue(k.contains(&askme));
+}
 
 @end

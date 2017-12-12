@@ -48,9 +48,11 @@ int Kbucket::getSize() const {
 
 int Kbucket::serialize(uint8_t out[500])const
 {
-#if KBUCKET_SIZE > 80 //6 foreach node + 20 for the requested key
-#error A Kbucket will not fit inside a single UDP datagram
-#endif
+    //[2 byte] number of nodes in network order
+    // ->
+    //  [4 byte] ip in network order    \
+    //                                   |-> for each node
+    //  [2 byte] port in network order  /
     short index = 0;
     uint16_t size_ho = nodeList->size();
     uint16_t size_no = htons(size_ho);
@@ -79,14 +81,17 @@ Kbucket::Kbucket(const uint8_t serialized[500])
     short index = 2;
     uint32_t ip;
     uint16_t port;
+    std::vector<Node> vec;
     for(int j=0;j<size;j++)
     {
         ip = *((uint32_t*)(serialized+index));
         index+=4;
         port = ntohs(*((uint16_t*)(serialized+index)));
         index+=2;
-        nodeList->push_front(Node(Ip(ip),port));
+        vec.push_back(Node(Ip(ip),port));
     }
+    nodeList = new std::list<Node>{std::make_move_iterator(std::begin(vec)),
+                                   std::make_move_iterator(std::end(vec))};
 }
 
 bool Kbucket::contains(Node* n)const {

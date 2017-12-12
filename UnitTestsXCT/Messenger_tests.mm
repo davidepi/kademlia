@@ -226,4 +226,16 @@
     XCTAssertEqual(m.getFlags(), RPC_FIND_NODE_REQUEST);
 }
 
+- (void)test15_Message_append
+{
+    Message m(RPC_FIND_NODE_REQUEST);
+    uint8_t data1[] = {'H','e','l','l','o'};
+    m.setData(data1,5);
+    uint8_t data2[] = {' ','W','o','r','l','d','!','\0'};
+    m.append(data2, 8);
+    const char* text = m.getText();
+    
+    XCTAssertEqual(strcmp(text,"Hello World!"), 0);
+}
+
 @end
