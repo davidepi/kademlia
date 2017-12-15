@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
     if(!im_gateway)
     {
         Kbucket gatewayBucket;
-        gatewayBucket.add(gatewaynode);
+        gatewayBucket.addNode(gatewaynode);
         
         Message msg = generate_find_node_request(&myKey);
         SearchNode* sn = new SearchNode(&myKey, &gatewayBucket);

@@ -6,32 +6,68 @@ Kbucket::Kbucket()
     Kbucket::nodeList = new std::list<Node>();
 }
 
-void Kbucket::add(const Node n)
+void Kbucket::addNode(const Node n)
 {
-    //std::cout << "add" << std::endl;
-    for (std::list<Node>::const_iterator it = Kbucket::nodeList->begin(); it != Kbucket::nodeList->end(); ++it) {
-        if(n == *it) { //already present, delete node and put in front
-            Kbucket::nodeList->remove(*it);
-            Kbucket::nodeList->push_front(n);
+    //if already in queue push to front
+    bool replaced;
+    replaced = replaceNode(n, n);
+    
+    if(!replaced)
+    {
+        //if not in queue, add it
+        if (Kbucket::nodeList->size() < KBUCKET_SIZE)
+        {
+            mtx.lock();
+            if (Kbucket::nodeList->size() < KBUCKET_SIZE)
+                Kbucket::nodeList->push_front(n);
+            mtx.unlock();
+        }
+        else
+        {
+            //check if last node is still alive
+            Node lastActiveNode = Kbucket::nodeList->back();
+            //get reference to thread that manages the update bucket when it is full
+            Updater* updater = Updater::getInstance();
+            updater->checkUpdateBucket(lastActiveNode, n, this);
+        }
+    }
+   
+}
+
+void Kbucket::deleteNode(const Node n)
+{
+    for (std::list<Node>::const_iterator it = Kbucket::nodeList->begin(); it != Kbucket::nodeList->end(); ++it)
+    {
+        if(n == *it)
+        {
+            Kbucket::mtx.lock();
+            if(n == *it)
+                Kbucket::nodeList->remove(*it);
+            Kbucket::mtx.unlock();
             return;
         }
     }
-    
-    //if not present, add it
-    if (Kbucket::nodeList->size() < KBUCKET_SIZE) 
-    {
-        Kbucket::nodeList->push_front(n); 
-    } 
-    else 
-    {
-        //check if last node is still alive
-        Node lastActiveNode = Kbucket::nodeList->back();
+}
 
-        //get reference to thread that manages the update bucket when it is full
-        Updater* updater = Updater::getInstance();
-        updater->checkUpdateBucket(lastActiveNode, n, this);
+bool Kbucket::replaceNode(const Node oldNode, const Node newNode)
+{
+    bool retval = false;
+    for (std::list<Node>::const_iterator it = Kbucket::nodeList->begin(); it != Kbucket::nodeList->end(); ++it)
+    {
+        if(oldNode == *it)
+        {
+            Kbucket::mtx.lock();
+            if(oldNode == *it)
+            {
+                Kbucket::nodeList->remove(*it);
+                Kbucket::nodeList->push_front(newNode);
+                retval = true;
+            }
+            Kbucket::mtx.unlock();
+            break;
+        }
     }
-   
+    return retval;
 }
 
 std::list<Node>* Kbucket::getNodes() const {
@@ -43,7 +79,7 @@ void Kbucket::setNodes(std::list<Node>* nodeList) {
 }
 
 int Kbucket::getSize() const {
-    return getNodes()->size();
+    return (int)getNodes()->size();
 }
 
 int Kbucket::serialize(uint8_t out[500])const

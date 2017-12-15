@@ -105,5 +105,5 @@ void NeighbourManager::insertNode(const Node* node) {
     if(index < 0) {
         return; //not adding myself to the neighbours
     }
-    neighboursArray[index].add(*node);
+    neighboursArray[index].addNode(*node);
 }

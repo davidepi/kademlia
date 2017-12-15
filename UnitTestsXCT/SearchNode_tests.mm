@@ -32,7 +32,7 @@
             dist = Distance(askme,findme).getDistance();
         }while(dist >= previous_distance || dist < ALPHA_REQUESTS-i);
         previous_distance = dist;
-        k.add(askme);
+        k.addNode(askme);
     }
     SearchNode sc(findme,&k);
     
@@ -64,7 +64,7 @@
             askme = Node(Ip(rand()%0xFFFFFFFF),rand()%65536);
             dist = Distance(askme,findme).getDistance();
         }while(dist != NBYTE*8-(i+1));
-        k.add(askme);
+        k.addNode(askme);
     }
     SearchNode sc(findme,&k);
     
@@ -91,7 +91,7 @@
     while(i<ALPHA_REQUESTS)
     {
         Node askme(Ip((rand()%0xFFFFFFFF)),rand()%65536);;
-        k.add(askme);
+        k.addNode(askme);
         i=k.getNodes()->size();
     }
     SearchNode sc(findme,&k);
@@ -120,7 +120,7 @@
     while(i<ALPHA_REQUESTS)
     {
         askme = Node(Ip((rand()%0xFFFFFFFF)),rand()%65536);;
-        k.add(askme);
+        k.addNode(askme);
         i=k.getNodes()->size();
     }
     SearchNode sc(findme,&k);
@@ -146,7 +146,7 @@
         Node askme(Ip((rand()%0xFFFFFFFF)),rand()%65536);
         int distance = Distance(*(askme.getKey()),*(findme.getKey())).getDistance();
         if(distance==NBYTE*8-1)
-            k.add(askme);
+            k.addNode(askme);
         i=k.getNodes()->size();
     }
     SearchNode sc(findme,&k);
@@ -158,7 +158,7 @@
         Node askme(Ip((rand()%0xFFFFFFFF)),rand()%65536);
         int distance = Distance(*(askme.getKey()),*(findme.getKey())).getDistance();
         if(distance==NBYTE*8-2)
-            closer.add(askme);
+            closer.addNode(askme);
         i=closer.getNodes()->size();
     }
     
@@ -192,12 +192,12 @@
         int distance = Distance(*(askme.getKey()),*(findme.getKey())).getDistance();
         if(distance==NBYTE*8-1 && i<KBUCKET_SIZE)
         {
-            k.add(askme);
+            k.addNode(askme);
         }
         else if(distance==NBYTE*8-2 && closer_added<KBUCKET_SIZE/2)
         {
             closer_added++;
-            closer.add(askme);
+            closer.addNode(askme);
         }
         else
             continue;
@@ -229,7 +229,7 @@
     while(i<ALPHA_REQUESTS)
     {
         Node askme(Ip((rand()%0xFFFFFFFF)),rand()%65536);;
-        k.add(askme);
+        k.addNode(askme);
         i=k.getNodes()->size();
     }
     SearchNode sc(findme,&k);
@@ -255,7 +255,7 @@
     while(i<KBUCKET_SIZE)
     {
         Node askme(Ip((rand()%0xFFFFFFFF)),rand()%65536);;
-        k.add(askme);
+        k.addNode(askme);
         i=k.getNodes()->size();
     }
     SearchNode sc(findme,&k);
@@ -283,7 +283,7 @@
     while(i<KBUCKET_SIZE)
     {
         Node askme(Ip((rand()%0xFFFFFFFF)),rand()%65536);;
-        k.add(askme);
+        k.addNode(askme);
         i=k.getNodes()->size();
     }
     SearchNode sc(findme.getKey(),&k);
@@ -312,7 +312,7 @@
     while(i<ALPHA_REQUESTS)
     {
         requester[i] = Node(Ip((rand()%0xFFFFFFFF)),rand()%65536);;
-        k.add(requester[i]);
+        k.addNode(requester[i]);
         i=k.getNodes()->size();
     }
     SearchNode sc(findme,&k);
@@ -324,7 +324,7 @@
         for(int i=0;i<KBUCKET_SIZE;i++)
         {
             Node addme(Ip(rand()),rand()%65536);
-            k.add(addme);
+            k.addNode(addme);
         }
         sc.addAnswer(requester[i], &k);
     }
@@ -353,7 +353,7 @@
     while(i<ALPHA_REQUESTS)
     {
         requester[i] = Node(Ip((rand()%0xFFFFFFFF)),rand()%65536);;
-        k.add(requester[i]);
+        k.addNode(requester[i]);
         i=k.getNodes()->size();
     }
     SearchNode sc(findme,&k);
@@ -365,7 +365,7 @@
         for(int i=0;i<KBUCKET_SIZE;i++)
         {
             Node addme(Ip(rand()),rand()%65536);
-            k.add(addme);
+            k.addNode(addme);
         }
         sc.addAnswer(requester[i], &k);
     }
@@ -379,13 +379,13 @@
     Kbucket k2;
     for(int i=0;i<ALPHA_REQUESTS;i++)
     {
-        k2.add(res[i]);
+        k2.addNode(res[i]);
     }
     //fill remaining kbucket
     for(int i=0;i<KBUCKET_SIZE-ALPHA_REQUESTS;i++)
     {
         Node addme(Ip(rand()),rand()%65536);
-        k2.add(addme);
+        k2.addNode(addme);
     }
     sc.addAnswer(res[0], &k2);
     
@@ -410,7 +410,7 @@
     while(i<ALPHA_REQUESTS)
     {
         requester[i] = Node(Ip((rand()%0xFFFFFFFF)),rand()%65536);;
-        k.add(requester[i]);
+        k.addNode(requester[i]);
         i=k.getNodes()->size();
     }
     SearchNode sc(findme,&k);
@@ -424,7 +424,7 @@
         for(int i=0;i<KBUCKET_SIZE;i++)
         {
             Node addme(Ip(rand()),rand()%65536);
-            k.add(addme);
+            k.addNode(addme);
         }
         sc.addAnswer(requester[i], &k);
     }
@@ -463,7 +463,7 @@
     while(i<ALPHA_REQUESTS)
     {
         requester[i] = Node(Ip((rand()%0xFFFFFFFF)),rand()%65536);;
-        k.add(requester[i]);
+        k.addNode(requester[i]);
         i=k.getNodes()->size();
     }
     SearchNode sc(findme,&k);
@@ -475,7 +475,7 @@
         for(int i=0;i<KBUCKET_SIZE;i++)
         {
             Node addme(Ip(rand()),rand()%65536);
-            k.add(addme);
+            k.addNode(addme);
         }
         sc.addAnswer(requester[i], &k);
     }
@@ -486,7 +486,7 @@
     for(int i=0;i<KBUCKET_SIZE;i++)
     {
         Node addme(Ip(rand()),rand()%65536);
-        ke.add(addme);
+        ke.addNode(addme);
     }
     
     //ask nodes, check if they are ordered and insert them
@@ -526,7 +526,7 @@
     while(i<ALPHA_REQUESTS)
     {
         requester[i] = Node(Ip((rand()%0xFFFFFFFF)),rand()%65536);;
-        k.add(requester[i]);
+        k.addNode(requester[i]);
         i=k.getNodes()->size();
     }
     SearchNode sc(findme,&k);
@@ -538,7 +538,7 @@
         for(int i=0;i<KBUCKET_SIZE;i++)
         {
             Node addme(Ip(rand()),rand()%65536);
-            k.add(addme);
+            k.addNode(addme);
         }
         sc.addAnswer(requester[i], &k);
     }
@@ -560,7 +560,7 @@
             for(int i=0;i<KBUCKET_SIZE;i++)
             {
                 Node addme(Ip(rand()),rand()%65536);
-                k.add(addme);
+                k.addNode(addme);
             }
             sc.addAnswer(res[i], &k);
         }
@@ -570,7 +570,7 @@
         for(int i=0;i<KBUCKET_SIZE;i++)
         {
             Node addme(Ip(rand()),rand()%65536);
-            k.add(addme);
+            k.addNode(addme);
         }
         sc.addAnswer(res[queryres-1], &k);
         hardterminator--;
@@ -593,7 +593,7 @@
     while(i<ALPHA_REQUESTS)
     {
         Node askme(Ip((rand()%0xFFFFFFFF)),rand()%65536);;
-        k.add(askme);
+        k.addNode(askme);
         i=k.getNodes()->size();
     }
     SearchNode sc(findme,&k);
@@ -627,7 +627,7 @@
     while(i<KBUCKET_SIZE)
     {
         Node askme(Ip((rand()%0xFFFFFFFF)),rand()%65536);;
-        k.add(askme);
+        k.addNode(askme);
         i=k.getNodes()->size();
     }
     SearchNode sc(findme,&k);
@@ -652,7 +652,7 @@
         while(i<KBUCKET_SIZE)
         {
             Node askme(Ip((rand()%0xFFFFFFFF)),rand()%65536);;
-            ke.add(askme);
+            ke.addNode(askme);
             i=ke.getNodes()->size();
         }
         sc.addAnswer(onlygoodone, &ke);
@@ -691,7 +691,7 @@
     while(i<ALPHA_REQUESTS)
     {
         requester[i] = Node(Ip((rand()%0xFFFFFFFF)),rand()%65536);;
-        k.add(requester[i]);
+        k.addNode(requester[i]);
         i=k.getNodes()->size();
     }
     SearchNode sc(findme,&k);
@@ -703,7 +703,7 @@
         for(int i=0;i<KBUCKET_SIZE;i++)
         {
             Node addme(Ip(rand()),rand()%65536);
-            k.add(addme);
+            k.addNode(addme);
         }
         sc.addAnswer(requester[i], &k);
     }
@@ -726,7 +726,7 @@
             for(int i=0;i<KBUCKET_SIZE;i++)
             {
                 Node addme(Ip(rand()),rand()%65536);
-                k.add(addme);
+                k.addNode(addme);
             }
             sc.addAnswer(res[i], &k);
         }
@@ -738,7 +738,7 @@
             for(int i=0;i<KBUCKET_SIZE;i++)
             {
                 Node addme(Ip(rand()),rand()%65536);
-                k.add(addme);
+                k.addNode(addme);
             }
             sc.addAnswer(res[queryres-1], &k);
         }
@@ -771,7 +771,7 @@
     while(i<ALPHA_REQUESTS)
     {
         requester[i] = Node(Ip((rand()%0xFFFFFFFF)),rand()%65536);;
-        k.add(requester[i]);
+        k.addNode(requester[i]);
         i=k.getNodes()->size();
     }
     SearchNode sc(findme,&k);
@@ -783,7 +783,7 @@
         for(int i=0;i<KBUCKET_SIZE;i++)
         {
             Node addme(Ip(rand()),rand()%65536);
-            k.add(addme);
+            k.addNode(addme);
         }
         sc.addAnswer(requester[i], &k);
     }
@@ -805,7 +805,7 @@
             for(int i=0;i<KBUCKET_SIZE;i++)
             {
                 Node addme(Ip(rand()),rand()%65536);
-                k.add(addme);
+                k.addNode(addme);
             }
             sc.addAnswer(res[i], &k);
         }
@@ -815,7 +815,7 @@
         for(int i=0;i<KBUCKET_SIZE;i++)
         {
             Node addme(Ip(rand()),rand()%65536);
-            k.add(addme);
+            k.addNode(addme);
         }
         sc.addAnswer(res[queryres-1], &k);
         hardterminator--;
@@ -842,7 +842,7 @@
     while(i<ALPHA_REQUESTS)
     {
         askme = Node(Ip((rand()%0xFFFFFFFF)),rand()%65536);;
-        k.add(askme);
+        k.addNode(askme);
         i=k.getNodes()->size();
     }
     SearchNode sc(findme,&k);

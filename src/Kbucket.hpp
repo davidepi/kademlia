@@ -12,7 +12,9 @@ public:
     Kbucket();
     Kbucket(const uint8_t serialized[500]);
     ~Kbucket();
-    void add(const Node n);
+    void addNode(const Node n);
+    void deleteNode(const Node n);
+    bool replaceNode(const Node oldNode, const Node newNode);
     std::list<Node>* getNodes()const;
     void setNodes(std::list<Node>* nodeList);
     int getSize()const;
@@ -23,6 +25,7 @@ public:
 
 private:
     std::list<Node>* nodeList;
+    std::mutex mtx;
 };
 
 #endif

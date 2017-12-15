@@ -26,7 +26,7 @@
     Kbucket k;
     XCTAssertEqual(k.getSize(), 0);
     
-    k.add(Node("127.0.0.1",3400));
+    k.addNode(Node("127.0.0.1",3400));
     XCTAssertEqual(k.getSize(), 1);
 }
 
@@ -35,11 +35,11 @@
     //empty space and node not present
     Kbucket k;
     Node me("127.0.0.1",3400);
-    k.add(me);
+    k.addNode(me);
     for(int i=1;i<KBUCKET_SIZE;i++)
     {
         Node n("127.0.0.1",3400+i);
-        k.add(n);
+        k.addNode(n);
     }
     XCTAssertEqual(k.getSize(),KBUCKET_SIZE);
     
@@ -47,7 +47,7 @@
     std::list<Node>* list = k.getNodes();
     XCTAssertEqual(list->back().getPort(), 3400); //I am the last one
     XCTAssertNotEqual(list->front().getPort(), 3400); //I am not the first one
-    k.add(me);
+    k.addNode(me);
     XCTAssertEqual(list->front().getPort(), 3400); //I am the first one
     XCTAssertNotEqual(list->back().getPort(), 3400); //I am not the last one
     
@@ -55,7 +55,7 @@
     std::queue<Message*>* q;    //without Messenger the socket will throw exc.
     Messenger::getInstance().init(q,3400);
     Node extra("127.0.0.1",10000);
-    k.add(extra);
+    k.addNode(extra);
     XCTAssertTrue(true);//no need to assert presence, it will be a duty of the
                         //updater class
 }
@@ -67,7 +67,7 @@
     for(int i=0;i<KBUCKET_SIZE;i++)
     {
         Node n(def,3400+i);
-        k.add(n);
+        k.addNode(n);
     }
     
     std::list<Node>* list = k.getNodes();
@@ -88,7 +88,7 @@
     for(int i=0;i<KBUCKET_SIZE;i++)
     {
         Node n(def,3400+i);
-        k.add(n);
+        k.addNode(n);
     }
     
     //change node vals
@@ -121,7 +121,7 @@
     for(int i=0;i<KBUCKET_SIZE;i++)
     {
         Node n(def,3400+i);
-        k.add(n);
+        k.addNode(n);
     }
     
     uint8_t data[500];
@@ -160,7 +160,7 @@
     for(int i=0;i<KBUCKET_SIZE;i++)
     {
         Node n(def,3400+i);
-        k.add(n);
+        k.addNode(n);
     }
     
     //check existing
@@ -180,9 +180,26 @@
     for(int i=0;i<KBUCKET_SIZE;i++)
     {
         Node n(def,3400+i);
-        k.add(n);
+        k.addNode(n);
     }
     k.print();
+}
+
+- (void)test09_Kbucket_delete
+{
+    //empty space and node not present
+    Kbucket k;
+    Node me("127.0.0.1",3400);
+    k.addNode(me);
+    for(int i=1;i<KBUCKET_SIZE;i++)
+    {
+        Node n("127.0.0.1",3400+i);
+        k.addNode(n);
+    }
+    XCTAssertEqual(k.getSize(),KBUCKET_SIZE);
+    k.deleteNode(Node("127.0.0.1",3404));
+    
+    XCTAssertEqual(k.getSize(), KBUCKET_SIZE-1);
 }
 
 @end
