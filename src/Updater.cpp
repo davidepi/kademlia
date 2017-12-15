@@ -77,18 +77,8 @@ void* removeAfterTimeout(void* args) {
         argStruct->map->erase(mapIt);
 
         //update kbucket
-        std::list<Node>* nodeList = argStruct->kbucket->getNodes();
-
-        for (std::list<Node>::const_iterator listIt = nodeList->begin(); listIt != nodeList->end(); ++listIt) {
-            if ((*mapIt).first == *listIt) { //delete not answering node, add the new one
-                nodeList->remove(*listIt);
-                nodeList->push_front((*mapIt).second);
-                Logger::getInstance().logFormat("ssn", Logger::UPDATER, "Removing not answering ", &(argStruct->oldNode));
-                Logger::getInstance().logFormat("ssns", Logger::UPDATER, "Adding new ", &(argStruct->newNode), " to bucket");
-                std::cout << "+++end timeout: the new node was inserted and the old one was removed" << std::endl;
-                break;
-            }
-        }
+        argStruct->kbucket->replaceNode(mapIt->first, mapIt->second);
+        std::cout << "+++end timeout: the new node was inserted and the old one was removed" << std::endl;
     }
     
     delete argStruct;

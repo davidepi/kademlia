@@ -5,6 +5,7 @@ const char* Logger::OUTGOING = "[OUTGOING]";
 
 const char* Logger::UPDATER = "[Update Bucket]";
 const char* Logger::PERFORMER = "[Performer]";
+const char* Logger::KBUCKET = "[KBucket]";
 
 Logger& Logger::getInstance()
 {
@@ -64,6 +65,9 @@ void Logger::logFormat(const void* format...)
         } else if (*fmt == 's') {
             char* s = va_arg(args, char*);
             ss << s;
+        }else if (*fmt == 'b') {
+            bool b = va_arg(args, int);
+            ss << b;
         }else if (*fmt == 'n') {
             Node* n = va_arg(args, Node*);
             ss << *n;

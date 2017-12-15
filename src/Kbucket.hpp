@@ -3,9 +3,10 @@
 
 #include <list>
 #include <unistd.h>
+#include <iostream>
+#include <mutex>
 #include "Node.hpp"
 #include "settings.h"
-#include <iostream>
 
 class Kbucket {
 public:

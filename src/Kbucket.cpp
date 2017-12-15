@@ -21,6 +21,7 @@ void Kbucket::addNode(const Node n)
             if (Kbucket::nodeList->size() < KBUCKET_SIZE)
                 Kbucket::nodeList->push_front(n);
             mtx.unlock();
+            Logger::getInstance().logFormat("ssn", Logger::KBUCKET, "Added", &n);
         }
         else
         {
@@ -36,13 +37,17 @@ void Kbucket::addNode(const Node n)
 
 void Kbucket::deleteNode(const Node n)
 {
+    
     for (std::list<Node>::const_iterator it = Kbucket::nodeList->begin(); it != Kbucket::nodeList->end(); ++it)
     {
         if(n == *it)
         {
             Kbucket::mtx.lock();
             if(n == *it)
+            {
                 Kbucket::nodeList->remove(*it);
+                Logger::getInstance().logFormat("ssn", Logger::KBUCKET, "Removed", &n);
+            }
             Kbucket::mtx.unlock();
             return;
         }
@@ -61,6 +66,7 @@ bool Kbucket::replaceNode(const Node oldNode, const Node newNode)
             {
                 Kbucket::nodeList->remove(*it);
                 Kbucket::nodeList->push_front(newNode);
+                Logger::getInstance().logFormat("ssnsns", Logger::KBUCKET, "Replaced", &oldNode, "with", &newNode);
                 retval = true;
             }
             Kbucket::mtx.unlock();
