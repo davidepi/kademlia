@@ -30,12 +30,12 @@ const Node* NeighbourManager::getMyself() {
 
 void NeighbourManager::printNeighbours() {
     for (int i = 0; i < NBYTE * 8; i++) {
-        std::cout << "KBUCKET NUMBER " << i << std::endl;
+        if(neighboursArray[i].getSize() > 0){
+            std::cout << "KBUCKET NUMBER " << i << std::endl;
+        }
         
-        for (std::list<Node>::iterator it = neighboursArray[i].getNodes()->begin(); it != neighboursArray[i].getNodes()->end(); ++it) {
-            char string[64];
-            it->getIp().toString(string);
-            std::cout << "element " << string << ":" << it->getPort() << std::endl;
+        for (std::list<Node>::const_iterator it = neighboursArray[i].getNodes()->begin(); it != neighboursArray[i].getNodes()->end(); ++it) {
+            std::cout << "\tNode " << *it << std::endl;
         }
     }
 
@@ -65,8 +65,9 @@ void NeighbourManager::findKClosestNodes(const Key* key, Kbucket* bucket, bool j
     assert(resultList.size() <= KBUCKET_SIZE);
 
     if (resultList.size() == KBUCKET_SIZE || (justOneNode && resultList.size() >= 1)) {
+        resultList.sort(Compare(key));
         bucket->setNodes(&resultList);
-        bucket->getNodes()->sort(Compare(key));
+        //bucket->getNodes()->sort(Compare(key));
         return;
     }
 
@@ -84,8 +85,9 @@ void NeighbourManager::findKClosestNodes(const Key* key, Kbucket* bucket, bool j
         addNodesToList(&resultList, otherBuckIndex);
         otherBuckIndex--;
     }
+    resultList.sort(Compare(key));
     bucket->setNodes(&resultList);
-    bucket->getNodes()->sort(Compare(key));
+    //bucket->getNodes()->sort(Compare(key));
 
 }
 

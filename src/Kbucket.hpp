@@ -10,13 +10,13 @@
 
 class Kbucket {
 public:
-    Kbucket();
+    Kbucket() = default;
     Kbucket(const uint8_t serialized[500]);
-    ~Kbucket();
+    ~Kbucket() = default;
     void addNode(const Node n);
     void deleteNode(const Node n);
     bool replaceNode(const Node oldNode, const Node newNode);
-    std::list<Node>* getNodes()const;
+    const std::list<Node>* getNodes()const;
     void setNodes(std::list<Node>* nodeList);
     int getSize()const;
     //return the number of bytes written
@@ -25,7 +25,7 @@ public:
     void print()const;
 
 private:
-    std::list<Node>* nodeList;
+    std::list<Node> nodeList;
     std::mutex mtx;
 };
 
