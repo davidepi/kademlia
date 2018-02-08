@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <set>
 #include <cstring> //strncpy
+#include <utility> //std::pair
 #include "Messenger.hpp"
 #include "Node.hpp"
 #include "Kbucket.hpp"
@@ -24,7 +25,7 @@ public:
     std::queue<Message*>* message_queue;
     std::unordered_map<Key, const char*> filesMap;
     std::unordered_map<Key, const std::string> storeTmpMap;
-    std::unordered_map<Key, SearchNode*> searchInProgress;
+    std::unordered_map<Key, SearchNode> searchInProgress;
     NeighbourManager* neighbours;
     
     const pthread_t getThreadID()const;

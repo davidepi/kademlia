@@ -8,6 +8,14 @@
 #include <string>
 #include <sstream>
 
+#define UI_STORE_VALUE 1
+#define UI_FIND_VALUE 2
+#define UI_FIND_NODE 3
+#define UI_PING 4
+#define UI_PRINT_VALUES 5
+#define UI_PRINT_KBUCKETS 6
+#define UI_EXIT 7
+
 int kadUI(Performer* p);
 
 int main(int argc, char* argv[])
@@ -100,10 +108,12 @@ int main(int argc, char* argv[])
     {
         Kbucket gatewayBucket;
         gatewayBucket.addNode(gatewaynode);
-        
+
         Message msg = generate_find_node_request(&myKey);
-        SearchNode* sn = new SearchNode(&myKey, &gatewayBucket);
-        p.searchInProgress.insert({{myKey, sn}});
+        //the next line tells the unordered map to construct in place a
+        //pair of type <Key,SearchNode>. So i avoid copying around SearchNode
+        //which is a quite large class
+        p.searchInProgress.emplace(std::piecewise_construct, std::make_tuple(myKey), std::make_tuple(&myKey, &gatewayBucket));
         (Messenger::getInstance()).sendMessage(gatewaynode, msg);
     }
     Logger::getInstance();
@@ -111,17 +121,17 @@ int main(int argc, char* argv[])
     return 0;
 }
 
-
-int kadUI(Performer* p) {
+int kadUI(Performer* p)
+{
     int res = 1;
-    std::cout << "Choose a command:" << std::endl;
-    std::cout << "[1] Store Value" << std::endl;
-    std::cout << "[2] Find Value" << std::endl;
-    std::cout << "[3] Find Node" << std::endl;
-    std::cout << "[4] Ping" << std::endl;
-    std::cout << "[5] Print value map" << std::endl;
-    std::cout << "[6] Print kbucket" << std::endl;
-    std::cout << "[7] Exit" << std::endl;
+    std::cout << "Choose a command:"                              << std::endl;
+    std::cout << "[" << UI_STORE_VALUE    << "] Store Value"      << std::endl;
+    std::cout << "[" << UI_FIND_VALUE     << "] Find Value"       << std::endl;
+    std::cout << "[" << UI_FIND_NODE      << "] Find Node"        << std::endl;
+    std::cout << "[" << UI_PING           << "] Ping"             << std::endl;
+    std::cout << "[" << UI_PRINT_VALUES   << "] Print values map" << std::endl;
+    std::cout << "[" << UI_PRINT_KBUCKETS << "] Print kbuckets"   << std::endl;
+    std::cout << "[" << UI_EXIT           << "] Exit"             << std::endl;
 
     int command;
     std::string commandString;
@@ -129,7 +139,7 @@ int kadUI(Performer* p) {
     std::stringstream(commandString) >> command;
 
     switch (command) {
-        case 1:
+        case UI_STORE_VALUE:
         {
             std::cout << "Insert the value to store:" << std::endl;
             std::string value;
@@ -138,7 +148,7 @@ int kadUI(Performer* p) {
             break;
         }
 
-        case 2:
+        case UI_FIND_VALUE:
         {
             std::cout << "Insert the key to find the value:" << std::endl;
             std::string value;
@@ -163,7 +173,7 @@ int kadUI(Performer* p) {
             break;
         }
 
-        case 3:
+        case UI_FIND_NODE:
         {
             std::cout << "Insert the key to find the node:" << std::endl;
             std::string value;
@@ -186,7 +196,7 @@ int kadUI(Performer* p) {
             break;
         }
 
-        case 4:
+        case UI_PING:
         {
             std::cout << "Insert the ip:" << std::endl;
             std::string hostname;
@@ -198,17 +208,17 @@ int kadUI(Performer* p) {
             rpc_ping(Node(Ip(hostname.c_str()), atoi(port.c_str())));
             break;
         }
-        case 5:
+        case UI_PRINT_VALUES:
         {
             p->printFilesMap();
             break;
         }
-        case 6:
+        case UI_PRINT_KBUCKETS:
         {
             p->neighbours->printNeighbours();
             break;
         }
-        case 7:
+        case UI_EXIT:
         {
             res = 0;
             std::cout << "Bye" << std::endl;

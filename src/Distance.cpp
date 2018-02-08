@@ -29,7 +29,6 @@ Distance::Distance(const Key& k1, const Key& k2)
     Distance::value[19] = key1[19] ^ key2[19];
 }
 
-
 Distance::Distance(Node n1, Node n2)
 {
     //TODO: non so ancora come sara' la classe node
@@ -239,4 +238,3 @@ short Distance::getDistance() const
 #endif
 #endif
 }
-

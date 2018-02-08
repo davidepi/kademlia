@@ -10,11 +10,11 @@ static inline void startSearch(const Key* key, Performer* p, const Message* mess
         return;
     }
 
-    SearchNode* sn = new SearchNode(key, &bucket);
-    p->searchInProgress.insert({{*key, sn}});
-
+    //construct the SearchNode in place inside the hashmap
+    std::pair<std::unordered_map<Key,SearchNode>::iterator,bool> res = p->searchInProgress.emplace(std::piecewise_construct, std::make_tuple(*key), std::make_tuple(key,&bucket));
+    //retrieve the first three nodes to query
     Node askto[ALPHA_REQUESTS];
-    int retval = sn->queryTo(askto);
+    int retval = res.first->second.queryTo(askto);
 
     for (int i = 0; i < retval; i++) {
         (Messenger::getInstance()).sendMessage(askto[i], *message);
@@ -210,12 +210,12 @@ static void* execute(void* this_class)
 #endif
                 Kbucket b(top->getData()+NBYTE);
                 SearchNode* sn = NULL;
-                std::unordered_map<Key,SearchNode*>::const_iterator got = p->searchInProgress.find(k);
+                std::unordered_map<Key,SearchNode>::iterator got = p->searchInProgress.find(k);
                 
                 //SearchNode found, otherwise received a message from a queried node, but the Kbucket has been completed
                 if(got != p->searchInProgress.end()) 
                 {
-                    sn = got->second;
+                    sn = &(got->second);
                     
                     sn->addAnswer(senderNode, &b);
                     Node askto[ALPHA_REQUESTS];
@@ -230,7 +230,6 @@ static void* execute(void* this_class)
                     {
                         Kbucket res;
                         sn->getAnswer(&res);
-                        delete sn;
                         p->searchInProgress.erase(got);
                         Message msg = generate_find_node_answer(&k, &res);
                         msg.setFlags(RPC_FIND_NODE_RESPONSE |
@@ -299,15 +298,30 @@ Performer::~Performer()
     delete neighbours;
 }
 
-void Performer::printFilesMap()
-{ 
-    std::cout << "---------FILES STORED ON THIS SERVER-----------------------------" << std::endl;
-    for (std::unordered_map<Key,const char*>::iterator it = filesMap.begin(); it != filesMap.end(); ++it) {
-        std::cout << "KEY: ";
-        it->first.print();
-        std::cout << "TEXT: " << it->second << std::endl << std::endl;
+static bool isPrintable(const uint8_t* data)
+{
+    for(int i=0;i<500;i++)
+    {
+        if(data[i]=='\0') //null-terminated
+            return true;
+        if(data[i]<32) //binary
+            return false;
     }
-    std::cout << "---------END OF FILES STORED ON THIS SERVER----------------------" << std::endl;
+    return true;
+}
+
+void Performer::printFilesMap()
+{
+    std::cout << "---------TEXT VALUES STORED ON THIS SERVER-----------------------------" << std::endl;
+    for (std::unordered_map<Key,const char*>::iterator it = filesMap.begin(); it != filesMap.end(); ++it) {
+        if(isPrintable((const uint8_t*)(it->second)))
+        {
+            std::cout << "KEY: ";
+            it->first.print();
+            std::cout << "TEXT: " << it->second << std::endl << std::endl;
+        }
+    }
+    std::cout << "---------END OF TEXT VALUES STORED ON THIS SERVER----------------------" << std::endl;
 }
 
 bool Performer::myselfHasValue(const Key* key) {
