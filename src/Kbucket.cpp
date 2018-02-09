@@ -61,7 +61,7 @@ bool Kbucket::replaceNode(const Node oldNode, const Node newNode)
             {
                 Kbucket::nodeList.remove(*it);
                 Kbucket::nodeList.push_front(newNode);
-                Logger::getInstance().logFormat("ssnsns", Logger::KBUCKET, "Replaced", &oldNode, "with", &newNode);
+                Logger::getInstance().logFormat("snsns", Logger::KBUCKET, "Replaced", &oldNode, "with", &newNode);
                 retval = true;
             }
             Kbucket::mtx.unlock();
