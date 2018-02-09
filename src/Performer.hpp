@@ -16,6 +16,15 @@
 #include "Updater.hpp"
 #include "Logger.hpp"
 
+#define RPC_PING 0x1
+#define RPC_STORE 0x2
+#define RPC_FIND_NODE 0x3
+#define RPC_MASK 0x3 //store or find or ping
+
+#define FLAG_ANSWER 0x4 //the received message is an answer
+#define FLAG_FIND_VALUE 0x8
+#define FLAG_VALUE_FOUND 0x10
+#define FLAG_STORE_REQUEST 0x20
 
 class Performer
 {

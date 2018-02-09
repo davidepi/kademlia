@@ -1,7 +1,7 @@
 #include "Performer.hpp"
 
 static inline void startSearch(const Key* key, Performer* p, const Message* message) {
-
+    
     //find the closest nodes known to send the message
     Kbucket bucket;
     p->neighbours->findKClosestNodes(key, &bucket);
@@ -9,13 +9,13 @@ static inline void startSearch(const Key* key, Performer* p, const Message* mess
         std::cout << "WARNING: no node found in all kbuckets" << std::endl;
         return;
     }
-
+    
     //construct the SearchNode in place inside the hashmap
     std::pair<std::unordered_map<Key,SearchNode>::iterator,bool> res = p->searchInProgress.emplace(std::piecewise_construct, std::make_tuple(*key), std::make_tuple(key,&bucket));
     //retrieve the first three nodes to query
     Node askto[ALPHA_REQUESTS];
     int retval = res.first->second.queryTo(askto);
-
+    
     for (int i = 0; i < retval; i++) {
         (Messenger::getInstance()).sendMessage(askto[i], *message);
     }
@@ -32,15 +32,15 @@ void rpc_ping(Node node)
 
 void rpc_pong(Node node) {
     //create message
-    Message response(RPC_PONG);
-
+    Message response(RPC_PING | FLAG_ANSWER);
+    
     //send PONG
     (Messenger::getInstance()).sendMessage(node, response);
 }
 
 void rpc_store(const Key* key, const Kbucket* bucket, Performer* p) {
     Message response(key->getKey(), NBYTE);
-
+    
     std::string value;
     std::unordered_map<Key, const std::string>::const_iterator got = p->storeTmpMap.find(*key);
     {
@@ -50,10 +50,10 @@ void rpc_store(const Key* key, const Kbucket* bucket, Performer* p) {
         } else
             return;
     }
-
+    
     response.append((uint8_t*) value.c_str(), strlen(value.c_str()) + 1);
     response.setFlags(RPC_STORE);
-
+    
     for (std::list<Node>::const_iterator it = bucket->getNodes()->begin(); it != bucket->getNodes()->end(); ++it) {
         (Messenger::getInstance()).sendMessage(*it, response);
     }
@@ -63,10 +63,10 @@ void rpc_store_request(const std::string& value, Performer* p) {
     //store text temporarily
     Key key(value.c_str());
     p->storeTmpMap.insert(std::make_pair(key, value));
-
+    
     //create store message
     Message storeMsg = generate_find_node_request(&key);
-    storeMsg.setFlags(storeMsg.getFlags() | FIND_STORE_REQUEST);
+    storeMsg.setFlags(storeMsg.getFlags() | FLAG_STORE_REQUEST);
     startSearch(&key, p, &storeMsg);
 }
 
@@ -84,14 +84,14 @@ void rpc_find_value(const Key* key, Performer* p) {
         return;
     
     Message findValueMsg = generate_find_node_request(key);
-    findValueMsg.setFlags(findValueMsg.getFlags() | FIND_VALUE_FLAG);
-
+    findValueMsg.setFlags(findValueMsg.getFlags() | FLAG_FIND_VALUE);
+    
     startSearch(key, p, &findValueMsg);
 }
 
 Message generate_find_node_request(const Key* key) {
     Message response(key->getKey(), NBYTE);
-    response.setFlags(RPC_FIND_NODE_REQUEST);
+    response.setFlags(RPC_FIND_NODE);
     return response;
 }
 
@@ -106,7 +106,7 @@ Message generate_find_node_answer(const Key* key, Kbucket* bucket)
     int len = bucket->serialize(data);
     
     response.append(data,len);
-    response.setFlags(RPC_FIND_NODE_ANSWER);
+    response.setFlags(RPC_FIND_NODE | FLAG_ANSWER);
     return response;
 }
 
@@ -130,24 +130,28 @@ static void* execute(void* this_class)
         //update bucket -> add the sender node whichever the RPC is
         p->neighbours->insertNode(&senderNode);
         uint8_t flags = top->getFlags();
+        bool isAnswer = flags & FLAG_ANSWER;
         Logger::getInstance().logFormat("ssnsf", Logger::INCOMING, "Message from", &senderNode, "with flags:", &flags);
 #ifndef NDEBUG
         char ip[16];
         senderNode.getIp().toString(ip);
         printf("Received a message from: %s:%hu\n",ip,(unsigned short)senderNode.getPort());
 #endif
-        switch(top->getFlags() & RPC_MASK)
+        switch(flags & RPC_MASK)
         {
             case RPC_PING :
             {
-                std::cout << "The message is a ping" << std::endl;
-                rpc_pong(senderNode);
-                
+                if(!isAnswer)
+                {
+                    std::cout << "The message is a ping" << std::endl;
+                    rpc_pong(senderNode);
+                }
+                else
+                {
+                    std::cout << "The message is a pong" << std::endl;
+                    Updater::getInstance()->processPong(senderNode);
+                }
             }
-                break;
-            case RPC_PONG :
-                std::cout << "The message is a pong" << std::endl;
-                Updater::getInstance()->processPong(senderNode);
                 break;
             case RPC_STORE :
             {
@@ -167,106 +171,96 @@ static void* execute(void* this_class)
                 }
             }
                 break;
-            case RPC_FIND_NODE_REQUEST :
+            case RPC_FIND_NODE :
             {
-                Key key;
-                key.craft(top->getData());
-                //find closest nodes
-#ifndef NDEBUG
-                printf("Somebody asked for Kbucket of key: ");
-                key.print();
-#endif
-                if(top->getFlags() & FIND_VALUE_FLAG)
+                if(!isAnswer)
                 {
-                    std::unordered_map<Key,const char*>::iterator got = p->filesMap.find(key);
-                    if(got!=p->filesMap.end())
+                    Key key;
+                    key.craft(top->getData());
+                    //find closest nodes
+#ifndef NDEBUG
+                    printf("Somebody asked for Kbucket of key: ");
+                    key.print();
+#endif
+                    if(flags & FLAG_FIND_VALUE)
                     {
-                        Message msg(key.getKey(),NBYTE);
-                        msg.append((const uint8_t*)got->second,strlen(got->second)+1);
-                        msg.setFlags(RPC_FIND_NODE_RESPONSE|FIND_VALUE_FLAG|FIND_VALUE_FOUND);
-                        Messenger::getInstance().sendMessage(senderNode, msg);
-                        break;
+                        std::unordered_map<Key,const char*>::iterator got = p->filesMap.find(key);
+                        if(got!=p->filesMap.end())
+                        {
+                            Message msg(key.getKey(),NBYTE);
+                            msg.append((const uint8_t*)got->second,strlen(got->second)+1);
+                            msg.setFlags(RPC_FIND_NODE|FLAG_ANSWER|FLAG_FIND_VALUE|FLAG_VALUE_FOUND);
+                            Messenger::getInstance().sendMessage(senderNode, msg);
+                            break;
+                        }
                     }
+                    //find closest nodes
+                    Kbucket kbucket;
+                    p->neighbours->findKClosestNodes(&key, &kbucket);
+                    kbucket.print();
+                    Message msg = generate_find_node_answer(&key, &kbucket);
+                    msg.setFlags(msg.getFlags()|(flags&~RPC_MASK));
+                    Messenger::getInstance().sendMessage(senderNode, msg);
                 }
-                //find closest nodes
-                Kbucket kbucket;
-                p->neighbours->findKClosestNodes(&key, &kbucket);
-                kbucket.print();
-                Message msg = generate_find_node_answer(&key, &kbucket);
-                msg.setFlags(msg.getFlags()|(top->getFlags()&~RPC_MASK));
-                Messenger::getInstance().sendMessage(senderNode, msg);
-            }
-            break;
-                
-            case RPC_FIND_NODE_ANSWER :
-            {
-                std::cout << "Received a list of nodes" << std::endl;
-                Key k;
-                k.craft(top->getData());
-
-#ifndef NDEBUG
-                printf("Received answer for key: ");
-                std::cout<<k<<std::endl;
-#endif
-                Kbucket b(top->getData()+NBYTE);
-                SearchNode* sn = NULL;
-                std::unordered_map<Key,SearchNode>::iterator got = p->searchInProgress.find(k);
-                
-                //SearchNode found, otherwise received a message from a queried node, but the Kbucket has been completed
-                if(got != p->searchInProgress.end()) 
+                else //answer
                 {
-                    sn = &(got->second);
+                    std::cout << "Received a list of nodes" << std::endl;
+                    Key k;
+                    k.craft(top->getData());
                     
-                    sn->addAnswer(senderNode, &b);
-                    Node askto[ALPHA_REQUESTS];
-                    int retval = sn->queryTo(askto);
-                    if (retval > 0) //need to query somebody
-                    {
-                        Message msg = generate_find_node_request(&k);
-                        msg.setFlags(msg.getFlags() | (top->getFlags() & ~RPC_MASK));
-                        for (int i = 0; i < retval; i++)
-                            Messenger::getInstance().sendMessage(askto[i], msg);
-                    } else if (retval == 0) //Kbucket ready
-                    {
-                        Kbucket res;
-                        sn->getAnswer(&res);
-                        p->searchInProgress.erase(got);
-                        Message msg = generate_find_node_answer(&k, &res);
-                        msg.setFlags(RPC_FIND_NODE_RESPONSE |
-                                (top->getFlags()&~RPC_MASK));
-                        Node me(Messenger::getInstance().getIp(),
-                                Messenger::getInstance().getPort());
-                        Messenger::getInstance().sendMessage(me, msg);
-                    } else {
-                        //need to wait the pending nodes
-                        ;
-                    }
-                }
-            }
-            break;
-            case RPC_FIND_NODE_RESPONSE:
-            {   
-                Key k;
-                k.craft(top->getData());
-                
-                if (top->getFlags() & FIND_VALUE_FOUND) {
-                    Logger::getInstance().logFormat("sksss", "Found value (key:", &k, "Value:", top->getData()+NBYTE, ")");
-                    std::cout << "Found value: " << top->getData()+NBYTE << std::endl;
-                    p->searchInProgress.erase(k);
-                } else {
-                
-
+#ifndef NDEBUG
+                    printf("Received answer for key: ");
+                    std::cout<<k<<std::endl;
+#endif
                     Kbucket b(top->getData()+NBYTE);
-    #ifndef NDEBUG
-                    std::cout<<"Completed KBucket for key ";
-                    k.print();
-                    b.print();
-    #endif
-                    if(top->getFlags() & FIND_STORE_REQUEST) {
-                        rpc_store(&k, &b, p);
+                    SearchNode* sn = NULL;
+                    std::unordered_map<Key,SearchNode>::iterator got = p->searchInProgress.find(k);
+                    
+                    //SearchNode found, otherwise received a message from a queried node, but the Kbucket has been completed
+                    if(got != p->searchInProgress.end())
+                    {
+                        sn = &(got->second);
+                        if(flags&FLAG_VALUE_FOUND) //value found, the find value can terminate
+                        {
+                            Logger::getInstance().logFormat("sksss", "Found value (key:", &k, "Value:", top->getData()+NBYTE, ")");
+                            std::cout << "Found value: " << top->getData()+NBYTE << std::endl;
+                            p->searchInProgress.erase(k);
+                            break;
+                        }
+                        
+                        sn->addAnswer(senderNode, &b);
+                        Node askto[ALPHA_REQUESTS];
+                        int retval = sn->queryTo(askto);
+                        if (retval > 0) //need to query somebody
+                        {
+                            Message msg = generate_find_node_request(&k);
+                            msg.setFlags(msg.getFlags() | (top->getFlags() & ~RPC_MASK));
+                            for (int i = 0; i < retval; i++)
+                                Messenger::getInstance().sendMessage(askto[i], msg);
+                        }
+                        else if (retval == 0) //Kbucket ready
+                        {
+                            Kbucket res;
+                            sn->getAnswer(&res);
+                            p->searchInProgress.erase(got);
+                            std::cout<<"Completed KBucket for key ";
+                            k.print();
+                            res.print();
+                            if(flags&FLAG_STORE_REQUEST)
+                            {
+                                //send the rpc_store to the node in the now completed Kbucket
+                                rpc_store(&k, &res, p);
+                            }
+                        } else {
+                            //need to wait the pending nodes
+                            ;
+                        }
                     }
+                    else
+                        ;
+                    //search node not found. So it was already processed.
+                    //   -> Bail out
                 }
-                
             }
                 break;
             default:
@@ -327,7 +321,7 @@ void Performer::printFilesMap()
 bool Performer::myselfHasValue(const Key* key) {
     
     std::unordered_map<Key,const char*>::const_iterator got = filesMap.find(*key);
-    if (got != filesMap.end()) {       
+    if (got != filesMap.end()) {
         std::cout << "Found value: " << got->second << std::endl;
         return true;
     } else {

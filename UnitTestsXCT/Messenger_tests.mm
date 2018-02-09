@@ -93,36 +93,9 @@
 - (void)test07_Message_privateSenderConstructor
 {
     uint8_t data[] = {0x45,0x76};
-    Message m("10.4.24.1",55640,2,data,RPC_STORE);
+    Message m("10.4.24.1",55640,2,data,0x1);
     XCTAssertEqual(data[0],m.getText()[0]);
     XCTAssertEqual(data[1],m.getText()[1]);
-}
-
-- (void)test07_Message_messageAllFlagsCombinations
-{
-    Message q(RPC_PING);
-    Message w(RPC_PONG);
-    Message e(RPC_STORE);
-    Message r(RPC_FIND_NODE_REQUEST);
-    Message t(RPC_FIND_NODE_ANSWER);
-    Message y(RPC_FIND_NODE_RESPONSE);
-    Message u(RPC_FIND_NODE_REQUEST  | FIND_VALUE_FLAG);
-    Message i(RPC_FIND_NODE_ANSWER   | FIND_VALUE_FLAG);
-    Message o(RPC_FIND_NODE_RESPONSE | FIND_VALUE_FLAG);
-    
-    //combinazioni da 3 sono inutili, gia' alcune di queste lo sono
-    //tipo la ping e la pong assieme. Mi basta sapere che la getFlags funziona
-    //anche per le combinazioni multiple
-    
-    XCTAssertEqual(RPC_PING, q.getFlags());
-    XCTAssertEqual(RPC_PONG, w.getFlags());
-    XCTAssertEqual(RPC_STORE, e.getFlags());
-    XCTAssertEqual(RPC_FIND_NODE_REQUEST, r.getFlags());
-    XCTAssertEqual(RPC_FIND_NODE_ANSWER, t.getFlags());
-    XCTAssertEqual(RPC_FIND_NODE_RESPONSE, y.getFlags());
-    XCTAssertEqual(RPC_FIND_NODE_REQUEST| FIND_VALUE_FLAG, u.getFlags());
-    XCTAssertEqual(RPC_FIND_NODE_ANSWER| FIND_VALUE_FLAG, i.getFlags());
-    XCTAssertEqual(RPC_FIND_NODE_RESPONSE| FIND_VALUE_FLAG, o.getFlags());
 }
 
 - (void)test08_Message_dataLength
@@ -150,7 +123,7 @@
 - (void)test10_Message_craftedSender
 {
     uint8_t a[] = "Přihlášení";
-    Message m("10.0.0.1",6840,23,a,RPC_STORE);
+    Message m("10.0.0.1",6840,23,a,0x1);
     Node n = m.getSenderNode();
     XCTAssertFalse(n.isEmpty());
     XCTAssertTrue(n.getIp() == "10.0.0.1");
@@ -204,7 +177,7 @@
 - (void)test13_Message_setData
 {
     uint8_t data[] = {0x2A,0xE0,0x88,0x98,0x49,0x0D,0x87,0x5F};
-    Message m(RPC_PONG);
+    Message m(0x3);
     m.setData(data,8);
     
     XCTAssertEqual(data[0],m.getData()[0]);
@@ -215,20 +188,20 @@
     XCTAssertEqual(data[5],m.getData()[5]);
     XCTAssertEqual(data[6],m.getData()[6]);
     XCTAssertEqual(data[7],m.getData()[7]);
-    XCTAssertEqual(m.getFlags(), RPC_PONG);
+    XCTAssertEqual(m.getFlags(), 0x3);
 }
 
 - (void)test14_Message_setText
 {
-    Message m(RPC_FIND_NODE_REQUEST);
+    Message m(0x7);
     m.setText("Kuřecí maso");
     XCTAssertEqual(strcmp("Kuřecí maso", (char*)m.getText()),0);
-    XCTAssertEqual(m.getFlags(), RPC_FIND_NODE_REQUEST);
+    XCTAssertEqual(m.getFlags(), 0x7);
 }
 
 - (void)test15_Message_append
 {
-    Message m(RPC_FIND_NODE_REQUEST);
+    Message m(0x5);
     uint8_t data1[] = {'H','e','l','l','o'};
     m.setData(data1,5);
     uint8_t data2[] = {' ','W','o','r','l','d','!','\0'};
