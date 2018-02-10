@@ -1,4 +1,5 @@
 #include "Logger.hpp"
+#include "Performer.hpp"
 
 const char* Logger::INCOMING = "[INCOMING]";
 const char* Logger::OUTGOING = "[OUTGOING]";

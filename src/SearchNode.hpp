@@ -6,6 +6,8 @@
 #include "Kbucket.hpp"
 #include "Distance.hpp"
 #include "settings.h"
+#include "Logger.hpp"
+#include "Messenger.hpp"
 #include <chrono>
 #include <string>
 #include <list>

@@ -125,7 +125,8 @@ static void* execute(void* this_class)
         Message* top;
         top = q->front();
         q->pop();
-        
+        if(top==NULL)
+            continue;
         Node senderNode = top->getSenderNode();
         
         //update bucket -> add the sender node whichever the RPC is
@@ -272,7 +273,7 @@ static void* execute(void* this_class)
                 //ignore the packet with wrong type flag
                 ;
         }
-        
+        delete top;
     }
     pthread_exit((void*)0);
 }

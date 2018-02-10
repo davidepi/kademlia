@@ -1,4 +1,5 @@
 #include "SearchNode.hpp"
+#include "Performer.hpp"
 
 //comparators ----
 
@@ -208,17 +209,33 @@ void SearchNode::clean()
     mtx.lock();
     std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
     std::list<pnode>::iterator it = SearchNode::askme.begin();
+    bool erased = false;
+    int pending = 0;
     while(it!=SearchNode::askme.end())
     {
+        if(it->probed==PENDING)
+            pending++;
         if(it->probed==PENDING &&
            std::chrono::duration_cast<std::chrono::seconds>(now-it->queryTime).count()>TIMEOUT)
         {
+            Logger::getInstance().logFormat("ssn",Logger::SEARCHNODE,"Erased node",&(it->node));
             it = SearchNode::askme.erase(it);
+            erased = true;
+            pending--;
         }
         else
         {
             it++;
         }
+    }
+    //none will ever answer me
+    if(pending==0)
+    {
+        Logger::getInstance().logFormat("ss",Logger::SEARCHNODE,"Sending empty Kbucket because every pending node timed out");
+        Node me(Messenger::getInstance().getIp(),Messenger::getInstance().getPort());
+        Kbucket empty;
+        Message msg = generate_find_node_answer(&findkey, &empty);
+        Messenger::getInstance().sendMessage(me, msg);
     }
     mtx.unlock();
 }

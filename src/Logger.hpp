@@ -1,7 +1,6 @@
 #ifndef __LOGGER_HPP__
 #define __LOGGER_HPP__
 
-#include "Performer.hpp"
 #include <cstdio>
 #include <mutex>
 #include <cstdarg>
