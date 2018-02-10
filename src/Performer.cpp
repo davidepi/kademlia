@@ -143,7 +143,8 @@ static void* execute(void* this_class)
 #endif
         }
         else
-            Logger::getInstance().logFormat("ns",&senderNode," is waiting for pending nodes");
+            //waiting for pending nodes
+            ;
         switch(flags & RPC_MASK)
         {
             case RPC_PING :
@@ -219,7 +220,6 @@ static void* execute(void* this_class)
                     printf("Received answer for key: ");
                     std::cout<<k<<std::endl;
 #endif
-                    Kbucket b(top->getData()+NBYTE);
                     SearchNode* sn = NULL;
                     std::unordered_map<Key,SearchNode>::iterator got = p->searchInProgress.find(k);
                     
@@ -235,6 +235,7 @@ static void* execute(void* this_class)
                             break;
                         }
                         
+                        Kbucket b(top->getData()+NBYTE);
                         sn->addAnswer(senderNode, &b);
                         Node askto[ALPHA_REQUESTS];
                         int retval = sn->queryTo(askto);

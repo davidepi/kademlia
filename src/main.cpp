@@ -73,11 +73,10 @@ int main(int argc, char* argv[])
 
     //creating the thread that waits for incoming packets and passes them to the performer one
     Messenger* m = &(Messenger::getInstance());
-    m->init(&a, port_host);
+    m->init(&a, port_host, private_net);
     
     if(im_gateway) {
         if(private_net) {
-            m->setPrivate();
             std::cout<<"Private network"<<std::endl;
         } 
         else {
@@ -90,7 +89,6 @@ int main(int argc, char* argv[])
             exit(EXIT_FAILURE);
         }
         if (gateway.isPrivate()) {
-            m->setPrivate();
             std::cout<<"Private network"<<std::endl;
         }        
         else {

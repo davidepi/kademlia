@@ -69,7 +69,7 @@ Messenger& Messenger::getInstance()
 Messenger::Messenger()
 { }
 
-int Messenger::init(std::queue<Message*>* q, int port_ho)
+int Messenger::init(std::queue<Message*>* q, int port_ho, bool isPrivate)
 {
     if(q == NULL)
         return NULL_QUEUE;
@@ -81,6 +81,8 @@ int Messenger::init(std::queue<Message*>* q, int port_ho)
                             //ancora non ho garanzie, ma chissene
     char myipstring[16];
     myipstring[0] = 0;
+    if(!isPrivate)
+    {
 #ifdef CURL_FOUND
     CURL *curl;
     CURLcode res;
@@ -106,6 +108,11 @@ int Messenger::init(std::queue<Message*>* q, int port_ho)
 #warning "No CURL found, public IP won't be resolved"
     Messenger::setPrivate();
 #endif
+    }
+    else
+    {
+        Messenger::setPrivate();
+    }
     
     Messenger::binded_queue = q;
     Messenger::sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);

@@ -30,7 +30,7 @@ public:
     static Messenger& getInstance();
     Messenger(Messenger const&)      = delete;
     void operator=(Messenger const&) = delete;
-    int init(std::queue<Message*>* queue, int port_ho);
+    int init(std::queue<Message*>* queue, int port_ho, bool isPrivate);
     void sendMessage(const Node node, const Message& msg) const;
     Ip getIp() const;
     uint16_t getPort() const;

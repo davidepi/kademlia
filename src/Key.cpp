@@ -29,7 +29,7 @@ uint32_t rotl32 (uint32_t value, unsigned int count) //left rotate
 Key::Key(Ip ip, int port)
 {
     uint8_t input[6]; //assuming 4 byte pid
-    uint16_t ipi = ip.getIp();
+    uint32_t ipi = ip.getIp();
     input[0] = ipi >> 24;
     input[1] = ipi >> 16;
     input[2] = ipi >> 8;
