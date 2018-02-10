@@ -6,6 +6,7 @@ const char* Logger::OUTGOING = "[OUTGOING]";
 const char* Logger::UPDATER = "[Update Bucket]";
 const char* Logger::PERFORMER = "[Performer]";
 const char* Logger::KBUCKET = "[KBucket]";
+const char* Logger::SEARCHNODE = "[SearchNode]";
 
 Logger& Logger::getInstance()
 {

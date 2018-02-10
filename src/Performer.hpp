@@ -43,6 +43,7 @@ public:
     
 private:
     pthread_t thread_id;
+    pthread_t cleaner_id;
 };
 
 void rpc_ping(Node node);

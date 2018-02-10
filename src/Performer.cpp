@@ -114,6 +114,7 @@ static void* execute(void* this_class)
 {
     Performer* p = (Performer*)this_class;
     std::queue<Message*>* q = p->message_queue;
+    Node me(Messenger::getInstance().getIp(),Messenger::getInstance().getPort());
     while (true) {
         Messenger* m = &(Messenger::getInstance());
         std::unique_lock<std::mutex> mlock(m->mutex);
@@ -131,12 +132,17 @@ static void* execute(void* this_class)
         p->neighbours->insertNode(&senderNode);
         uint8_t flags = top->getFlags();
         bool isAnswer = flags & FLAG_ANSWER;
-        Logger::getInstance().logFormat("ssnsf", Logger::INCOMING, "Message from", &senderNode, "with flags:", &flags);
+        if(senderNode!=me)
+        {
+            Logger::getInstance().logFormat("ssnsf", Logger::INCOMING, "Message from", &senderNode, "with flags:", &flags);
 #ifndef NDEBUG
-        char ip[16];
-        senderNode.getIp().toString(ip);
-        printf("Received a message from: %s:%hu\n",ip,(unsigned short)senderNode.getPort());
+            char ip[16];
+            senderNode.getIp().toString(ip);
+            printf("Received a message from: %s:%hu\n",ip,(unsigned short)senderNode.getPort());
 #endif
+        }
+        else
+            Logger::getInstance().logFormat("ns",&senderNode," is waiting for pending nodes");
         switch(flags & RPC_MASK)
         {
             case RPC_PING :
@@ -234,7 +240,7 @@ static void* execute(void* this_class)
                         if (retval > 0) //need to query somebody
                         {
                             Message msg = generate_find_node_request(&k);
-                            msg.setFlags(msg.getFlags() | (top->getFlags() & ~RPC_MASK));
+                            msg.setFlags(msg.getFlags() | (top->getFlags() & ~(RPC_MASK|FLAG_ANSWER)));
                             for (int i = 0; i < retval; i++)
                                 Messenger::getInstance().sendMessage(askto[i], msg);
                         }
@@ -253,12 +259,11 @@ static void* execute(void* this_class)
                             }
                         } else {
                             //need to wait the pending nodes
-                            ;
+                            Messenger::getInstance().sendMessage(me,*top);
                         }
                     }
-                    else
+                    else //search node not found. So it was already processed.
                         ;
-                    //search node not found. So it was already processed.
                     //   -> Bail out
                 }
             }
@@ -267,6 +272,26 @@ static void* execute(void* this_class)
                 //ignore the packet with wrong type flag
                 ;
         }
+        
+    }
+    pthread_exit((void*)0);
+}
+
+static void* pendingNodesCleaner(void* data)
+{
+    std::unordered_map<Key, SearchNode>* searchInProgress = (std::unordered_map<Key,SearchNode>*)data;
+    std::unordered_map<Key, SearchNode>::iterator it;
+    SearchNode* target;
+    while(true)
+    {
+        it = searchInProgress->begin();
+        while(it!=searchInProgress->end())
+        {
+            target = &(it->second);
+            target->clean();
+            it++;
+        }
+        sleep(TIMEOUT);
     }
     pthread_exit((void*)0);
 }
@@ -280,6 +305,7 @@ Performer::Performer(std::queue<Message*>* q)
     
     Performer::message_queue = q;
     pthread_create(&(Performer::thread_id), NULL, execute, (void*)this);
+    pthread_create(&(Performer::cleaner_id), NULL, pendingNodesCleaner,&(Performer::searchInProgress));
 }
 
 const pthread_t Performer::getThreadID()const

@@ -42,14 +42,13 @@ static void* listener(void* p)
                                               //ma senza mi da il "don't pun and
                                               //alias" error
             Message* m = new Message(*b1,ntohs(*(uint16_t*)(buffer+4)),
-                                     (short)count,(uint8_t*)(buffer+12),
+                                     (short)count-RESERVED_BYTES,(uint8_t*)(buffer+12),
                                      *(uint8_t*)(buffer+6));
             //char from[16];
             //m->getSenderIp().toString(from);
             //std::cout<<"\tReceived \""<<m->getText()<<"\" from "<<
             //from<<":"<<m->getSenderPort()<<" type "<<m->getFlags()<<std::endl;
 
-            
             if(q->size() < QUEUE_LENGTH)
             {
                 q->push(m);
@@ -135,7 +134,12 @@ int Messenger::init(std::queue<Message*>* q, int port_ho)
 void Messenger::sendMessage(const Node node, const Message& msg) const
 {
     uint8_t flags = msg.getFlags();
-    Logger::getInstance().logFormat("ssnsf", Logger::OUTGOING, "Message to", &node, "with flags:", &flags);
+    //TODO: cercare di eliminare questo check (mettere tutto i logging alla fine del performer)
+    Node me(my_ip,port_ho);
+    if(node!=me)
+    {
+        Logger::getInstance().logFormat("ssnsf", Logger::OUTGOING, "Message to", &node, "with flags:", &flags);
+    }
     struct sockaddr_in dest = Messenger::dest;
     dest.sin_addr.s_addr = node.getIp().getIp();//get ip of the node (network ordered)
     dest.sin_port = htons(node.getPort());

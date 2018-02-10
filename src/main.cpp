@@ -102,8 +102,9 @@ int main(int argc, char* argv[])
     char myIp[16];
     m->getIp().toString(myIp);
     Key myKey(m->getIp(),m->getPort());
-    std::cout << "My ip: " << myIp  << std::endl
-              << "My key: "<< myKey << std::endl;
+    std::cout << "My ip: "   << myIp         << std::endl
+              << "My port: " << m->getPort() << std::endl
+              << "My key: "  << myKey        << std::endl;
     if(!im_gateway)
     {
         Kbucket gatewayBucket;

@@ -22,6 +22,7 @@ public:
     static const char* UPDATER;
     static const char* PERFORMER;
     static const char* KBUCKET;
+    static const char* SEARCHNODE;
     
 private:
     Logger();

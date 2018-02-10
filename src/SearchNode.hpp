@@ -6,6 +6,7 @@
 #include "Kbucket.hpp"
 #include "Distance.hpp"
 #include "settings.h"
+#include <chrono>
 #include <string>
 #include <list>
 #include <unordered_map>
@@ -20,6 +21,7 @@ struct pnode
 {
     Node node;
     probeStatus probed;
+    std::chrono::system_clock::time_point queryTime;
     unsigned short distance;
 };
 
@@ -34,7 +36,7 @@ public:
     int getActive()const;
     int getUnknown()const;
     int getPending()const;
-    void evict(const Node n); //remove a pending node
+    void clean();
     int queryTo(Node* answer); //return 0 if the search is completed
                                //otherwise the size of the answer array
     void getAnswer(Kbucket* answer);

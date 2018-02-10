@@ -133,6 +133,7 @@ int SearchNode::queryTo(Node* answer)
             if(it->probed == UNKNOWN)
             {
                 answer[i] = it->node;
+                it->queryTime = std::chrono::system_clock::now();
                 it->probed = PENDING;
                 i++;
             }
@@ -202,28 +203,21 @@ int SearchNode::getPending()const
     return count;
 }
 
-void SearchNode::evict(const Node n)
+void SearchNode::clean()
 {
     mtx.lock();
-    std::list<pnode>::iterator it;
-    for(it=askme.begin();it!=askme.end();it++) //search for the correct node
+    std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+    std::list<pnode>::iterator it = SearchNode::askme.begin();
+    while(it!=SearchNode::askme.end())
     {
-        if(it->probed==PENDING && it->node==n)
+        if(it->probed==PENDING &&
+           std::chrono::duration_cast<std::chrono::seconds>(now-it->queryTime).count()>TIMEOUT)
         {
-            break;
+            it = SearchNode::askme.erase(it);
         }
-    }
-    if(it!=askme.end()) //node not found
-    {
-        askme.erase(it);
-        for(std::list<pnode>::iterator i=reserve.begin();i!=reserve.end();i++)
+        else
         {
-            if(i->probed==ACTIVE)
-            {
-                askme.push_back(*i);
-                reserve.erase(i);
-                break;
-            }
+            it++;
         }
     }
     mtx.unlock();
