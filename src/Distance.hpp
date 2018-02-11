@@ -14,7 +14,7 @@
 class Distance
 {
 public:
-    
+
     /** \brief Constructor given two keys
      *
      *  Calculate the distance between Key \p1 k1 and Key \p k2
@@ -23,7 +23,7 @@ public:
      *  \param[in] k2 The second key used to calculate the distance
      */
     Distance(const Key &k1, const Key& k2);
-    
+
     /** \brief Constructor given two nodes
      *
      *  Calculate the distance between Node \p n1 and Node \p n2
@@ -32,10 +32,10 @@ public:
      *  \param[in] n2 The second node used to calculate the distance
      */
     Distance(Node n1, Node n2);
-    
+
     ///Default destructor
     ~Distance() = default;
-    
+
     /** \brief Return the distance between the two keys
      *
      *  This method calculates the distance of the two keys. The macros
@@ -51,7 +51,7 @@ public:
      *  ranging from 0 to the number of bits in the key
      */
     short getDistance()const;
-    
+
     /** \brief Return a string representing the distance
      *
      *  Represent the distance with a string of the XOR distance. Every bit is
@@ -62,7 +62,7 @@ public:
      *  \param[out] The string representing the distance
      */
     void toString(char* out)const;
-    
+
     ///True if this distance is lesser than the one passed as input
     bool operator<(const Distance&)const;
     ///True if this distance is greater than the one passed as input
@@ -77,7 +77,9 @@ public:
     bool operator!=(const Distance&)const;
 
 private:
+
     uint8_t value[20];
+
 };
 
 #endif

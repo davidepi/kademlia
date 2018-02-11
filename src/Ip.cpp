@@ -1,16 +1,6 @@
 #include "Ip.hpp"
 
-static inline uint32_t fast_atoi(const char* str)    //~7x faster than atoi
-{                                             //mi sembra strano, ma il profiler
-    uint32_t val = 0;                         //da questi risultati...
-    while(*str)
-    {
-        val = val*10 + (*str++ - '0');
-    }
-    return val;
-}
-
-uint32_t determineLocalhost()
+static uint32_t determineLocalhost()
 {
     struct sockaddr_in sa;
     inet_pton(AF_INET,"127.0.0.1",&(sa.sin_addr));
@@ -37,21 +27,14 @@ Ip::Ip(const char* ip)
     Ip::ip_no = sa.sin_addr.s_addr;
 }
 
-Ip::Ip(int ip_network_ordered)
+Ip::Ip(uint32_t ip_network_ordered)
 {
     Ip::ip_no = ip_network_ordered;
 }
 
 Ip::Ip()
 {
-    struct sockaddr_in sa;
-    inet_pton(AF_INET, "127.0.0.1", &(sa.sin_addr));
-    Ip::ip_no = sa.sin_addr.s_addr;
-}
-
-Ip::~Ip()
-{
-
+    Ip::ip_no = _LOCALHOST_NO_;
 }
 
 uint32_t Ip::getIp() const
@@ -89,7 +72,7 @@ bool Ip::operator!=(const Ip& a)const
 bool Ip::isPrivate()const
 {
     uint32_t ip = ntohl(Ip::ip_no);
-    
+
     uint8_t q1 = (ip & 0xFF000000) >> 24;
     if(q1 == 10 || q1 == 127)
         return true;

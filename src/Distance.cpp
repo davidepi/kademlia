@@ -7,7 +7,7 @@ Distance::Distance(const Key& k1, const Key& k2)
 {
     const uint8_t* key1 = k1.getKey();
     const uint8_t* key2 = k2.getKey();
-    
+
     Distance::value[ 0] = key1[ 0] ^ key2[ 0];
     Distance::value[ 1] = key1[ 1] ^ key2[ 1];
     Distance::value[ 2] = key1[ 2] ^ key2[ 2];
@@ -34,7 +34,7 @@ Distance::Distance(Node n1, Node n2)
 {
     const uint8_t* key1 = n1.getKey()->getKey();
     const uint8_t* key2 = n2.getKey()->getKey();
-    
+
     Distance::value[0] = key1[0] ^ key2[0];
     Distance::value[1] = key1[1] ^ key2[1];
     Distance::value[2] = key1[2] ^ key2[2];
@@ -128,7 +128,7 @@ short Distance::getDistance() const
     //distance is maximum. So i want a distance of NBYTE*8 - leading zeroes
 #define REVERSE_DISTANCE NBYTE*8
     uint8_t val=0;
-    
+
 #ifdef LEFT_DISTANCE
     uint8_t index=0;
     while(index < NBYTE && val==0)
@@ -152,7 +152,7 @@ short Distance::getDistance() const
     //calls instead BSR/BSF functions. However the latter are completely
     //different from lzcnt/tzcnt and the result is wrong. Hence the reason of
     //this implementation
-    
+
     if((val & 0xF0) > 0)//first different bit is between 1 and 4
         if((val & 0xC0) > 0)//first different bit is 1 or 2
             if((val & 0x80) > 0)//key is 1xxxxxxx
@@ -175,7 +175,7 @@ short Distance::getDistance() const
                 return REVERSE_DISTANCE-((8*index)+7);
             else//key is 00000001
                 return REVERSE_DISTANCE-((8*index)+8);
-    
+
     //less efficient solution (not divide et impera)
     //but way more readable
     //  - - - v
@@ -183,20 +183,20 @@ short Distance::getDistance() const
         //return REVERSE_DISTANCE-((8*index)+i);
 #endif
 #else
-    
+
     int index=NBYTE-1;
     while(index >=0 && val==0)
         val = Distance::value[index--];
-    
+
     if(val == 0) //equal keys
         return 0;
-    
+
     index++; //due to the previous lines, index is decremented even if the
              //correct value is found
     index = NBYTE-1-index;
-    
+
 #ifdef __BMI__
-    
+
     uint32_t retval = 0, vall = val;
     //tzcntl counts the trailing zeros so there is no need to shift like with
     //the lzcntl
@@ -207,7 +207,7 @@ short Distance::getDistance() const
              );
     return REVERSE_DISTANCE-((8*index)+(retval)+1);
 #else
-    
+
     if((val & 0xF) > 0)//first different bit is between 5 and 8
         if((val & 0x3) > 0)//first different bit is 7 or 8
             if((val & 0x1) > 0)//the key is xxxxxxx1
