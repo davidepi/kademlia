@@ -2,6 +2,7 @@
 #if !defined(LEFT_DISTANCE) and !defined(RIGHT_DISTANCE)
 #define RIGHT_DISTANCE
 #endif
+
 Distance::Distance(const Key& k1, const Key& k2)
 {
     const uint8_t* key1 = k1.getKey();
@@ -31,10 +32,6 @@ Distance::Distance(const Key& k1, const Key& k2)
 
 Distance::Distance(Node n1, Node n2)
 {
-    //TODO: non so ancora come sara' la classe node
-    //      suppongo ci sara' un metodo getKey() che mi ritorna la chiave
-    //      della tupla, e OVVIAMENTE sara' const :)
- 
     const uint8_t* key1 = n1.getKey()->getKey();
     const uint8_t* key2 = n2.getKey()->getKey();
     
@@ -59,9 +56,6 @@ Distance::Distance(Node n1, Node n2)
     Distance::value[18] = key1[18] ^ key2[18];
     Distance::value[19] = key1[19] ^ key2[19];
 }
-
-Distance::~Distance()
-{ }
 
 bool Distance::operator<(const Distance& k)const
 {
@@ -112,7 +106,7 @@ bool Distance::operator!=(const Distance& k)const
     return !((*this) == k);
 }
 
-void Distance::printDistance(char* out) const
+void Distance::toString(char* out) const
 {
     for(int i=0; i<20;i++)
     {
@@ -130,63 +124,63 @@ void Distance::printDistance(char* out) const
 
 short Distance::getDistance() const
 {
+    //reverse distance is used because if the leading bit is different, the
+    //distance is maximum. So i want a distance of NBYTE*8 - leading zeroes
 #define REVERSE_DISTANCE NBYTE*8
     uint8_t val=0;
+    
 #ifdef LEFT_DISTANCE
     uint8_t index=0;
     while(index < NBYTE && val==0)
         val = Distance::value[index++];
-    
-    if(val == 0) //le chiavi sono uguali
+    if(val == 0) //equal keys
         return 0;
-    
     index--;
-    
-#ifdef BMI1
-
+#ifdef __BMI__
+    //lzcnt does not exists for  uint8_t, so everything is casted to uint16_t
+    //and left-shifted by 8, otherwise the number of leading zeros is increased
+    //by 8
     uint32_t retval = 0, vall = val;
-    
     __asm__ ( "lzcntl %1, %0;"
              :"=r"(retval)
              :"r"(vall << 24)
              :
              );
-    
-    // lzcnt non esiste per uint8_t, quindi ho castato a uint16_t e shiftato di
-    // 8 a sx, senno' il numero di zeri prima del primo uno e' aumentato di 8.
-    
     return REVERSE_DISTANCE-((8*index)+(retval)+1);
+#else
+    //lzcnt but not in assembly. If BMI is not supported calling LZCNT/TZCNT
+    //calls instead BSR/BSF functions. However the latter are completely
+    //different from lzcnt/tzcnt and the result is wrong. Hence the reason of
+    //this implementation
     
-#else //stessa cosa ma scritta non in assembly
-      //siccome sono pro lo faccio divide et impera :D
-    if((val & 0xF0) > 0) //il primo bit diverso e' tra i 1 e 4
-        if((val & 0xC0) > 0) //il primo bit diverso e' tra 1 o 2
-            if((val & 0x80) > 0) //la chiave e' 1xxxxxxx
+    if((val & 0xF0) > 0)//first different bit is between 1 and 4
+        if((val & 0xC0) > 0)//first different bit is 1 or 2
+            if((val & 0x80) > 0)//key is 1xxxxxxx
                 return REVERSE_DISTANCE-((8*index)+1);
-            else    //la chiave e' 01xxxxxx
+            else//key is 01xxxxxx
                 return REVERSE_DISTANCE-((8*index)+2);
-        else // primo bit diverso e' 3 o 4
-            if((val & 0x20) > 0) //la chiave e' 001xxxxx
+        else//first different bit is 3 or 4
+            if((val & 0x20) > 0)//key is 001xxxxx
                 return REVERSE_DISTANCE-((8*index)+3);
-            else    //la chiave e' 0001xxxx
+            else//key is 0001xxxx
                 return REVERSE_DISTANCE-((8*index)+4);
-    else //il primo bit diverso e' tra 5 e 8
-        if((val & 0x0C) > 0) //il primo bit diverso e' 5 o 6
-            if((val & 0x08) > 0) //la chiave e' 00001xxx
+    else//first different bit is between 5 and 8
+        if((val & 0x0C) > 0)//first different bit is 5 or 6
+            if((val & 0x08) > 0)//key is 00001xxx
                 return REVERSE_DISTANCE-((8*index)+5);
-            else    //la chiave e' 000001xx
+            else//key is 000001xx
                 return REVERSE_DISTANCE-((8*index)+6);
-        else //il primo bit diverso e' 7 o 8
-            if((val & 0x02) > 0) //la chiave e' 0000001x
+        else//first different bit is 7 or 8
+            if((val & 0x02) > 0) //key is 0000001x
                 return REVERSE_DISTANCE-((8*index)+7);
-            else 
-                return REVERSE_DISTANCE-((8*index)+8); //la chiave e' 00000001
-            
-    //soluzione per i comuni mortali molto piu' elegante ma non
-    //divide et impera :p
+            else//key is 00000001
+                return REVERSE_DISTANCE-((8*index)+8);
     
-    //while((val&0xFF)>>(7-i) == 0)i++;
-    //return (8*index+i)
+    //less efficient solution (not divide et impera)
+    //but way more readable
+    //  - - - v
+        //while((val&0xFF)>>(7-i) == 0)i++;
+        //return REVERSE_DISTANCE-((8*index)+i);
 #endif
 #else
     
@@ -194,17 +188,18 @@ short Distance::getDistance() const
     while(index >=0 && val==0)
         val = Distance::value[index--];
     
-    if(val == 0) //le chiavi sono uguali
+    if(val == 0) //equal keys
         return 0;
     
     index++; //due to the previous lines, index is decremented even if the
              //correct value is found
     index = NBYTE-1-index;
     
-#ifdef BMI1
+#ifdef __BMI__
     
     uint32_t retval = 0, vall = val;
-    
+    //tzcntl counts the trailing zeros so there is no need to shift like with
+    //the lzcntl
     __asm__ ( "tzcntl %1, %0;"
              :"=r"(retval)
              :"r"(vall)
@@ -213,27 +208,27 @@ short Distance::getDistance() const
     return REVERSE_DISTANCE-((8*index)+(retval)+1);
 #else
     
-    if((val & 0xF) > 0) //il primo bit diverso e' tra i 5 e 8
-        if((val & 0x3) > 0) //il primo bit diverso e' tra 7 o 8
-            if((val & 0x1) > 0) //la chiave e' xxxxxxx1
+    if((val & 0xF) > 0)//first different bit is between 5 and 8
+        if((val & 0x3) > 0)//first different bit is 7 or 8
+            if((val & 0x1) > 0)//the key is xxxxxxx1
                 return REVERSE_DISTANCE-(8*index+1);
-            else //la chiave e' xxxxxx10
+            else//the key is xxxxxx10
                 return REVERSE_DISTANCE-(8*index+2);
-        else // il primo bit diverso e' 5 o 6
-            if((val & 0x4)>0) //la chiave e' xxxxx100
+        else//first different bit is 5 or 6
+            if((val & 0x4)>0)//the key is xxxxx100
                 return REVERSE_DISTANCE-(8*index+3);
-            else //la chaive e' xxxx1000
+            else//the key is xxxx1000
                 return REVERSE_DISTANCE-(8*index+4);
-    else //il primo bit diverso e' tra 1 e 4
-        if((val & 0x30) > 0) //il primo bit diverso e' 3 o 4
-            if((val & 0x10) > 0) //la chiave e' xxx10000
+    else//first different bit is between 1 and 4
+        if((val & 0x30) > 0)//first different bit is 3 or 4
+            if((val & 0x10) > 0)//the key is xxx10000
                 return REVERSE_DISTANCE-(8*index+5);
-            else //la chiave e' xx100000
+            else//the key is xx100000
                 return REVERSE_DISTANCE-(8*index+6);
-        else //il primo bit diverso e' 1 o 2
-            if((val & 0x40) > 0) //la chiave e' x1000000
+        else//first different bit is 1 or 2
+            if((val & 0x40) > 0)//the key is x1000000
                 return REVERSE_DISTANCE-(8*index+7);
-            else // la chiave e' 10000000
+            else//the key is 10000000
                 return REVERSE_DISTANCE-(8*index+8);
 #endif
 #endif
