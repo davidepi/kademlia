@@ -1,4 +1,5 @@
 #include "Node.hpp"
+#include "Distance.hpp"
 
 std::ostream& operator<<(std::ostream &strm, const Node& n)
 { 
@@ -11,9 +12,9 @@ Node::Node()
 {
     Node::reference = new uint8_t[1];
     *(Node::reference) = 1;
-    Node::my_ip = Ip(0);
+    Node::my_ip = Ip();
     Node::port_ho = 0;
-    Node::id = new Key(0,0);
+    Node::id = new Key(Ip(),0);
 }
 
 Node::Node(Ip ip, int port)
@@ -56,7 +57,8 @@ bool Node::operator!=(const Node&n)const
 
 bool Node::operator<(const Node& n)const
 {
-    return *(Node::id) < *(n.id);
+    unsigned char dist = Distance(*Node::id,*n.getKey()).getDistance();
+    return Node::id->getKey()[dist]<n.getKey()->getKey()[dist];
 }
 
 Ip Node::getIp() const

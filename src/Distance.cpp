@@ -141,7 +141,7 @@ short Distance::getDistance() const
     //and left-shifted by 8, otherwise the number of leading zeros is increased
     //by 8
     uint32_t retval = 0, vall = val;
-    __asm__ ( "lzcntl %1, %0;"
+    __asm__ __volatile__( "lzcntl %1, %0;"
              :"=r"(retval)
              :"r"(vall << 24)
              :
@@ -200,7 +200,7 @@ short Distance::getDistance() const
     uint32_t retval = 0, vall = val;
     //tzcntl counts the trailing zeros so there is no need to shift like with
     //the lzcntl
-    __asm__ ( "tzcntl %1, %0;"
+    __asm__ __volatile__( "tzcntl %1, %0;"
              :"=r"(retval)
              :"r"(vall)
              :

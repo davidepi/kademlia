@@ -1,56 +1,36 @@
 #include "Key.hpp"
-#include "Distance.hpp"
 
-//se non c'e' una #define di una funzione di hashing usa SHA1 come default
-#ifndef HASHFN
-#define HASHFN SHA1
-#endif
-#if HASHFN == SHA1
-#undef NBYTE
-#define NBYTE 20
-//TODO: altre funzioni di hash prima dell'else
-#else //funzione di hash non riconosciuta
-#undef HASHFN
-#undef NBYTE
-#define HASHFN SHA1
-#define NBYTE 20
-#endif
-
+//used internally, max 500 byte len
 static void sha1(const uint8_t* input, uint8_t * output, uint64_t len);
 
-uint32_t rotl32 (uint32_t value, unsigned int count) //left rotate
+//left rotate, used for sha1 function
+static inline uint32_t rotl32(uint32_t value, unsigned char count)
 {
-    const unsigned int mask = (CHAR_BIT*sizeof(value)-1);
-    count &= mask;
-    return (value<<count) | (value>>( (-count) & mask ));
+#if defined(i386) || defined(__x86_64__)
+    __asm__("roll %1, %0":"+g"(value):"cI"(count));
+    return value;
+#else
+    return (value<<count) | (value>>(32-count));
+#endif
 }
 
-
-Key::Key(Ip ip, int port)
+Key::Key(Ip ip, uint16_t portno)
 {
     uint8_t input[6]; //assuming 4 byte pid
-    uint32_t ipi = ip.getIp();
-    input[0] = ipi >> 24;
-    input[1] = ipi >> 16;
-    input[2] = ipi >> 8;
-    input[3] = ipi;
-    input[4] = port >> 8;
-    input[5] = port;
-    
-#if HASHFN == SHA1
+    uint32_t ipno = ip.getIp();
+    input[0] = ipno >> 24;
+    input[1] = ipno >> 16;
+    input[2] = ipno >> 8;
+    input[3] = ipno;
+    input[4] = portno >> 8;
+    input[5] = portno;
     sha1(input,Key::key,6);
-#else
-    //TODO: altre funzioni di hash (magari con output piu' corti per testare)
-#endif
 }
 
 Key::Key(const char* name)
 {
     sha1((uint8_t*)name,Key::key,strlen(name));
 }
-
-Key::~Key()
-{ }
 
 const uint8_t* Key::getKey() const
 {
@@ -59,7 +39,6 @@ const uint8_t* Key::getKey() const
 
 bool Key::operator==(const Key& k) const
 {
-#if HASHFN == SHA1
     return Key::key[0]  == k.key[0]  &&
            Key::key[1]  == k.key[1]  &&
            Key::key[2]  == k.key[2]  &&
@@ -80,12 +59,6 @@ bool Key::operator==(const Key& k) const
            Key::key[17] == k.key[17] &&
            Key::key[18] == k.key[18] &&
            Key::key[19] == k.key[19];
-#else //versione generica per chiavi da NBYTE
-    bool retval = true;
-    for(int i=0;i<NBYTE;i++)
-        retval &= (Key::key[i] && k.key[i]);
-    return retval;
-#endif
 }
 
 bool Key::operator!=(const Key& k) const
@@ -93,11 +66,7 @@ bool Key::operator!=(const Key& k) const
     return !(*this==k);
 }
 
-bool Key::operator<(const Key& k)const {
-    short distance = Distance(*this, k).getDistance() / 8; //first byte is different
-    return key[distance] < k.getKey()[distance];
-}
-
+//max 500 byte len. Older commits support full 2^64 range
 static void sha1(const uint8_t* input, uint8_t* output, uint64_t len)
 {
     uint32_t h0 = 0x67452301;
@@ -105,72 +74,85 @@ static void sha1(const uint8_t* input, uint8_t* output, uint64_t len)
     uint32_t h2 = 0x98BADCFE;
     uint32_t h3 = 0x10325476;
     uint32_t h4 = 0xC3D2E1F0;
-
+    uint32_t a; //awful names, but they are the same used in RFC 3174
+    uint32_t b; //   ^
+    uint32_t c; //   |
+    uint32_t d; //   |
+    uint32_t e; //   |
+    uint32_t f; //   |
+    uint32_t k; //   |
+    uint32_t temp;//-*
+    uint64_t i=0;//iterator for the message
+    bool completed = false;
+    unsigned char j=0;//iterator for the current 512 bit padded message
+    //the additional 1 bit that will be added after the message
+    unsigned char additional = 0x80;
     const uint8_t* l = (const uint8_t*) &len;
-
-    uint8_t messaggione[(len+9)%64==0?(len+9)/64*64:(len+9)/64*64+64];
-
-    //PADDING 0s
-    memset(messaggione, 0, sizeof(messaggione));
-
-    unsigned int i=0;
-    while(i<len)
+    uint8_t padded[64];
+    uint32_t chunk[80];
+    
+    //loop
+    while(!completed)
     {
-        messaggione[i] = input[i];
-        i++;
-    }
-
-    //ADD 1 BIT TO END OF MESSAGE
-    messaggione[i++] = 0x1;
-
-
-    //APPEND ORIGINAL MESSAGE LENGTH IN BIG ENDIAN
-    //lo voglio in big endian quindi aggiungo byte per byte dal fondo
-    messaggione[sizeof(messaggione)-1] = l[0];
-    messaggione[sizeof(messaggione)-2] = l[1];
-    messaggione[sizeof(messaggione)-3] = l[2];
-    messaggione[sizeof(messaggione)-4] = l[3];
-    messaggione[sizeof(messaggione)-5] = l[4];
-    messaggione[sizeof(messaggione)-6] = l[5];
-    messaggione[sizeof(messaggione)-7] = l[6];
-    messaggione[sizeof(messaggione)-8] = l[7];
-    const unsigned long nchu = sizeof(messaggione)/64;
-    uint32_t chunks[nchu][80];
-    int index = 0;
-
-    //BREAK MESSAGGE IN 512bit CHUNKS AND CHUNKS IN 16 32bit WORDS
-    for(unsigned int i=0;i<nchu;i++)
-        for(int j=0;j<16;j++)
+        //copy message into padded
+        while(i<len && j<64)
+            padded[j++] = input[i++];
+        //add the additional bit if the message han been completely copied
+        //and there is space left
+        if(i==len && additional!=0 && j<64)
         {
-            chunks[i][j]  = 0x00000000;
-            chunks[i][j] |= messaggione[index++] << 24  & 0xFF000000;
-            chunks[i][j] |= messaggione[index++] << 16  & 0x00FF0000;
-            chunks[i][j] |= messaggione[index++] << 8   & 0x0000FF00;
-            chunks[i][j] |= messaggione[index++]        & 0x000000FF;
+            padded[j++] = additional;
+            additional = 0x0;
         }
-
-    //EXTEND THE WORDS TO 80
-    for(unsigned int i=0;i<nchu;i++)
-        for(int j=16;j<80;j++)
+        //finished the message
+        if(i==len)
         {
-            chunks[i][j] = rotl32(chunks[i][j-3]  ^ chunks[i][j-8]  ^
-                                  chunks[i][j-14] ^ chunks[i][j-16],1);
+            if(j<57) //there is space for the message length
+            {
+                //length is required in bit, this variable won't be used anymore
+                len*=8;
+                padded[63] = l[0];
+                padded[62] = l[1];
+                padded[61] = l[2];
+                padded[60] = l[3];
+                padded[59] = l[4];
+                padded[58] = l[5];
+                padded[57] = l[6];
+                padded[56] = l[7];
+                completed = true;
+            }
+            else //no space for message length, fill with 0s
+                while(j<64)
+                    padded[j++] = 0;
         }
-
-    //MAIN LOOP
-    uint32_t a,b,c,d,e,f,k,temp;
-    for(unsigned int i=0;i<nchu;i++)
-    {
+        //fill remaining with 0s
+        while(j<56)
+            padded[j++] = 0;
+        //reset for next iteration
+        j=0;
+        //break message in 16 words
+        for(int k=0;k<16;k++)
+        {
+            chunk[k]  = 0x0;
+            chunk[k] |= padded[j++] << 24;
+            chunk[k] |= padded[j++] << 16;
+            chunk[k] |= padded[j++] << 8;
+            chunk[k] |= padded[j++];
+        }
+        //extend the words to 80
+        for(int k=16;k<80;k++)
+            chunk[k] = rotl32(chunk[k-3]^chunk[k-8]^chunk[k-14]^chunk[k-16],1);
+        //apply the functions
         a = h0;
         b = h1;
         c = h2;
         d = h3;
         e = h4;
         k = 0x5A827999;
-        for(int j=0;j<20;j++) //function 1
+        for(int l=0;l<20;l++) //function 1
         {
             f = d ^ (b & (c ^ d));
-            temp = rotl32(a, 5)+ f + e + k + chunks[i][j];
+            temp = rotl32(a, 5)+ f + e + k + chunk[l];
             e = d;
             d = c;
             c = rotl32(b, 30);
@@ -178,10 +160,10 @@ static void sha1(const uint8_t* input, uint8_t* output, uint64_t len)
             a = temp;
         }
         k = 0x6ED9EBA1;
-        for(int j=20;j<40;j++) //function 2
+        for(int l=20;l<40;l++) //function 2
         {
             f = b ^ c ^ d;
-            temp = rotl32(a, 5)+ f + e + k + chunks[i][j];
+            temp = rotl32(a, 5)+ f + e + k + chunk[l];
             e = d;
             d = c;
             c = rotl32(b, 30);
@@ -189,10 +171,10 @@ static void sha1(const uint8_t* input, uint8_t* output, uint64_t len)
             a = temp;
         }
         k = 0x8F1BBCDC;
-        for(int j=40;j<60;j++) //function 3
+        for(int l=40;l<60;l++) //function 3
         {
             f = (b & c) | (d & (b | c));
-            temp = rotl32(a, 5)+ f + e + k + chunks[i][j];
+            temp = rotl32(a, 5)+ f + e + k + chunk[l];
             e = d;
             d = c;
             c = rotl32(b, 30);
@@ -200,54 +182,76 @@ static void sha1(const uint8_t* input, uint8_t* output, uint64_t len)
             a = temp;
         }
         k = 0xCA62C1D6;
-        for(int j=60;j<80;j++) //function 4
+        for(int l=60;l<80;l++) //function 4
         {
             f = b ^ c ^ d;
-            temp = rotl32(a, 5)+ f + e + k + chunks[i][j];
+            temp = rotl32(a, 5)+ f + e + k + chunk[l];
             e = d;
             d = c;
             c = rotl32(b, 30);
             b = a;
             a = temp;
         }
-
         h0 += a;
         h1 += b;
         h2 += c;
         h3 += d;
         h4 += e;
     }
-
+    
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+    uint8_t* tmp  = (uint8_t*)&h0;
+    output[0]  = tmp[3];
+    output[1]  = tmp[2];
+    output[2]  = tmp[1];
+    output[3]  = tmp[0];
+    tmp  = (uint8_t*)&h1;
+    output[4]  = tmp[3];
+    output[5]  = tmp[2];
+    output[6]  = tmp[1];
+    output[7]  = tmp[0];
+    tmp  = (uint8_t*)&h2;
+    output[8]  = tmp[3];
+    output[9]  = tmp[2];
+    output[10] = tmp[1];
+    output[11] = tmp[0];
+    tmp  = (uint8_t*)&h3;
+    output[12] = tmp[3];
+    output[13] = tmp[2];
+    output[14] = tmp[1];
+    output[15] = tmp[0];
+    tmp  = (uint8_t*)&h4;
+    output[16] = tmp[3];
+    output[17] = tmp[2];
+    output[18] = tmp[1];
+    output[19] = tmp[0];
+#else
     uint8_t* tmp  = (uint8_t*)&h0;
     output[0]  = tmp[0];
     output[1]  = tmp[1];
     output[2]  = tmp[2];
     output[3]  = tmp[3];
-          tmp  = (uint8_t*)&h1;
+    tmp  = (uint8_t*)&h1;
     output[4]  = tmp[0];
     output[5]  = tmp[1];
     output[6]  = tmp[2];
     output[7]  = tmp[3];
-          tmp  = (uint8_t*)&h2;
+    tmp  = (uint8_t*)&h2;
     output[8]  = tmp[0];
     output[9]  = tmp[1];
     output[10] = tmp[2];
     output[11] = tmp[3];
-          tmp  = (uint8_t*)&h3;
+    tmp  = (uint8_t*)&h3;
     output[12] = tmp[0];
     output[13] = tmp[1];
     output[14] = tmp[2];
     output[15] = tmp[3];
-          tmp  = (uint8_t*)&h4;
+    tmp  = (uint8_t*)&h4;
     output[16] = tmp[0];
     output[17] = tmp[1];
     output[18] = tmp[2];
     output[19] = tmp[3];
-}
-
-Key::Key()
-{
-    
+#endif
 }
 
 void Key::craft(const uint8_t* bytes)
