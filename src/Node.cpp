@@ -17,13 +17,13 @@ Node::Node()
     Node::id = new Key(Ip(),0);
 }
 
-Node::Node(Ip ip, int port)
+Node::Node(Ip ip, uint16_t port)
 {
     Node::reference = new uint8_t[1];
     *(Node::reference) = 1;
 	Node::my_ip = ip;
 	Node::port_ho = port;
-	Node::id = new Key(ip,port);
+	Node::id = new Key(ip,htons(port));
 }
 
 Node::Node(const Node& copied)
@@ -55,10 +55,15 @@ bool Node::operator!=(const Node&n)const
     return !(*(this)==n);
 }
 
-bool Node::operator<(const Node& n)const
+bool Node::operator<(const Node &n)const
 {
-    unsigned char dist = Distance(*Node::id,*n.getKey()).getDistance();
-    return Node::id->getKey()[dist]<n.getKey()->getKey()[dist];
+    uint64_t thisval = Node::my_ip.getIp();
+    uint64_t otherval = n.getIp().getIp();
+    thisval<<=32;
+    otherval<<=32;
+    thisval|=Node::port_ho;
+    otherval|=n.getPort();
+    return thisval<otherval;
 }
 
 Ip Node::getIp() const
@@ -66,7 +71,7 @@ Ip Node::getIp() const
 	return my_ip;
 }
 
-int Node::getPort() const
+uint16_t Node::getPort() const
 {
 	return port_ho;
 }
@@ -92,4 +97,3 @@ Node::~Node()
         delete[] Node::reference;
     }
 }
-
