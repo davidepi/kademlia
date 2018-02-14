@@ -16,24 +16,26 @@ void Kbucket::addNode(const Node n)
             if (Kbucket::nodeList.size() < KBUCKET_SIZE)
                 Kbucket::nodeList.push_front(n);
             mtx.unlock();
-            Logger::getInstance().logFormat("ssn", Logger::KBUCKET, "Added", &n);
+            Logger::getInstance().logFormat("ssn",Logger::KBUCKET,
+                                            "Added",&n);
         }
         else
         {
             //check if last node is still alive
             Node lastActiveNode = Kbucket::nodeList.back();
-            //get reference to thread that manages the update bucket when it is full
+            //this  manages the update bucket when it is full
             Updater* updater = Updater::getInstance();
             updater->checkUpdateBucket(lastActiveNode, n, this);
         }
     }
-   
+    
 }
 
 void Kbucket::deleteNode(const Node n)
 {
     
-    for (std::list<Node>::const_iterator it = Kbucket::nodeList.begin(); it != Kbucket::nodeList.end(); ++it)
+    for (std::list<Node>::const_iterator it = Kbucket::nodeList.begin();
+         it != Kbucket::nodeList.end(); ++it)
     {
         if(n == *it)
         {
@@ -41,7 +43,8 @@ void Kbucket::deleteNode(const Node n)
             if(n == *it)
             {
                 Kbucket::nodeList.remove(*it);
-                Logger::getInstance().logFormat("ssn", Logger::KBUCKET, "Removed", &n);
+                Logger::getInstance().logFormat("ssn", Logger::KBUCKET,
+                                                "Removed", &n);
             }
             Kbucket::mtx.unlock();
             return;
@@ -52,7 +55,8 @@ void Kbucket::deleteNode(const Node n)
 bool Kbucket::replaceNode(const Node oldNode, const Node newNode)
 {
     bool retval = false;
-    for (std::list<Node>::const_iterator it = Kbucket::nodeList.begin(); it != Kbucket::nodeList.end(); ++it)
+    for (std::list<Node>::const_iterator it = Kbucket::nodeList.begin();
+         it != Kbucket::nodeList.end(); ++it)
     {
         if(oldNode == *it)
         {
@@ -61,7 +65,8 @@ bool Kbucket::replaceNode(const Node oldNode, const Node newNode)
             {
                 Kbucket::nodeList.remove(*it);
                 Kbucket::nodeList.push_front(newNode);
-                Logger::getInstance().logFormat("ssnsn", Logger::KBUCKET, "Replaced", &oldNode, "with", &newNode);
+                Logger::getInstance().logFormat("ssnsn", Logger::KBUCKET,
+                                 "Replaced", &oldNode, "with", &newNode);
                 retval = true;
             }
             Kbucket::mtx.unlock();
@@ -71,15 +76,8 @@ bool Kbucket::replaceNode(const Node oldNode, const Node newNode)
     return retval;
 }
 
-const std::list<Node>* Kbucket::getNodes() const {
-    return &(Kbucket::nodeList);
-}
-
-void Kbucket::setNodes(std::list<Node>* nodeList) {
-    Kbucket::nodeList = *nodeList;
-}
-
-int Kbucket::getSize() const {
+int Kbucket::getSize() const
+{
     return (int)nodeList.size();
 }
 
@@ -97,7 +95,8 @@ int Kbucket::serialize(uint8_t out[500])const
     out[index++] = *((uint8_t*)(&size_no)+1);
     uint32_t ip;
     uint16_t port;
-    for(std::list<Node>::const_iterator j=nodeList.begin();j!=nodeList.end();++j)
+    for(std::list<Node>::const_iterator j=nodeList.begin();
+        j!=nodeList.end();++j)
     {
         ip = j->getIp().getIp();
         port = htons(j->getPort());
@@ -127,14 +126,15 @@ Kbucket::Kbucket(const uint8_t serialized[500])
         vec.push_back(Node(Ip(ip),port));
     }
     nodeList = std::list<Node>{std::make_move_iterator(std::begin(vec)),
-                               std::make_move_iterator(std::end(vec))};
+        std::make_move_iterator(std::end(vec))};
 }
 
 bool Kbucket::contains(Node* n)const {
-    for (std::list<Node>::const_iterator it = Kbucket::nodeList.begin(); it != Kbucket::nodeList.end(); ++it) {
+    for (std::list<Node>::const_iterator it = Kbucket::nodeList.begin();
+         it != Kbucket::nodeList.end(); ++it) {
         if(*n == *it) {
             return true;
-        } 
+        }
     }
     return false;
 }
@@ -144,7 +144,8 @@ void Kbucket::print()const
     std::cout<<"KBucket size: "<<nodeList.size()<<std::endl;
     char ipstring[16];
     
-    for(std::list<Node>::const_iterator i=nodeList.begin();i!=nodeList.end();++i)
+    for(std::list<Node>::const_iterator i=nodeList.begin();
+        i!=nodeList.end();++i)
     {
         i->getIp().toString(ipstring);
         std::cout<<"<"<<ipstring<<","<<i->getPort()<<">"<<std::endl;
