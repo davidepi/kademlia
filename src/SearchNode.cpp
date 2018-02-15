@@ -24,7 +24,8 @@ bool uniqueoperand(pnode* p1, pnode* p2) //uniqueness, keep the one with
 
 SearchNode::SearchNode(const Node n,const Kbucket* add) : findkey(*(n.getKey()))
 {
-    for(std::list<Node>::const_iterator it=add->getNodes()->begin();it!=add->getNodes()->end();++it)
+    std::list<Node>::const_iterator it;
+    for(it=add->getNodes()->begin();it!=add->getNodes()->end();++it)
     {
         pnode tmp;
         tmp.node = *it;
@@ -37,7 +38,8 @@ SearchNode::SearchNode(const Node n,const Kbucket* add) : findkey(*(n.getKey()))
 
 SearchNode::SearchNode(const Key* k, const Kbucket* add) : findkey(*k)
 {
-    for(std::list<Node>::const_iterator it=add->getNodes()->begin();it!=add->getNodes()->end();++it)
+    std::list<Node>::const_iterator it;
+    for(it=add->getNodes()->begin();it!=add->getNodes()->end();++it)
     {
         pnode tmp;
         tmp.node = *it;
@@ -50,23 +52,32 @@ SearchNode::SearchNode(const Key* k, const Kbucket* add) : findkey(*k)
 
 void SearchNode::addAnswer(const Node whoanswer, const Kbucket* a)
 {
-    mtx.lock();//to avoid processing the answer while still sending requests
+    mtx.lock();//to avoid processing the answer while clean() is running
+               //merge askme and reserve in a single list
     askme.splice(askme.end(), reserve,reserve.begin(),reserve.end());
     reserve.clear();
+    bool found = false;
     for(std::list<pnode>::iterator it=askme.begin();it!=askme.end();it++)
     {
         if(whoanswer == it->node)
+        {
+            found = true;
             it->probed = ACTIVE;
+        }
     }
+    if(!found) //node is not in the list, either it was removed or it was fake
+        return;
+    std::list<Node>::const_iterator it;
     //merge would be more efficient, but I need to append UNKNOWN to pnode
-    for(std::list<Node>::const_iterator it=a->getNodes()->begin();it!=a->getNodes()->end();++it)
+    for(it=a->getNodes()->begin();it!=a->getNodes()->end();++it)
     {
         pnode tmp;
         tmp.node = *it;
         tmp.probed = UNKNOWN;
         tmp.distance = Distance(findkey,*(tmp.node.getKey())).getDistance();
-        askme.push_back(tmp);
+        askme.push_back(std::move(tmp));
     }
+    //sort by distance
     askme.sort();
     
     //erase duplicates
@@ -78,17 +89,17 @@ void SearchNode::addAnswer(const Node whoanswer, const Kbucket* a)
             //if node is equal, keep higher probed status and return true
             if(uniqueoperand(&*it, &*second))
                 second = askme.erase(second); //then erase the second
-            else 
+            else
                 second++;
         }
     }
     
     //if list < kbucket.size EVERYTHING is moved in the reserve
-    //probably because of the safety of std::next(askme.begin()
     if(askme.size() > KBUCKET_SIZE)
-        reserve.splice(reserve.end(),askme,std::next(askme.begin(),KBUCKET_SIZE),askme.end());
+        reserve.splice(reserve.end(),askme,
+                       std::next(askme.begin(),KBUCKET_SIZE),askme.end());
     
-    //remove unprobed nodes in the reserve list (much high distance)
+    //remove unprobed nodes in the reserve list
     for(std::list<pnode>::iterator i=reserve.begin();i!=reserve.end();i++)
     {
         if(i->probed==UNKNOWN)
@@ -99,7 +110,7 @@ void SearchNode::addAnswer(const Node whoanswer, const Kbucket* a)
 
 int SearchNode::queryTo(Node* answer)
 {
-    mtx.lock();//to avoid processing the answer while still sending requests
+    mtx.lock();//to avoid processing the answer while clean() is running
     bool check = true;
     int retval;
     //check the queue status
@@ -111,7 +122,7 @@ int SearchNode::queryTo(Node* answer)
         if(it->probed != ACTIVE)
         {
             check = false;
-            //node not probed, set the iterator so I know I have to ping this one
+            //not probed, set the iterator so I know I have to ping this one
             if(it->probed == UNKNOWN)
                 break;
             else //node already probed, but missing answer
@@ -122,14 +133,12 @@ int SearchNode::queryTo(Node* answer)
         retval = 0;
     else if(it==askme.end())
     {
-        //???
-        //TODO: every node has been pinged, but some answers are missing
         retval = -1;
     }
     else
     {
         int i = 0;
-        while(it!=askme.end() && i!=3)
+        while(it!=askme.end() && i!=ALPHA_REQUESTS)
         {
             if(it->probed == UNKNOWN)
             {
@@ -151,23 +160,29 @@ void SearchNode::print()const
     printf("SearchNode for Key ");
     findkey.print();
     printf(" - Active list - (%d)\n",(int)askme.size());
-
-    for(std::list<pnode>::const_iterator it=askme.begin();it!=askme.end();it++)
+    std::list<pnode>::const_iterator it;
+    for(it=askme.begin();it!=askme.end();it++)
     {
         char ipstring[16];
         it->node.getIp().toString(ipstring);
-        const char* status = status = it->probed==UNKNOWN?"UNKNOWN":it->probed==ACTIVE?"ACTIVE":"PENDING";
-        printf("%s:%hu [%s]",ipstring,(unsigned short)it->node.getPort(),status);
-        printf(" Distance: %d\n",Distance(*(it->node.getKey()),findkey).getDistance());
+        const char* status = it->probed==UNKNOWN?
+        "UNKNOWN":
+        it->probed==ACTIVE?
+        "ACTIVE":"PENDING";
+        printf("%s:%hu [%s]",ipstring,(uint16_t)it->node.getPort(),status);
+        printf(" Distance: %d\n",it->distance);
     }
     printf(" -- Reserve list -- (%d)\n",(int)reserve.size());
-    for(std::list<pnode>::const_iterator it=reserve.begin();it!=reserve.end();it++)
+    for(it=reserve.begin();it!=reserve.end();it++)
     {
         char ipstring[16];
         it->node.getIp().toString(ipstring);
-        const char* status = status = it->probed==UNKNOWN?"UNKNOWN":it->probed==ACTIVE?"ACTIVE":"PENDING";
-        printf("%s:%hu [%s]",ipstring,(unsigned short)it->node.getPort(),status);
-        printf(" Distance: %d\n",Distance(*(it->node.getKey()),findkey).getDistance());
+        const char* status = it->probed==UNKNOWN?
+        "UNKNOWN":
+        it->probed==ACTIVE?
+        "ACTIVE":"PENDING";
+        printf("%s:%hu [%s]",ipstring,(uint16_t)it->node.getPort(),status);
+        printf(" Distance: %d\n",it->distance);
     }
 }
 
@@ -206,8 +221,9 @@ int SearchNode::getPending()const
 
 void SearchNode::clean()
 {
+    using namespace std::chrono;
     mtx.lock();
-    std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+    system_clock::time_point now=std::chrono::system_clock::now();
     std::list<pnode>::iterator it = SearchNode::askme.begin();
     bool erased = false;
     int pending = 0;
@@ -216,9 +232,10 @@ void SearchNode::clean()
         if(it->probed==PENDING)
             pending++;
         if(it->probed==PENDING &&
-           std::chrono::duration_cast<std::chrono::seconds>(now-it->queryTime).count()>TIMEOUT)
+           duration_cast<seconds>(now-it->queryTime).count()>TIMEOUT)
         {
-            Logger::getInstance().logFormat("ssn",Logger::SEARCHNODE,"Erased node",&(it->node));
+            Logger::getInstance().logFormat("ssn",Logger::SEARCHNODE,
+                                            "Erased node",&(it->node));
             it = SearchNode::askme.erase(it);
             erased = true;
             pending--;
@@ -229,10 +246,12 @@ void SearchNode::clean()
         }
     }
     //none will ever answer me
-    if(pending==0)
+    if(erased && pending==0)
     {
-        Logger::getInstance().logFormat("ss",Logger::SEARCHNODE,"Sending empty Kbucket because every pending node timed out");
-        Node me(Messenger::getInstance().getIp(),Messenger::getInstance().getPort());
+        Logger::getInstance().logFormat("ss",Logger::SEARCHNODE,
+                  "Sending empty Kbucket because every pending node timed out");
+        Node me(Messenger::getInstance().getIp(),
+                Messenger::getInstance().getPort());
         Kbucket empty;
         Message msg = generate_find_node_answer(&findkey, &empty);
         Messenger::getInstance().sendMessage(me, msg);
