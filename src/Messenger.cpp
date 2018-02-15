@@ -295,27 +295,7 @@ size_t WriteCallback(void* contents,size_t size,size_t nmemb,void* userp)
 }
 
 int Messenger::setPrivate()
-{
-//    struct ifaddrs *ifap, *ifa;
-//    struct sockaddr_in *sa;
-//    char *addr;
-//    
-//    getifaddrs (&ifap);
-//    for (ifa = ifap; ifa; ifa = ifa->ifa_next)
-//    {
-//        if(ifa->ifa_name[0] == 'l' && ifa->ifa_name[1] == 'o')
-//            continue;
-//        else if(ifa->ifa_addr->sa_family==AF_INET)
-//        {
-//            sa = (struct sockaddr_in *) ifa->ifa_addr;
-//            uint32_t addr = sa->sin_addr.s_addr;
-//            freeifaddrs(ifap);
-//            return addr;
-//        }
-//    }
-//    freeifaddrs(ifap);
-//    return 0;
-    
+{    
     char myipstring[16];
 #if defined(__linux__) || defined(__unix__)
     FILE* fp = popen("hostname -I","r");

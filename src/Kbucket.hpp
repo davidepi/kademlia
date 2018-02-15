@@ -18,26 +18,26 @@
  *  This class provides the underlying structure as well as methods to add,
  *  remove and serialize nodes from it. The underlying structure consist of
  *  a queue of node, with First In First Out policy, where the first elements
- *  are the one that provided an answer after being queried
+ *  are the one that first provided an answer after being queried
  */
 class Kbucket
 {
 public:
-    
+
     ///Default constructor
     Kbucket() = default;
     ///Default destructor
     ~Kbucket() = default;
-    
+
     /** \brief Constructor given a serialized array
      *
-     *  Given a serialized array as input, this constructor build the
+     *  Given a serialized array as input, this constructor builds the
      *  corresponding Kbucket.
      *
      *  \param[in] serialized A byte array representing the serialized kbucket
      */
     Kbucket(const uint8_t serialized[500]);
-    
+
     /** \brief Add a Node to the Kbucket
      *
      *  Add a Node to the underlying structure containing every node. If the
@@ -50,13 +50,13 @@ public:
      *  \param[in] n The node that will be inserted
      */
     void addNode(const Node n);
-    
+
     /** \brief Remove a node from the Kbucket
      *
      *  \param[in] n The node that will be removed
      */
     void deleteNode(const Node n);
-    
+
     /** \brief Replace a node
      *
      *  Given two nodes, this method replace the old one with the new one. If
@@ -66,10 +66,30 @@ public:
      *
      *  \param[in] oldNode The node that will be removed
      *  \param[in] newNode The node that will be inserted
-     *  \return True
+     *  \return True if the \p oldNode has been found and replaced
      */
     bool replaceNode(const Node oldNode, const Node newNode);
-    
+
+    /** \brief Return the list of nodes
+     *
+     *  Return an immutable std::list containing the Nodes inside this Kbucket.
+     *  This list is a reference for the nodes inside this Kbucket and thus
+     *  the pointer remains owned by the Kbucket itself
+     *
+     *  \return The list of nodes inside this Kbucket
+     */
+    const std::list<Node>* getNodes()const;
+
+    /** \brief Set the list of nodes
+     *
+     *  Set the nodes contained in this Kbucket as a copy of the one passed as
+     *  input.
+     *
+     *  \param[in] nodes The list of nodes that will be copied inside this
+     *  Kbucket
+     */
+    void setNodes(const std::list<Node>* nodes);
+
     /** \brief Return the nodes of this Kbucket
      *
      *  Return the list of nodes contained in this Kbucket, this list is
@@ -79,7 +99,7 @@ public:
      *  \return An std::list containing the nodes of this Kbucket
      */
     int getSize()const;
-    
+
     /** \brief Serialize this Kbucket
      *
      *  Write this Kbucket in a byte array. In order to deserialize it, one
@@ -89,14 +109,14 @@ public:
      *  \return The number of bytes written
      */
     int serialize(uint8_t out[500])const;
-    
+
     /** \brief Check if this Kbucket contains a specific node
      *
      *  \param[in] n The node that will be checked
      *  \return True if the input node is contained in the Kbucket
      */
     bool contains(Node* n)const;
-    
+
     ///Print this Kbucket to stdout
     void print()const;
 

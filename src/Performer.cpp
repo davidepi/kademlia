@@ -130,7 +130,7 @@ static void* execute(void* this_class)
         Node senderNode = top->getSenderNode();
         
         //update bucket -> add the sender node whichever the RPC is
-        p->neighbours->insertNode(&senderNode);
+        p->neighbours->insertNode(senderNode);
         uint8_t flags = top->getFlags();
         bool isAnswer = flags & FLAG_ANSWER;
         if(senderNode!=me)
@@ -303,7 +303,7 @@ Performer::Performer(std::queue<Message*>* q)
     Messenger* m = &(Messenger::getInstance());
     
     Node* myself = new Node(m->getIp(), m->getPort());
-    Performer::neighbours = new NeighbourManager(myself);
+    Performer::neighbours = new NeighbourManager(*myself);
     
     Performer::message_queue = q;
     pthread_create(&(Performer::thread_id), NULL, execute, (void*)this);

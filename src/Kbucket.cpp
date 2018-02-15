@@ -6,7 +6,7 @@ void Kbucket::addNode(const Node n)
     //if already in queue push to front
     bool replaced;
     replaced = replaceNode(n, n);
-    
+
     if(!replaced)
     {
         //if not in queue, add it
@@ -28,12 +28,12 @@ void Kbucket::addNode(const Node n)
             updater->checkUpdateBucket(lastActiveNode, n, this);
         }
     }
-    
+
 }
 
 void Kbucket::deleteNode(const Node n)
 {
-    
+
     for (std::list<Node>::const_iterator it = Kbucket::nodeList.begin();
          it != Kbucket::nodeList.end(); ++it)
     {
@@ -129,12 +129,13 @@ Kbucket::Kbucket(const uint8_t serialized[500])
         std::make_move_iterator(std::end(vec))};
 }
 
-bool Kbucket::contains(Node* n)const {
+bool Kbucket::contains(Node* n)const
+{
     for (std::list<Node>::const_iterator it = Kbucket::nodeList.begin();
-         it != Kbucket::nodeList.end(); ++it) {
-        if(*n == *it) {
+         it != Kbucket::nodeList.end(); ++it)
+    {
+        if(*n == *it)
             return true;
-        }
     }
     return false;
 }
@@ -143,11 +144,21 @@ void Kbucket::print()const
 {
     std::cout<<"KBucket size: "<<nodeList.size()<<std::endl;
     char ipstring[16];
-    
+
     for(std::list<Node>::const_iterator i=nodeList.begin();
         i!=nodeList.end();++i)
     {
         i->getIp().toString(ipstring);
         std::cout<<"<"<<ipstring<<","<<i->getPort()<<">"<<std::endl;
     }
+}
+
+const std::list<Node>* Kbucket::getNodes()const
+{
+    return &(Kbucket::nodeList);
+}
+
+void Kbucket::setNodes(const std::list<Node>* nodes)
+{
+    Kbucket::nodeList = *nodes;
 }
