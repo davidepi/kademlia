@@ -1,21 +1,19 @@
-#import <XCTest/XCTest.h>
 #include "SearchNode.hpp"
 #include <ctime>
 #include <cstdlib>
 
 #define XCTEST
 
-@interface SearchNode_tests : XCTestCase
 
-@end
 
-@implementation SearchNode_tests
+#include <gtest/gtest.h>
 
-- (void)setUp {[super setUp];}
 
-- (void)tearDown {[super tearDown];}
 
-- (void)test01_SearchNode_insertionDistanceDesc
+
+
+
+TEST(SearchNode,insertionDistanceDesc)
 {
     //add
     srand((unsigned int)time(NULL));
@@ -35,21 +33,21 @@
         k.addNode(askme);
     }
     SearchNode sc(findme,&k);
-    
+
     //retrieve
     Node res[ALPHA_REQUESTS];
     int retval = sc.queryTo(res);
-    
-    XCTAssertEqual(retval, ALPHA_REQUESTS);
+
+    EXPECT_EQ(retval, ALPHA_REQUESTS);
     for(int i=0;i<ALPHA_REQUESTS-1;i++)
     {
         int dis1 = Distance(res[i],findme).getDistance();
         int dis2 = Distance(res[i+1],findme).getDistance();
-        XCTAssertLessThanOrEqual(dis1,dis2);
+        EXPECT_LE(dis1,dis2);
     }
 }
 
-- (void)test02_SearchNode_insertionDistanceAsc
+TEST(SearchNode,insertionDistanceAsc)
 {
     //add
     srand((unsigned int)time(NULL));
@@ -67,21 +65,21 @@
         k.addNode(askme);
     }
     SearchNode sc(findme,&k);
-    
+
     //retrieve
     Node res[ALPHA_REQUESTS];
     int retval = sc.queryTo(res);
-    
-    XCTAssertEqual(retval, ALPHA_REQUESTS);
+
+    EXPECT_EQ(retval, ALPHA_REQUESTS);
     for(int i=0;i<ALPHA_REQUESTS-1;i++)
     {
         int dis1 = Distance(res[i],findme).getDistance();
         int dis2 = Distance(res[i+1],findme).getDistance();
-        XCTAssertLessThanOrEqual(dis1,dis2);
+        EXPECT_LE(dis1,dis2);
     }
 }
 
-- (void)test03_SearchNode_insertionDistanceRand
+TEST(SearchNode,insertionDistanceRand)
 {
     //add
     srand((unsigned int)time(NULL));
@@ -95,21 +93,21 @@
         i=k.getNodes()->size();
     }
     SearchNode sc(findme,&k);
-    
+
     //retrieve
     Node res[ALPHA_REQUESTS];
     int retval = sc.queryTo(res);
-    
-    XCTAssertEqual(retval, ALPHA_REQUESTS);
+
+    EXPECT_EQ(retval, ALPHA_REQUESTS);
     for(int i=0;i<ALPHA_REQUESTS-1;i++)
     {
         int dis1 = Distance(res[i],findme).getDistance();
         int dis2 = Distance(res[i+1],findme).getDistance();
-        XCTAssertLessThanOrEqual(dis1,dis2);
+        EXPECT_LE(dis1,dis2);
     }
 }
 
-- (void)test04_SearchNode_getActive
+TEST(SearchNode,getActive)
 {
     //add
     srand((unsigned int)time(NULL));
@@ -124,13 +122,13 @@
         i=k.getNodes()->size();
     }
     SearchNode sc(findme,&k);
-    XCTAssertEqual(sc.getActive(),0);
-    XCTAssertEqual(sc.getUnknown(), ALPHA_REQUESTS);
+    EXPECT_EQ(sc.getActive(),0);
+    EXPECT_EQ(sc.getUnknown(), ALPHA_REQUESTS);
     sc.addAnswer(askme, &k);
-    XCTAssertEqual(sc.getActive(), 1);
+    EXPECT_EQ(sc.getActive(), 1);
 }
 
-- (void)test06_SearchNode_importanceOrdering
+TEST(SearchNode,importanceOrdering)
 {
     //ensure that active nodes are always before unknown nodes at the same
     //distance
@@ -138,7 +136,7 @@
     Node findme(Ip(rand()),rand()%65536);
     Kbucket k;
     Kbucket closer;
-    
+
     //distance KEY-1
     long i=k.getNodes()->size();
     while(i<KBUCKET_SIZE)
@@ -150,7 +148,7 @@
         i=k.getNodes()->size();
     }
     SearchNode sc(findme,&k);
-    
+
     //distance KEY-2
     i=closer.getNodes()->size();
     while(i<KBUCKET_SIZE-1)
@@ -161,26 +159,26 @@
             closer.addNode(askme);
         i=closer.getNodes()->size();
     }
-    
+
     Node res[ALPHA_REQUESTS];
     sc.queryTo(res);
-    XCTAssertEqual(sc.getPending(), ALPHA_REQUESTS);
+    EXPECT_EQ(sc.getPending(), ALPHA_REQUESTS);
     sc.addAnswer(res[2],&closer);
-    XCTAssertEqual(sc.getUnknown(),KBUCKET_SIZE-1);
-    XCTAssertEqual(sc.getActive(), 1);
+    EXPECT_EQ(sc.getUnknown(),KBUCKET_SIZE-1);
+    EXPECT_EQ(sc.getActive(), 1);
 }
 
-- (void)test06_SearchNode_nonDuplication
+TEST(SearchNode,nonDuplication)
 {
     //generate some nodes with max distance
     //set some of them as pending
     //add 1 node closer than the others more than KBUCKET_SIZE times
     //ensure that the pending nodes are still there
     srand((unsigned int)time(NULL));
-    
+
     //otherwise the test will fail
-    XCTAssertLessThan(ALPHA_REQUESTS, KBUCKET_SIZE/2);
-    
+    EXPECT_LT(ALPHA_REQUESTS, KBUCKET_SIZE/2);
+
     Node findme(Ip(rand()),rand()%65536);
     Kbucket k;
     Kbucket closer;
@@ -204,22 +202,22 @@
         i=k.getNodes()->size();
     }
     SearchNode sc(findme,&k);
-    
+
     //generate some pending nodes
     Node res[ALPHA_REQUESTS];
     sc.queryTo(res);
-    XCTAssertEqual(sc.getPending(), ALPHA_REQUESTS);
-    XCTAssertEqual(sc.getUnknown(), KBUCKET_SIZE-sc.getPending());
-    
+    EXPECT_EQ(sc.getPending(), ALPHA_REQUESTS);
+    EXPECT_EQ(sc.getUnknown(), KBUCKET_SIZE-sc.getPending());
+
     //continuously add the closer ones
     for(int i=0;i<KBUCKET_SIZE+1;i++)
         sc.addAnswer(res[0], &closer);
-    
-    XCTAssertEqual(sc.getPending(), ALPHA_REQUESTS-1);
-    XCTAssertEqual(sc.getActive(), 1);
+
+    EXPECT_EQ(sc.getPending(), ALPHA_REQUESTS-1);
+    EXPECT_EQ(sc.getActive(), 1);
 }
 
-- (void)test05_SearchNode_nonFull
+TEST(SearchNode,nonFull)
 {
     //add
     srand((unsigned int)time(NULL));
@@ -234,18 +232,18 @@
     }
     SearchNode sc(findme,&k);
     Node res[ALPHA_REQUESTS];
-    XCTAssertEqual(sc.queryTo(res),ALPHA_REQUESTS);
+    EXPECT_EQ(sc.queryTo(res),ALPHA_REQUESTS);
     for(int i=0;i<ALPHA_REQUESTS;i++)
     {
         sc.addAnswer(res[i], &k);
     }
-    XCTAssertEqual(sc.queryTo(res), 0);
-    XCTAssertEqual(sc.getUnknown(), 0);
-    XCTAssertEqual(sc.getPending(), 0);
-    XCTAssertEqual(sc.getActive(), ALPHA_REQUESTS);
+    EXPECT_EQ(sc.queryTo(res), 0);
+    EXPECT_EQ(sc.getUnknown(), 0);
+    EXPECT_EQ(sc.getPending(), 0);
+    EXPECT_EQ(sc.getActive(), ALPHA_REQUESTS);
 }
 
-- (void)test06_SearchNode_fullKbucketInsertion
+TEST(SearchNode,fullKbucketInsertion)
 {
     //add
     srand((unsigned int)time(NULL));
@@ -259,21 +257,21 @@
         i=k.getNodes()->size();
     }
     SearchNode sc(findme,&k);
-    
+
     //retrieve
     Node res[ALPHA_REQUESTS];
     int retval = sc.queryTo(res);
-    
-    XCTAssertEqual(retval, ALPHA_REQUESTS);
+
+    EXPECT_EQ(retval, ALPHA_REQUESTS);
     for(int i=0;i<ALPHA_REQUESTS-1;i++)
     {
         int dis1 = Distance(res[i],findme).getDistance();
         int dis2 = Distance(res[i+1],findme).getDistance();
-        XCTAssertLessThanOrEqual(dis1,dis2);
+        EXPECT_LE(dis1,dis2);
     }
 }
 
-- (void)test07_SearchNode_fullKbucketInsertionKey
+TEST(SearchNode,fullKbucketInsertionKey)
 {
     //add
     srand((unsigned int)time(NULL));
@@ -287,21 +285,21 @@
         i=k.getNodes()->size();
     }
     SearchNode sc(findme.getKey(),&k);
-    
+
     //retrieve
     Node res[ALPHA_REQUESTS];
     int retval = sc.queryTo(res);
-    
-    XCTAssertEqual(retval, ALPHA_REQUESTS);
+
+    EXPECT_EQ(retval, ALPHA_REQUESTS);
     for(int i=0;i<ALPHA_REQUESTS-1;i++)
     {
         int dis1 = Distance(res[i],findme).getDistance();
         int dis2 = Distance(res[i+1],findme).getDistance();
-        XCTAssertLessThanOrEqual(dis1,dis2);
+        EXPECT_LE(dis1,dis2);
     }
 }
 
-- (void)test08_SearchNode_sequentialInsertion
+TEST(SearchNode,sequentialInsertion)
 {
     //generate first answer from my kbucket
     srand((unsigned int)time(NULL));
@@ -316,7 +314,7 @@
         i=k.getNodes()->size();
     }
     SearchNode sc(findme,&k);
-    
+
     //generate anwer from the first three pinged nodes
     for(int i=0;i<ALPHA_REQUESTS;i++)
     {
@@ -328,21 +326,21 @@
         }
         sc.addAnswer(requester[i], &k);
     }
-    
+
     //check answers
     Node res[ALPHA_REQUESTS];
     int retval = sc.queryTo(res);
-    
-    XCTAssertEqual(retval, ALPHA_REQUESTS);
+
+    EXPECT_EQ(retval, ALPHA_REQUESTS);
     for(int i=0;i<ALPHA_REQUESTS-1;i++)
     {
         int dis1 = Distance(res[i],findme).getDistance();
         int dis2 = Distance(res[i+1],findme).getDistance();
-        XCTAssertLessThanOrEqual(dis1,dis2);
+        EXPECT_LE(dis1,dis2);
     }
 }
 
-- (void)test09_SearchNode_sequentialInsertionWithDuplicates
+TEST(SearchNode,sequentialInsertionWithDuplicates)
 {
     //generate first answer from my kbucket
     srand((unsigned int)time(NULL));
@@ -357,7 +355,7 @@
         i=k.getNodes()->size();
     }
     SearchNode sc(findme,&k);
-    
+
     //generate answer from the first three pinged nodes
     for(int i=0;i<ALPHA_REQUESTS;i++)
     {
@@ -369,12 +367,11 @@
         }
         sc.addAnswer(requester[i], &k);
     }
-    
+
     //check answers
     Node res[ALPHA_REQUESTS];
     int retval = sc.queryTo(res);
-    
-    
+
     //add some duplicates to kbucket
     Kbucket k2;
     for(int i=0;i<ALPHA_REQUESTS;i++)
@@ -388,18 +385,18 @@
         k2.addNode(addme);
     }
     sc.addAnswer(res[0], &k2);
-    
+
     retval = sc.queryTo(res);
-    XCTAssertEqual(retval, ALPHA_REQUESTS);
+    EXPECT_EQ(retval, ALPHA_REQUESTS);
     for(int i=0;i<ALPHA_REQUESTS-1;i++)
     {
         int dis1 = Distance(res[i],findme).getDistance();
         int dis2 = Distance(res[i+1],findme).getDistance();
-        XCTAssertLessThanOrEqual(dis1,dis2);
+        EXPECT_LE(dis1,dis2);
     }
 }
 
-- (void)test10_SearchNode_everythingQueriedButPending
+TEST(SearchNode,everythingQueriedButPending)
 {
     //generate first answer from my kbucket
     srand((unsigned int)time(NULL));
@@ -414,9 +411,7 @@
         i=k.getNodes()->size();
     }
     SearchNode sc(findme,&k);
-    
-    
-    
+
     //generate answer from the first three pinged nodes
     for(int i=0;i<ALPHA_REQUESTS;i++)
     {
@@ -428,31 +423,31 @@
         }
         sc.addAnswer(requester[i], &k);
     }
-    
+
     //check answers
     Node res[ALPHA_REQUESTS];
     int hardterminator = 10000; //kill the test in case of bug
     while(sc.getUnknown()>3 && hardterminator>0)
     {
-        XCTAssertEqual(sc.queryTo(res),ALPHA_REQUESTS);
+        EXPECT_EQ(sc.queryTo(res),ALPHA_REQUESTS);
         for(int i=0;i<ALPHA_REQUESTS-1;i++)
         {
             int dis1 = Distance(res[i],findme).getDistance();
             int dis2 = Distance(res[i+1],findme).getDistance();
-            XCTAssertLessThanOrEqual(dis1,dis2);
+            EXPECT_LE(dis1,dis2);
         }
         hardterminator--;
     }
-    XCTAssertNotEqual(hardterminator, 0);
+    EXPECT_NE(hardterminator, 0);
     //gtest executes the assertEqual in undefined order
     int unknown_before = sc.getUnknown();
-    XCTAssertEqual(unknown_before,sc.queryTo(res));
-    XCTAssertEqual(sc.getUnknown(), 0);
-    XCTAssertEqual(sc.queryTo(res),-1);
-    XCTAssertEqual(sc.getPending(), KBUCKET_SIZE-sc.getActive());
+    EXPECT_EQ(unknown_before,sc.queryTo(res));
+    EXPECT_EQ(sc.getUnknown(), 0);
+    EXPECT_EQ(sc.queryTo(res),-1);
+    EXPECT_EQ(sc.getPending(), KBUCKET_SIZE-sc.getActive());
 }
 
-- (void)test11_SearchNode_everythingQueriedAndCompleted
+TEST(SearchNode,everythingQueriedAndCompleted)
 {
     //generate first answer from my kbucket
     srand((unsigned int)time(NULL));
@@ -467,7 +462,7 @@
         i=k.getNodes()->size();
     }
     SearchNode sc(findme,&k);
-    
+
     //generate answer from the first three pinged nodes
     for(int i=0;i<ALPHA_REQUESTS;i++)
     {
@@ -479,8 +474,7 @@
         }
         sc.addAnswer(requester[i], &k);
     }
-    
-    
+
     //generate default answer
     Kbucket ke;
     for(int i=0;i<KBUCKET_SIZE;i++)
@@ -488,34 +482,34 @@
         Node addme(Ip(rand()),rand()%65536);
         ke.addNode(addme);
     }
-    
+
     //ask nodes, check if they are ordered and insert them
     int hardterminator = 10000;
     Node res[ALPHA_REQUESTS];
     while(sc.getUnknown()>3 && hardterminator>0)
     {
-        XCTAssertEqual(sc.queryTo(res),ALPHA_REQUESTS);
+        EXPECT_EQ(sc.queryTo(res),ALPHA_REQUESTS);
         for(int i=0;i<ALPHA_REQUESTS-1;i++)
         {
             int dis1 = Distance(res[i],findme).getDistance();
             int dis2 = Distance(res[i+1],findme).getDistance();
-            XCTAssertLessThanOrEqual(dis1,dis2);
+            EXPECT_LE(dis1,dis2);
             sc.addAnswer(res[i], &ke);
         }
         sc.addAnswer(res[ALPHA_REQUESTS-1], &ke);
         hardterminator--;
     }
-    XCTAssertGreaterThan(hardterminator, 0);
-    XCTAssertLessThan(sc.getUnknown(), sc.getActive());
+    EXPECT_GT(hardterminator, 0);
+    EXPECT_LT(sc.getUnknown(), sc.getActive());
     int unknown_before = sc.getUnknown();
-    XCTAssertEqual(unknown_before, sc.queryTo(res));
+    EXPECT_EQ(unknown_before, sc.queryTo(res));
     for(int i=0;i<ALPHA_REQUESTS;i++)
         sc.addAnswer(res[i], &ke);
-    XCTAssertEqual(sc.getActive(), KBUCKET_SIZE);
-    XCTAssertEqual(sc.queryTo(res), 0);
+    EXPECT_EQ(sc.getActive(), KBUCKET_SIZE);
+    EXPECT_EQ(sc.queryTo(res), 0);
 }
 
-- (void)test12_SearchNode_fullExecution
+TEST(SearchNode,fullExecution)
 {
     //generate first answer from my kbucket
     srand((unsigned int)time(NULL));
@@ -530,7 +524,7 @@
         i=k.getNodes()->size();
     }
     SearchNode sc(findme,&k);
-    
+
     //generate answer from the first three pinged nodes
     for(int i=0;i<ALPHA_REQUESTS;i++)
     {
@@ -542,7 +536,7 @@
         }
         sc.addAnswer(requester[i], &k);
     }
-    
+
     //ask nodes, check if they are ordered and insert them
     int hardterminator = 10000;
     Node res[ALPHA_REQUESTS];
@@ -553,8 +547,8 @@
         {
             int dis1 = Distance(res[i],findme).getDistance();
             int dis2 = Distance(res[i+1],findme).getDistance();
-            XCTAssertLessThanOrEqual(dis1,dis2);
-            
+            EXPECT_LE(dis1,dis2);
+
             //generate answer
             Kbucket k;
             for(int i=0;i<KBUCKET_SIZE;i++)
@@ -564,7 +558,7 @@
             }
             sc.addAnswer(res[i], &k);
         }
-        
+
         //generate answer for the last of the alpha nodes
         Kbucket k;
         for(int i=0;i<KBUCKET_SIZE;i++)
@@ -575,15 +569,15 @@
         sc.addAnswer(res[queryres-1], &k);
         hardterminator--;
     }
-    XCTAssertGreaterThan(hardterminator, 0);
-    XCTAssertEqual(sc.queryTo(res), 0);
-    XCTAssertEqual(sc.getUnknown(), 0);
-    XCTAssertEqual(sc.getPending(),0);
-    XCTAssertEqual(sc.getActive(), KBUCKET_SIZE);
+    EXPECT_GT(hardterminator, 0);
+    EXPECT_EQ(sc.queryTo(res), 0);
+    EXPECT_EQ(sc.getUnknown(), 0);
+    EXPECT_EQ(sc.getPending(),0);
+    EXPECT_EQ(sc.getActive(), KBUCKET_SIZE);
     sc.print();
 }
 
-- (void)test13_SearchNode_getAnswer
+TEST(SearchNode,getAnswer)
 {
     //add
     srand((unsigned int)time(NULL));
@@ -598,11 +592,10 @@
         i=k.getNodes()->size();
     }
     SearchNode sc(findme,&k);
-    XCTAssertEqual(sc.getActive(),0);
-    XCTAssertEqual(sc.getUnknown(), ALPHA_REQUESTS);
+    EXPECT_EQ(sc.getActive(),0);
+    EXPECT_EQ(sc.getUnknown(), ALPHA_REQUESTS);
     sc.addAnswer(askme, &k);
     sc.getAnswer(&k);
-    XCTAssertTrue(k.contains(&askme));
+    EXPECT_TRUE(k.contains(&askme));
 }
 
-@end

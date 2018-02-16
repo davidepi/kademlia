@@ -1,36 +1,34 @@
-#import <XCTest/XCTest.h>
 #include "Kbucket.hpp"
 #include "Messenger.hpp"
 #define XCTEST
 
-@interface Kbucket_tests : XCTestCase
 
-@end
 
-@implementation Kbucket_tests
+#include <gtest/gtest.h>
 
-- (void)test00_Kbucket_creationEmpty
+
+TEST(Kbucket,creationEmpty)
 {
     Kbucket k;
-    XCTAssertTrue(true);
+    EXPECT_TRUE(true);
 }
 
-- (void)test01_Kbucket_deletion
+TEST(Kbucket,deletion)
 {
     Kbucket* k = new Kbucket();
     delete k;
 }
 
-- (void)test02_Kbucker_getSize
+TEST(Kbucker,getSize)
 {
     Kbucket k;
-    XCTAssertEqual(k.getSize(), 0);
-    
+    EXPECT_EQ(k.getSize(), 0);
+
     k.addNode(Node("127.0.0.1",3400));
-    XCTAssertEqual(k.getSize(), 1);
+    EXPECT_EQ(k.getSize(), 1);
 }
 
-- (void)test03_Kbucket_addNode
+TEST(Kbucket,addNode)
 {
     //empty space and node not present
     Kbucket k;
@@ -41,26 +39,26 @@
         Node n("127.0.0.1",3400+i);
         k.addNode(n);
     }
-    XCTAssertEqual(k.getSize(),KBUCKET_SIZE);
-    
+    EXPECT_EQ(k.getSize(),KBUCKET_SIZE);
+
     //add myself
     const std::list<Node>* list = k.getNodes();
-    XCTAssertEqual(list->back().getPort(), 3400); //I am the last one
-    XCTAssertNotEqual(list->front().getPort(), 3400); //I am not the first one
+    EXPECT_EQ(list->back().getPort(), 3400); //I am the last one
+    EXPECT_NE(list->front().getPort(), 3400); //I am not the first one
     k.addNode(me);
-    XCTAssertEqual(list->front().getPort(), 3400); //I am the first one
-    XCTAssertNotEqual(list->back().getPort(), 3400); //I am not the last one
-    
+    EXPECT_EQ(list->front().getPort(), 3400); //I am the first one
+    EXPECT_NE(list->back().getPort(), 3400); //I am not the last one
+
     //full space and node not present
     std::queue<Message*>* q;    //without Messenger the socket will throw exc.
     Messenger::getInstance().init(q,3400,true);
     Node extra("127.0.0.1",10000);
     k.addNode(extra);
-    XCTAssertTrue(true);//no need to assert presence, it will be a duty of the
+    EXPECT_TRUE(true);//no need to assert presence, it will be a duty of the
                         //updater class
 }
 
-- (void)test04_Kbucket_getNodes
+TEST(Kbucket,getNodes)
 {
     Kbucket k;
     Ip def("127.0.0.1");
@@ -69,18 +67,18 @@
         Node n(def,3400+i);
         k.addNode(n);
     }
-    
+
     const std::list<Node>* list = k.getNodes();
     int i=KBUCKET_SIZE-1; //used to assert the port, in reverse order
     for(std::list<Node>::const_iterator j=list->begin();j!=list->end();++j)
     {
-        XCTAssertEqual(j->getIp(), def);
-        XCTAssertEqual(j->getPort(), 3400+i);
+        EXPECT_EQ(j->getIp(), def);
+        EXPECT_EQ(j->getPort(), 3400+i);
         i--;
     }
 }
 
-- (void)test05_Kbucket_setNodes
+TEST(Kbucket,setNodes)
 {
     //add some nodes
     Kbucket k;
@@ -90,7 +88,7 @@
         Node n(def,3400+i);
         k.addNode(n);
     }
-    
+
     //change node vals
     const std::list<Node>* list = k.getNodes();
     std::list<Node> list_copy = *list;
@@ -100,22 +98,22 @@
         *j = Node(def,6400+i);
         i++;
     }
-    
+
     //set vals
     k.setNodes(list);
-    
+
     //retrieve nodes and assert them
     list = k.getNodes();
     i=0; //used to assert the port, in reverse order
     for(std::list<Node>::const_iterator j=list->begin();j!=list->end();++j)
     {
-        XCTAssertEqual(j->getIp(), def);
-        XCTAssertEqual(j->getPort(), 6400+i);
+        EXPECT_EQ(j->getIp(), def);
+        EXPECT_EQ(j->getPort(), 6400+i);
         i++;
     }
 }
 
-- (void)test06_Kbucket_serialize_deserialize
+TEST(Kbucket,serialize_deserialize)
 {
     Kbucket k;
     Ip def("127.0.0.1");
@@ -124,17 +122,17 @@
         Node n(def,3400+i);
         k.addNode(n);
     }
-    
+
     uint8_t data[500];
     k.serialize(data);
-    
+
     //just check the size
     uint16_t node_number = ntohs(((uint16_t*)data)[0]);
-    XCTAssertEqual(node_number, KBUCKET_SIZE);
-    
+    EXPECT_EQ(node_number, KBUCKET_SIZE);
+
     //craft another bucket
     Kbucket k2(data);
-    
+
     //ensure the two buckets are identical
     const std::list<Node>* list2 = k2.getNodes();
     //need to transform comparison list into a vector for O(1) access
@@ -144,18 +142,18 @@
     compare.insert(compare.end(),k.getNodes()->begin(), k.getNodes()->end());
     for(std::list<Node>::const_iterator j=list2->begin();j!=list2->end();++j)
     {
-        XCTAssertEqual(j->getIp(),compare.at(i).getIp());
-        XCTAssertEqual(j->getPort(),compare.at(i).getPort());
+        EXPECT_EQ(j->getIp(),compare.at(i).getIp());
+        EXPECT_EQ(j->getPort(),compare.at(i).getPort());
         i++;
     }
 }
 
-- (void)test07_Kbucket_contains
+TEST(Kbucket,contains)
 {
 #if KBUCKET_SIZE < 5
 #warning "Test will search the 5th position in the Kbucket and fail"
 #endif
-    
+
     Kbucket k;
     Ip def("127.0.0.1");
     for(int i=0;i<KBUCKET_SIZE;i++)
@@ -163,17 +161,17 @@
         Node n(def,3400+i);
         k.addNode(n);
     }
-    
+
     //check existing
     Node yes("127.0.0.1",3404);
-    XCTAssertTrue(k.contains(&yes));
-    
+    EXPECT_TRUE(k.contains(&yes));
+
     //check non-existing
     Node no("127.0.0.1",3800);
-    XCTAssertFalse(k.contains(&no));
+    EXPECT_FALSE(k.contains(&no));
 }
 
-- (void)test08_Kbucket_print
+TEST(Kbucket,print)
 {
     //can't test the print, just trying the run
     Kbucket k;
@@ -186,7 +184,7 @@
     k.print();
 }
 
-- (void)test09_Kbucket_delete
+TEST(Kbucket,delete)
 {
     //empty space and node not present
     Kbucket k;
@@ -197,10 +195,9 @@
         Node n("127.0.0.1",3400+i);
         k.addNode(n);
     }
-    XCTAssertEqual(k.getSize(),KBUCKET_SIZE);
+    EXPECT_EQ(k.getSize(),KBUCKET_SIZE);
     k.deleteNode(Node("127.0.0.1",3404));
-    
-    XCTAssertEqual(k.getSize(), KBUCKET_SIZE-1);
+
+    EXPECT_EQ(k.getSize(), KBUCKET_SIZE-1);
 }
 
-@end

@@ -32,11 +32,16 @@ int main(int argc, char* argv[])
             case 'h':
             {
                 fprintf(stdout,"Flags:\n");
-                fprintf(stdout,"-i [char*] The ip to connect to on the remote host\n");
-                fprintf(stdout,"-p [ uint] The port to connect to on the remote host\n");
-                fprintf(stdout,"-P [ uint] The port to use on this host\n");
-                fprintf(stdout,"-x [     ] Use a private network\n");
-                fprintf(stdout,"-h [     ] Print this wonderful help :)\n");
+                fprintf(stdout,"-i [char*] "
+                        "The ip to connect to on the remote host\n");
+                fprintf(stdout,"-p [ uint] "
+                        "The port to connect to on the remote host\n");
+                fprintf(stdout,"-P [ uint] "
+                        "The port to use on this host\n");
+                fprintf(stdout,"-x [     ] "
+                        "Use a private network\n");
+                fprintf(stdout,"-h [     ] "
+                        "Print this wonderful help :)\n");
                 exit(EXIT_SUCCESS);
                 break;
             }
@@ -56,7 +61,7 @@ int main(int argc, char* argv[])
             }
         }
     }
-
+    
     if(port_host == 0)
     {
         srand((unsigned int)time(NULL));
@@ -67,16 +72,16 @@ int main(int argc, char* argv[])
         fprintf(stderr, "%s\n", "Reserved port, use a port >1024 and <65537");
         exit(EXIT_FAILURE);
     }
-
+    
     Node gatewaynode(gateway,port_dest);
     std::queue<Message*> a;
     
-
+    
     //creating the thread that waits for incoming packets and passes them to the
     //performer
     Messenger* m = &(Messenger::getInstance());
     m->init(&a, port_host, private_net);
-
+    
     if(im_gateway) {
         if(private_net) {
             std::cout<<"Private network"<<std::endl;
@@ -97,24 +102,26 @@ int main(int argc, char* argv[])
             std::cout<<"Public network"<<std::endl;
         }
     }
-
+    
     Performer p(&a);
     char myIp[16];
     m->getIp().toString(myIp);
     Key myKey(m->getIp(),m->getPort());
     std::cout << "My ip: "   << myIp         << std::endl
-              << "My port: " << m->getPort() << std::endl
-              << "My key: "  << myKey        << std::endl;
+    << "My port: " << m->getPort() << std::endl
+    << "My key: "  << myKey        << std::endl;
     if(!im_gateway)
     {
         Kbucket gatewayBucket;
         gatewayBucket.addNode(gatewaynode);
-
+        
         Message msg = generate_find_node_request(&myKey);
         //the next line tells the unordered map to construct in place a
         //pair of type <Key,SearchNode>. So i avoid copying around SearchNode
         //which is a quite large class
-        p.searchInProgress.emplace(std::piecewise_construct, std::make_tuple(myKey), std::make_tuple(&myKey, &gatewayBucket));
+        p.searchInProgress.emplace(std::piecewise_construct,
+                                   std::make_tuple(myKey),
+                                   std::make_tuple(&myKey, &gatewayBucket));
         (Messenger::getInstance()).sendMessage(gatewaynode, msg);
     }
     Logger::getInstance();
@@ -133,12 +140,12 @@ int kadUI(Performer* p)
     std::cout << "[" << UI_PRINT_VALUES   << "] Print values map" << std::endl;
     std::cout << "[" << UI_PRINT_KBUCKETS << "] Print kbuckets"   << std::endl;
     std::cout << "[" << UI_EXIT           << "] Exit"             << std::endl;
-
+    
     int command;
     std::string commandString;
     getline(std::cin, commandString);
     std::stringstream(commandString) >> command;
-
+    
     switch (command) {
         case UI_STORE_VALUE:
         {
@@ -148,7 +155,7 @@ int kadUI(Performer* p)
             rpc_store_request(value.c_str(), p);
             break;
         }
-
+            
         case UI_FIND_VALUE:
         {
             std::cout << "Insert the key to find the value:" << std::endl;
@@ -161,19 +168,20 @@ int kadUI(Performer* p)
                     std::cout << "WARNING: key was truncated" << std::endl;
                 }
                 uint8_t keyBytes[NBYTE];
-                for (int i = 0; i < NBYTE; i++) { 
-                    keyBytes[i] = (uint8_t)(std::stoi(value.substr(i*2 + 2, 2), nullptr, 16));
-                } 
+                for (int i = 0; i < NBYTE; i++) {
+                    keyBytes[i] = (uint8_t)(std::stoi(value.substr(i*2 + 2, 2),
+                                                      nullptr, 16));
+                }
                 Key myKey;
                 myKey.craft(keyBytes);
-
+                
                 rpc_find_value(&myKey, p);
             } catch (const std::exception& e) {
                 std::cout << "No valid input" << std::endl;
             }
             break;
         }
-
+            
         case UI_FIND_NODE:
         {
             std::cout << "Insert the key to find the node:" << std::endl;
@@ -184,7 +192,8 @@ int kadUI(Performer* p)
             try {
                 uint8_t keyBytes[NBYTE];
                 for (int i = 0; i < NBYTE; i++) {
-                    keyBytes[i] = (uint8_t)(std::stoi(value.substr(i*2 + 2, 2), nullptr, 16));
+                    keyBytes[i] = (uint8_t)(std::stoi(value.substr(i*2 + 2, 2),
+                                                      nullptr, 16));
                 }
                 Key myKey;
                 myKey.craft(keyBytes);
@@ -193,10 +202,10 @@ int kadUI(Performer* p)
             } catch (const std::exception& e) {
                 std::cout << "No valid input" << std::endl;
             }
-        
+            
             break;
         }
-
+            
         case UI_PING:
         {
             std::cout << "Insert the ip:" << std::endl;

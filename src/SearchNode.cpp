@@ -66,7 +66,10 @@ void SearchNode::addAnswer(const Node whoanswer, const Kbucket* a)
         }
     }
     if(!found) //node is not in the list, either it was removed or it was fake
+    {
+        mtx.unlock();
         return;
+    }
     std::list<Node>::const_iterator it;
     //merge would be more efficient, but I need to append UNKNOWN to pnode
     for(it=a->getNodes()->begin();it!=a->getNodes()->end();++it)
