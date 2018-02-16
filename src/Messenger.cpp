@@ -78,7 +78,6 @@ int Messenger::init(std::queue<Message*>* q, int port_ho, bool isPrivate)
     {
 #ifdef CURL_FOUND
         CURL *curl;
-        CURLcode res;
 
         curl_global_init(CURL_GLOBAL_ALL);
         curl = curl_easy_init();
@@ -89,7 +88,7 @@ int Messenger::init(std::queue<Message*>* q, int port_ho, bool isPrivate)
             curl_easy_setopt(curl, CURLOPT_WRITEDATA,(void*)myipstring);
             curl_easy_setopt(curl, CURLOPT_USERAGENT,"libcurl-agent/1.0");
 
-            res = curl_easy_perform(curl);
+            curl_easy_perform(curl);
             my_ip = Ip(myipstring);
             curl_easy_cleanup(curl);
             curl_global_cleanup();

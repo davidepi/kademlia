@@ -1,23 +1,28 @@
 #include "Performer.hpp"
 
-static inline void startSearch(const Key* key, Performer* p, const Message* message) {
+static inline void startSearch(const Key* key, Performer* p, const Message* msg)
+{
     
     //find the closest nodes known to send the message
     Kbucket bucket;
     p->neighbours->findKClosestNodes(key, &bucket);
-    if (bucket.getSize() == 0) {
+    if (bucket.getSize() == 0)
+    {
         std::cout << "WARNING: no node found in all kbuckets" << std::endl;
         return;
     }
     
     //construct the SearchNode in place inside the hashmap
-    std::pair<std::unordered_map<Key,SearchNode>::iterator,bool> res = p->searchInProgress.emplace(std::piecewise_construct, std::make_tuple(*key), std::make_tuple(key,&bucket));
+    std::pair<std::unordered_map<Key,SearchNode>::iterator,bool> res =
+    p->searchInProgress.emplace(std::piecewise_construct, std::make_tuple(*key),
+                                std::make_tuple(key,&bucket));
     //retrieve the first three nodes to query
     Node askto[ALPHA_REQUESTS];
     int retval = res.first->second.queryTo(askto);
     
-    for (int i = 0; i < retval; i++) {
-        (Messenger::getInstance()).sendMessage(askto[i], *message);
+    for (int i = 0; i < retval; i++)
+    {
+        (Messenger::getInstance()).sendMessage(askto[i], *msg);
     }
 }
 
@@ -30,7 +35,8 @@ void rpc_ping(Node node)
     (Messenger::getInstance()).sendMessage(node, response);
 }
 
-void rpc_pong(Node node) {
+void rpc_pong(Node node)
+{
     //create message
     Message response(RPC_PING | FLAG_ANSWER);
     
@@ -38,28 +44,32 @@ void rpc_pong(Node node) {
     (Messenger::getInstance()).sendMessage(node, response);
 }
 
-void rpc_store(const Key* key, const Kbucket* bucket, Performer* p) {
+void rpc_store(const Key* key, const Kbucket* bucket, Performer* p)
+{
     Message response(key->getKey(), NBYTE);
-    
     std::string value;
-    std::unordered_map<Key, const std::string>::const_iterator got = p->storeTmpMap.find(*key);
+    std::unordered_map<Key, const std::string>::const_iterator got =
+    p->storeTmpMap.find(*key);
+    if(got != p->storeTmpMap.end())
     {
-        if (got != p->storeTmpMap.end()) {
-            value = std::string(got->second);
-            p->storeTmpMap.erase(got);
-        } else
-            return;
+        value = std::string(got->second);
+        p->storeTmpMap.erase(got);
     }
+    else
+        return;
     
     response.append((uint8_t*) value.c_str(), strlen(value.c_str()) + 1);
     response.setFlags(RPC_STORE);
     
-    for (std::list<Node>::const_iterator it = bucket->getNodes()->begin(); it != bucket->getNodes()->end(); ++it) {
-        (Messenger::getInstance()).sendMessage(*it, response);
+    std::list<Node>::const_iterator it;
+    for(it = bucket->getNodes()->begin(); it != bucket->getNodes()->end(); ++it)
+    {
+        Messenger::getInstance().sendMessage(*it, response);
     }
 }
 
-void rpc_store_request(const std::string& value, Performer* p) {
+void rpc_store_request(const std::string& value, Performer* p)
+{
     //store text temporarily
     Key key(value.c_str());
     p->storeTmpMap.insert(std::make_pair(key, value));
@@ -78,7 +88,8 @@ void rpc_find_node(const Key* key, Performer* p)
     startSearch(key, p, &findNodeMsg);
 }
 
-void rpc_find_value(const Key* key, Performer* p) {
+void rpc_find_value(const Key* key, Performer* p)
+{
     
     if(p->myselfHasValue(key))
         return;
@@ -89,13 +100,15 @@ void rpc_find_value(const Key* key, Performer* p) {
     startSearch(key, p, &findValueMsg);
 }
 
-Message generate_find_node_request(const Key* key) {
+Message generate_find_node_request(const Key* key)
+{
     Message response(key->getKey(), NBYTE);
     response.setFlags(RPC_FIND_NODE);
     return response;
 }
 
-Message generate_find_node_request(const Node findme) {
+Message generate_find_node_request(const Node findme)
+{
     return generate_find_node_request(findme.getKey());
 }
 
@@ -113,13 +126,17 @@ Message generate_find_node_answer(const Key* key, Kbucket* bucket)
 static void* execute(void* this_class)
 {
     Performer* p = (Performer*)this_class;
+    Messenger* messenger = &(Messenger::getInstance());
+    Logger* logger = &(Logger::getInstance());
     std::queue<Message*>* q = p->message_queue;
-    Node me(Messenger::getInstance().getIp(),Messenger::getInstance().getPort());
-    while (true) {
+    Node me(messenger->getIp(),messenger->getPort());
+    while (true)
+    {
         Messenger* m = &(Messenger::getInstance());
         std::unique_lock<std::mutex> mlock(m->mutex);
         
-        while (p->message_queue->size() == 0) {
+        while (p->message_queue->size() == 0)
+        {
             m->cond_var.wait(mlock);
         }
         Message* top;
@@ -127,20 +144,16 @@ static void* execute(void* this_class)
         q->pop();
         if(top==NULL)
             continue;
-        Node senderNode = top->getSenderNode();
+        Node sender = top->getSenderNode();
         
         //update bucket -> add the sender node whichever the RPC is
-        p->neighbours->insertNode(senderNode);
+        p->neighbours->insertNode(sender);
         uint8_t flags = top->getFlags();
         bool isAnswer = flags & FLAG_ANSWER;
-        if(senderNode!=me)
+        if(sender!=me)
         {
-            Logger::getInstance().logFormat("ssnsf", Logger::INCOMING, "Message from", &senderNode, "with flags:", &flags);
-#ifndef NDEBUG
-            char ip[16];
-            senderNode.getIp().toString(ip);
-            printf("Received a message from: %s:%hu\n",ip,(unsigned short)senderNode.getPort());
-#endif
+            logger->logFormat("ssnsf", Logger::INCOMING,
+            "Message from", &sender, "with flags:", &flags);
         }
         else
             //waiting for pending nodes
@@ -152,12 +165,12 @@ static void* execute(void* this_class)
                 if(!isAnswer)
                 {
                     std::cout << "The message is a ping" << std::endl;
-                    rpc_pong(senderNode);
+                    rpc_pong(sender);
                 }
                 else
                 {
                     std::cout << "The message is a pong" << std::endl;
-                    Updater::getInstance().processPong(senderNode);
+                    Updater::getInstance().processPong(sender);
                 }
             }
                 break;
@@ -173,9 +186,9 @@ static void* execute(void* this_class)
                 {
                     text[i - NBYTE] = top->getText()[i];
                 }
-                if(p->filesMap.insert(std::make_pair(key,text)).second == false) {
-                    Logger::getInstance().logFormat("s", "ERROR: key already inserted");
-                    std::cout << "ERROR: key already inserted" << std::endl;
+                if(p->filesMap.insert(std::make_pair(key,text)).second == false)
+                {
+                    logger->logFormat("s","ERROR: key already inserted");
                 }
             }
                 break;
@@ -186,19 +199,18 @@ static void* execute(void* this_class)
                     Key key;
                     key.craft(top->getData());
                     //find closest nodes
-#ifndef NDEBUG
-                    printf("Somebody asked for Kbucket of key: ");
-                    key.print();
-#endif
                     if(flags & FLAG_FIND_VALUE)
                     {
-                        std::unordered_map<Key,const char*>::iterator got = p->filesMap.find(key);
+                        std::unordered_map<Key,const char*>::iterator got =
+                        p->filesMap.find(key);
                         if(got!=p->filesMap.end())
                         {
                             Message msg(key.getKey(),NBYTE);
-                            msg.append((const uint8_t*)got->second,strlen(got->second)+1);
-                            msg.setFlags(RPC_FIND_NODE|FLAG_ANSWER|FLAG_FIND_VALUE|FLAG_VALUE_FOUND);
-                            Messenger::getInstance().sendMessage(senderNode, msg);
+                            msg.append((const uint8_t*)got->second,
+                                       strlen(got->second)+1);
+                            msg.setFlags(RPC_FIND_NODE|FLAG_ANSWER|
+                                         FLAG_FIND_VALUE|FLAG_VALUE_FOUND);
+                            messenger->sendMessage(sender,msg);
                             break;
                         }
                     }
@@ -208,60 +220,61 @@ static void* execute(void* this_class)
                     kbucket.print();
                     Message msg = generate_find_node_answer(&key, &kbucket);
                     msg.setFlags(msg.getFlags()|(flags&~RPC_MASK));
-                    Messenger::getInstance().sendMessage(senderNode, msg);
+                    messenger->sendMessage(sender, msg);
                 }
                 else //answer
                 {
-                    std::cout << "Received a list of nodes" << std::endl;
                     Key k;
                     k.craft(top->getData());
-                    
-#ifndef NDEBUG
-                    printf("Received answer for key: ");
-                    std::cout<<k<<std::endl;
-#endif
                     SearchNode* sn = NULL;
-                    std::unordered_map<Key,SearchNode>::iterator got = p->searchInProgress.find(k);
+                    std::unordered_map<Key,SearchNode>::iterator got =
+                    p->searchInProgress.find(k);
                     
-                    //SearchNode found, otherwise received a message from a queried node, but the Kbucket has been completed
+                    //SearchNode found, otherwise received a message from a
+                    //queried node, but the Kbucket has been completed
                     if(got != p->searchInProgress.end())
                     {
                         sn = &(got->second);
-                        if(flags&FLAG_VALUE_FOUND) //value found, the find value can terminate
+                        //value found, the find value can terminate
+                        if(flags&FLAG_VALUE_FOUND)
                         {
-                            Logger::getInstance().logFormat("sksss", "Found value (key:", &k, "Value:", top->getData()+NBYTE, ")");
-                            std::cout << "Found value: " << top->getData()+NBYTE << std::endl;
+                            logger->logFormat("sksss", "Found value  - Key:",&k,
+                                              "Value:",top->getData()+NBYTE);
+                            std::cout << "Found value: " << top->getData()+NBYTE
+                                      << std::endl;
                             p->searchInProgress.erase(k);
                             break;
                         }
                         
                         Kbucket b(top->getData()+NBYTE);
-                        sn->addAnswer(senderNode, &b);
+                        sn->addAnswer(sender, &b);
                         Node askto[ALPHA_REQUESTS];
                         int retval = sn->queryTo(askto);
                         if (retval > 0) //need to query somebody
                         {
                             Message msg = generate_find_node_request(&k);
-                            msg.setFlags(msg.getFlags() | (top->getFlags() & ~(RPC_MASK|FLAG_ANSWER)));
+                            msg.setFlags(msg.getFlags() |
+                                        (top->getFlags() &
+                                         ~(RPC_MASK|FLAG_ANSWER)));
                             for (int i = 0; i < retval; i++)
-                                Messenger::getInstance().sendMessage(askto[i], msg);
+                                messenger->sendMessage(askto[i],msg);
                         }
                         else if (retval == 0) //Kbucket ready
                         {
                             Kbucket res;
                             sn->getAnswer(&res);
                             p->searchInProgress.erase(got);
-                            std::cout<<"Completed KBucket for key ";
                             k.print();
                             res.print();
                             if(flags&FLAG_STORE_REQUEST)
                             {
-                                //send the rpc_store to the node in the now completed Kbucket
+                                //send the rpc_store to the node in the now
+                                //completed Kbucket
                                 rpc_store(&k, &res, p);
                             }
                         } else {
                             //need to wait the pending nodes
-                            Messenger::getInstance().sendMessage(me,*top);
+                            messenger->sendMessage(me,*top);
                         }
                     }
                     else //search node not found. So it was already processed.
@@ -276,12 +289,14 @@ static void* execute(void* this_class)
         }
         delete top;
     }
-    pthread_exit((void*)0);
+    //pthread_exit((void*)0); <- will never be executed
 }
 
+//clean every SearchNode periodically
 static void* pendingNodesCleaner(void* data)
 {
-    std::unordered_map<Key, SearchNode>* searchInProgress = (std::unordered_map<Key,SearchNode>*)data;
+    std::unordered_map<Key, SearchNode>* searchInProgress =
+    (std::unordered_map<Key,SearchNode>*)data;
     std::unordered_map<Key, SearchNode>::iterator it;
     SearchNode* target;
     while(true)
@@ -295,7 +310,7 @@ static void* pendingNodesCleaner(void* data)
         }
         sleep(TIMEOUT);
     }
-    pthread_exit((void*)0);
+    //pthread_exit((void*)0); <- will never be executed
 }
 
 Performer::Performer(std::queue<Message*>* q)
@@ -307,7 +322,8 @@ Performer::Performer(std::queue<Message*>* q)
     
     Performer::message_queue = q;
     pthread_create(&(Performer::thread_id), NULL, execute, (void*)this);
-    pthread_create(&(Performer::cleaner_id), NULL, pendingNodesCleaner,&(Performer::searchInProgress));
+    pthread_create(&(Performer::cleaner_id), NULL,
+                   pendingNodesCleaner,&(Performer::searchInProgress));
 }
 
 const pthread_t Performer::getThreadID()const
@@ -320,6 +336,7 @@ Performer::~Performer()
     delete neighbours;
 }
 
+//not the best routine, just used to know if I cant print at least part of data
 static bool isPrintable(const uint8_t* data)
 {
     for(int i=0;i<500;i++)
@@ -334,8 +351,11 @@ static bool isPrintable(const uint8_t* data)
 
 void Performer::printFilesMap()
 {
-    std::cout << "---------TEXT VALUES STORED ON THIS SERVER-----------------------------" << std::endl;
-    for (std::unordered_map<Key,const char*>::iterator it = filesMap.begin(); it != filesMap.end(); ++it) {
+    std::cout << "---------- TEXT VALUES STORED ON THIS SERVER ----------"
+              << std::endl;
+    std::unordered_map<Key,const char*>::iterator it;
+    for (it = filesMap.begin(); it != filesMap.end(); ++it)
+    {
         if(isPrintable((const uint8_t*)(it->second)))
         {
             std::cout << "KEY: ";
@@ -343,16 +363,21 @@ void Performer::printFilesMap()
             std::cout << "TEXT: " << it->second << std::endl << std::endl;
         }
     }
-    std::cout << "---------END OF TEXT VALUES STORED ON THIS SERVER----------------------" << std::endl;
+    std::cout << "-------------------------------------------------------"
+              << std::endl;
 }
 
 bool Performer::myselfHasValue(const Key* key) {
     
-    std::unordered_map<Key,const char*>::const_iterator got = filesMap.find(*key);
-    if (got != filesMap.end()) {
+    std::unordered_map<Key,const char*>::const_iterator got =
+    filesMap.find(*key);
+    if (got != filesMap.end())
+    {
         std::cout << "Found value: " << got->second << std::endl;
         return true;
-    } else {
+    }
+    else
+    {
         return false;
     }
 }
