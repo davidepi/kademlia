@@ -71,7 +71,6 @@ void NeighbourManager::findKClosestNodes(const Key* key, Kbucket* bucket,
     if (resultList.size() == KBUCKET_SIZE || //kbucket full or
         (justOneNode && resultList.size() >= 1)) //one node to find and size > 1
     {
-        resultList.sort(Compare(key));
         bucket->setNodes(&resultList);
         return;
     }

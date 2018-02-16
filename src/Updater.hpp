@@ -39,7 +39,11 @@ class Updater
 public:
     ///Return an instance of this singleton
     static Updater& getInstance();
-
+    ///Avoid multiple copies
+    Updater(const Updater&) = delete;
+    ///Avoid multiple copies
+    void operator=(const Updater&) = delete;
+    
     /** \brief Check if a node can be removed
      *
      *  This method checks if oldNode is answering, and wait a determined amount

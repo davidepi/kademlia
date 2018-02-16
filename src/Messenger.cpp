@@ -1,12 +1,13 @@
 #include "Messenger.hpp"
 #include "assert.h"
-#include "Logger.hpp" //TODO: rimuovere una volta che compila anche con -DNDEBUG
+#include "Logger.hpp"
 
 #define CRITICAL_ERROR {fprintf(stderr,"[%s,line %d]%s\n",__FILE__,__LINE__,\
         strerror(errno));exit(EXIT_FAILURE);}
 
 #define RESERVED_BYTES 12 //[0-3] source IP
                           //[4-5] source port (the listening one)
+                          //[6]   flags
 
 size_t WriteCallback(void* contents,size_t size,size_t nmemb,void* userp);
 
@@ -25,7 +26,7 @@ static void* listener(void* p)
     sockaddr_in* listener_address = params->listener_process_address;
     socklen_t list_address_len = params->listener_process_lenght;
     int sockfd = params->socket_file_descriptor;
-    free(p); //si, e' brutto deallocare qui, ma tanto sto thread non termina mai
+    free(p); //bad practice, but this thread never ends
     if(bind(sockfd, (struct sockaddr*)listener_address, list_address_len) < 0)
         CRITICAL_ERROR
     char buffer[512];
@@ -38,17 +39,11 @@ static void* listener(void* p)
         if (count==-1) CRITICAL_ERROR
         else
         {
-            uint32_t* b1 = (uint32_t*)buffer; //in realta' e' inutile sto qui,
-                                              //ma senza mi da il "don't pun and
-                                              //alias" error
+            uint32_t* b1 = (uint32_t*)buffer; //error without this line...
             Message* m = new Message(*b1,ntohs(*(uint16_t*)(buffer+4)),
-                                     (short)count-RESERVED_BYTES,(uint8_t*)(buffer+12),
+                                     (short)count-RESERVED_BYTES,
+                                     (uint8_t*)(buffer+12),
                                      *(uint8_t*)(buffer+6));
-            //char from[16];
-            //m->getSenderIp().toString(from);
-            //std::cout<<"\tReceived \""<<m->getText()<<"\" from "<<
-            //from<<":"<<m->getSenderPort()<<" type "<<m->getFlags()<<std::endl;
-
             if(q->size() < QUEUE_LENGTH)
             {
                 q->push(m);
@@ -56,7 +51,6 @@ static void* listener(void* p)
             }
         }
     }
-
     pthread_exit((void*)0);
 }
 
@@ -76,44 +70,40 @@ int Messenger::init(std::queue<Message*>* q, int port_ho, bool isPrivate)
     if(initialized)
         return ALREADY_INITIALIZED;
     else
-        initialized = true; //abbasso il rischio di avere 80000 thread
-                            //se avvengono tutte chiamate contemporanee.
-                            //ancora non ho garanzie, ma chissene
+        initialized = true; //not thread-safe, however init should be called
+                            //only once anyway
     char myipstring[16];
     myipstring[0] = 0;
     if(!isPrivate)
     {
 #ifdef CURL_FOUND
-    CURL *curl;
-    CURLcode res;
-    
-    curl_global_init(CURL_GLOBAL_ALL);
-    curl = curl_easy_init();
-    if(curl)
-    {
-        curl_easy_setopt(curl, CURLOPT_URL, "http://ipecho.net/plain");
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA,(void*)myipstring);
-        curl_easy_setopt(curl, CURLOPT_USERAGENT,"libcurl-agent/1.0");
-        
-        res = curl_easy_perform(curl);
-        //        if(res!=CURLE_OK) //TODO: fix this one
-//            CRITICAL_ERROR
-//        else
-        my_ip = Ip(myipstring);
-        curl_easy_cleanup(curl);
-        curl_global_cleanup();
-    }
+        CURL *curl;
+        CURLcode res;
+
+        curl_global_init(CURL_GLOBAL_ALL);
+        curl = curl_easy_init();
+        if(curl)
+        {
+            curl_easy_setopt(curl, CURLOPT_URL, "http://ipecho.net/plain");
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA,(void*)myipstring);
+            curl_easy_setopt(curl, CURLOPT_USERAGENT,"libcurl-agent/1.0");
+
+            res = curl_easy_perform(curl);
+            my_ip = Ip(myipstring);
+            curl_easy_cleanup(curl);
+            curl_global_cleanup();
+        }
 #else
 #warning "No CURL found, public IP won't be resolved"
-    Messenger::setPrivate();
+        Messenger::setPrivate();
 #endif
     }
     else
     {
         Messenger::setPrivate();
     }
-    
+
     Messenger::binded_queue = q;
     Messenger::sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if(Messenger::sockfd < 0)
@@ -135,20 +125,20 @@ int Messenger::init(std::queue<Message*>* q, int port_ho, bool isPrivate)
     params->listener_process_lenght = sizeof(Messenger::my_address);
     pthread_create(&(Messenger::thread_id), NULL, listener, (void*)params);
     return true;
-    
 }
 
 void Messenger::sendMessage(const Node node, const Message& msg) const
 {
     uint8_t flags = msg.getFlags();
-    //TODO: cercare di eliminare questo check (mettere tutto i logging alla fine del performer)
+    //TODO: delete this - the logging should be done at the end of the performer
     Node me(my_ip,port_ho);
     if(node!=me)
     {
-        Logger::getInstance().logFormat("ssnsf", Logger::OUTGOING, "Message to", &node, "with flags:", &flags);
+        Logger::getInstance().logFormat("ssnsf", Logger::OUTGOING,
+                                    "Message to", &node, "with flags:", &flags);
     }
     struct sockaddr_in dest = Messenger::dest;
-    dest.sin_addr.s_addr = node.getIp().getIp();//get ip of the node (network ordered)
+    dest.sin_addr.s_addr = node.getIp().getIp();//get ip of node in network ord.
     dest.sin_port = htons(node.getPort());
     uint32_t* t = (uint32_t*)(msg.text);
     *t = (Messenger::my_ip.getIp());
@@ -177,17 +167,12 @@ uint16_t Messenger::getPort()const
     return Messenger::port_ho;
 }
 
-std::queue<Message*>* Messenger::getBindedQueue() const
-{
-    return Messenger::binded_queue;
-}
-
 //<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
 
 
 Message::Message(const char* text)
 {
-    memset(Message::text,0,RESERVED_BYTES);//riservo 12 byte per ip e porta
+    memset(Message::text,0,RESERVED_BYTES);//reserve 12 bytes for ip and port
     assert(strlen(text+1)<=512-RESERVED_BYTES);
     Message::length = strlen(text)+1;
     memcpy(Message::text+RESERVED_BYTES, text, Message::length);
@@ -196,20 +181,19 @@ Message::Message(const char* text)
 Message::Message(const uint8_t* binary_data, short len)
 {
     assert(len <= 512-RESERVED_BYTES);
-    memset(Message::text,0,RESERVED_BYTES);//riservo 12 byte per ip e porta
+    memset(Message::text,0,RESERVED_BYTES);//reserve 12 bytes for ip and port
     memcpy(Message::text+RESERVED_BYTES, binary_data, len);
     Message::length = len;
 }
 
 Message::Message(uint8_t flags)
 {
-    memset(Message::text,0,RESERVED_BYTES);//riservo 12 byte per ip e porta
+    memset(Message::text,0,RESERVED_BYTES);//reserve 12 bytes for ip and port
     Message::length = 0;
     Message::setFlags(flags);
 }
 
-//Usato da Messenger quando riceve un messaggio, per settare da chi l'ha ricevuto
-
+//Used by Messenger to construct the received message
 Message::Message(const Ip f, uint16_t port_ho, short len, uint8_t* data,
                  uint8_t flags):senderNode(f, port_ho)
 {
@@ -236,7 +220,8 @@ const char* Message::getText() const
 
 void Message::setText(const char *text)
 {
-    memset(Message::text,0,RESERVED_BYTES);//riservo 12 byte per ip e porta
+    memset(Message::text,0,RESERVED_BYTES);//reserve 12 bytes for ip and port
+    Message::length = 0;
     assert(strlen(text+1)<=512-RESERVED_BYTES);
     Message::length = strlen(text)+1;
     memcpy(Message::text+RESERVED_BYTES, text, Message::length);
@@ -250,7 +235,8 @@ const uint8_t* Message::getData() const
 void Message::setData(const uint8_t *binary_data, short len)
 {
     assert(len <= 512-RESERVED_BYTES);
-    memset(Message::text,0,RESERVED_BYTES);//riservo 12 byte per ip e porta
+    memset(Message::text,0,RESERVED_BYTES);//reserve 12 bytes for ip and port
+    Message::length = 0;
     memcpy(Message::text+RESERVED_BYTES, binary_data, len);
     Message::length = len;
 }
@@ -272,9 +258,6 @@ short Message::getLength() const
     return length;
 }
 
-Message::~Message()
-{ }
-
 //used by curl to store the global ip
 size_t WriteCallback(void* contents,size_t size,size_t nmemb,void* userp)
 {
@@ -295,7 +278,7 @@ size_t WriteCallback(void* contents,size_t size,size_t nmemb,void* userp)
 }
 
 int Messenger::setPrivate()
-{    
+{
     char myipstring[16];
 #if defined(__linux__) || defined(__unix__)
     FILE* fp = popen("hostname -I","r");
@@ -305,7 +288,7 @@ int Messenger::setPrivate()
     fprintf(stderr, "%s\n", "Os not recognized");
     exit(EXIT_FAILURE);
 #endif
-    
+
     fscanf(fp,"%s",myipstring);
     my_ip = Ip(myipstring);
     pclose(fp);
