@@ -133,7 +133,7 @@ void Messenger::sendMessage(const Node node, const Message& msg) const
     Node me(my_ip,port_ho);
     if(node!=me)
     {
-        Logger::getInstance().logFormat("ssnsf", Logger::OUTGOING,
+        Logger::getInstance().logFormat("ssnsf", LOGGER_OUTGOING,
                                     "Message to", &node, "with flags:", &flags);
     }
     struct sockaddr_in dest = Messenger::dest;

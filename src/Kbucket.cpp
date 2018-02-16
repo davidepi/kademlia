@@ -17,7 +17,7 @@ void Kbucket::addNode(const Node n)
             if (Kbucket::nodeList.size() < KBUCKET_SIZE)
                 Kbucket::nodeList.push_front(n);
             mtx.unlock();
-            Logger::getInstance().logFormat("ssn",Logger::KBUCKET,
+            Logger::getInstance().logFormat("ssn",LOGGER_KBUCKET,
                                             "Added",&n);
         }
         else
@@ -43,7 +43,7 @@ void Kbucket::deleteNode(const Node n)
             if(n == *it)
             {
                 Kbucket::nodeList.remove(*it);
-                Logger::getInstance().logFormat("ssn", Logger::KBUCKET,
+                Logger::getInstance().logFormat("ssn", LOGGER_KBUCKET,
                                                 "Removed", &n);
             }
             Kbucket::mtx.unlock();
@@ -65,7 +65,7 @@ bool Kbucket::replaceNode(const Node oldNode, const Node newNode)
             {
                 Kbucket::nodeList.remove(*it);
                 Kbucket::nodeList.push_front(newNode);
-                Logger::getInstance().logFormat("ssnsn", Logger::KBUCKET,
+                Logger::getInstance().logFormat("ssnsn", LOGGER_KBUCKET,
                                  "Replaced", &oldNode, "with", &newNode);
                 retval = true;
             }

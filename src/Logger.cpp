@@ -1,14 +1,6 @@
 #include "Logger.hpp"
 #include "Performer.hpp"
 
-const char* Logger::INCOMING = "[INCOMING]";
-const char* Logger::OUTGOING = "[OUTGOING]";
-
-const char* Logger::UPDATER = "[Update Bucket]";
-const char* Logger::PERFORMER = "[Performer]";
-const char* Logger::KBUCKET = "[KBucket]";
-const char* Logger::SEARCHNODE = "[SearchNode]";
-
 Logger& Logger::getInstance()
 {
     static Logger instance;
@@ -54,7 +46,7 @@ void Logger::logFormat(const void* format...)
     const char* fmt = (char*)format; //convert void* to char*
     va_list args;
     va_start(args, (char*)format);
-    
+
     std::stringstream ss;
 
     while (*fmt != '\0') {

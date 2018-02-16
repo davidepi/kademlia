@@ -33,7 +33,7 @@ void Updater::checkUpdateBucket(Node oldNode, Node newNode, Kbucket* kbucket)
 {
     //ping least recently seen node
     rpc_ping(oldNode);
-    Logger::getInstance().logFormat("ssns", Logger::UPDATER, "Sent ping to ",
+    Logger::getInstance().logFormat("ssns", LOGGER_UPDATER, "Sent ping to ",
                                     &oldNode, " to check if it is alive");
 
     //store the new node to add iff the older node does not answer
@@ -94,7 +94,7 @@ void* scan_queue(void* args)
         argStruct->queue.pop();
         char myIp[16];
         aliveNode.getIp().toString(myIp);
-        Logger::getInstance().logFormat("ssn", Logger::UPDATER,
+        Logger::getInstance().logFormat("ssn", LOGGER_UPDATER,
                                         "Received pong from ", &aliveNode);
 
         //find the node who sent the PONG in the map end remove the entry

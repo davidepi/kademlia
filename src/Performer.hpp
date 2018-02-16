@@ -36,7 +36,7 @@
 class Performer
 {
 public:
-    
+
     ///Default constructor
     Performer(std::queue<Message*>* q);
     ///Destructor
@@ -45,14 +45,14 @@ public:
     std::queue<Message*>* message_queue;
     ///Map containing the values
     std::unordered_map<Key, const char*> filesMap;
-    
+
     /**
      *  This map contains temporary values given by the user, until the FIND
      *  NODE determines the actual targets of the store. When the targets are
      *  found an RPC_STORE request is sent and the value deleted
      */
     std::unordered_map<Key, const std::string> storeTmpMap;
-    
+
     ///Map containing the class to handle persistence required by the FIND NODE
     std::unordered_map<Key, SearchNode> searchInProgress;
 
@@ -61,10 +61,10 @@ public:
 
     ///Return the ThreadID of the thread parsing the messages received
     const pthread_t getThreadID()const;
-    
+
     ///Print every <Key,Value> pair stored inside this host. ASCII Value only
     void printFilesMap();
-    
+
     /** \brief Check if the host possess the value
      *
      *  Return true if the current host contains the value for the Key passed as
@@ -73,7 +73,7 @@ public:
      *  \param[in] key The key for which the value is searched
      */
     bool myselfHasValue(const Key* key);
-    
+
 private:
     pthread_t thread_id;
     pthread_t cleaner_id;
