@@ -44,7 +44,7 @@
     XCTAssertEqual(k.getSize(),KBUCKET_SIZE);
     
     //add myself
-    std::list<Node>* list = k.getNodes();
+    const std::list<Node>* list = k.getNodes();
     XCTAssertEqual(list->back().getPort(), 3400); //I am the last one
     XCTAssertNotEqual(list->front().getPort(), 3400); //I am not the first one
     k.addNode(me);
@@ -53,7 +53,7 @@
     
     //full space and node not present
     std::queue<Message*>* q;    //without Messenger the socket will throw exc.
-    Messenger::getInstance().init(q,3400);
+    Messenger::getInstance().init(q,3400,true);
     Node extra("127.0.0.1",10000);
     k.addNode(extra);
     XCTAssertTrue(true);//no need to assert presence, it will be a duty of the
@@ -70,9 +70,9 @@
         k.addNode(n);
     }
     
-    std::list<Node>* list = k.getNodes();
+    const std::list<Node>* list = k.getNodes();
     int i=KBUCKET_SIZE-1; //used to assert the port, in reverse order
-    for(std::list<Node>::iterator j=list->begin();j!=list->end();++j)
+    for(std::list<Node>::const_iterator j=list->begin();j!=list->end();++j)
     {
         XCTAssertEqual(j->getIp(), def);
         XCTAssertEqual(j->getPort(), 3400+i);
@@ -92,9 +92,10 @@
     }
     
     //change node vals
-    std::list<Node>* list = k.getNodes();
+    const std::list<Node>* list = k.getNodes();
+    std::list<Node> list_copy = *list;
     int i = 0;
-    for(std::list<Node>::iterator j=list->begin();j!=list->end();++j)
+    for(std::list<Node>::iterator j=list_copy.begin();j!=list_copy.end();++j)
     {
         *j = Node(def,6400+i);
         i++;
@@ -106,7 +107,7 @@
     //retrieve nodes and assert them
     list = k.getNodes();
     i=0; //used to assert the port, in reverse order
-    for(std::list<Node>::iterator j=list->begin();j!=list->end();++j)
+    for(std::list<Node>::const_iterator j=list->begin();j!=list->end();++j)
     {
         XCTAssertEqual(j->getIp(), def);
         XCTAssertEqual(j->getPort(), 6400+i);
@@ -135,13 +136,13 @@
     Kbucket k2(data);
     
     //ensure the two buckets are identical
-    std::list<Node>* list2 = k2.getNodes();
+    const std::list<Node>* list2 = k2.getNodes();
     //need to transform comparison list into a vector for O(1) access
 
     int i=0;
     std::vector<Node> compare;
     compare.insert(compare.end(),k.getNodes()->begin(), k.getNodes()->end());
-    for(std::list<Node>::iterator j=list2->begin();j!=list2->end();++j)
+    for(std::list<Node>::const_iterator j=list2->begin();j!=list2->end();++j)
     {
         XCTAssertEqual(j->getIp(),compare.at(i).getIp());
         XCTAssertEqual(j->getPort(),compare.at(i).getPort());

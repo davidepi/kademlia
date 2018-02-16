@@ -255,8 +255,8 @@
     
     char out1[161];
     char out2[161];
-    Distance(a,b).printDistance(out1);
-    Distance(a,b).printDistance(out2);
+    Distance(a,b).toString(out1);
+    Distance(a,b).toString(out2);
     
     XCTAssertTrue(strcmp(out1,out2)==0);
 }
@@ -267,7 +267,7 @@
     
     char out1[161];
     char out2[161];
-    Distance(a,a).printDistance(out1);
+    Distance(a,a).toString(out1);
     strcpy(out2,"0000000000000000000000000000000000000000");
     strcat(out2,"0000000000000000000000000000000000000000");
     strcat(out2,"0000000000000000000000000000000000000000");

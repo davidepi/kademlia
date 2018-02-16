@@ -143,11 +143,6 @@ void Messenger::sendMessage(const Node node, const Message& msg) const
     *t = (Messenger::my_ip.getIp());
     *(uint16_t*)(msg.text+4) = htons(Messenger::port_ho);
     *(uint16_t*)(msg.text+6) = msg.flags;
-#ifndef NDEBUG
-    char ip[16];
-    node.getIp().toString(ip);
-    printf("Sending message to: %s:%hu\n",ip,(unsigned short)node.getPort());
-#endif
     if(sendto(sockfd,msg.text,msg.length+RESERVED_BYTES,0,
               (struct sockaddr*)&dest,
               (socklen_t)sizeof(dest)) == -1)

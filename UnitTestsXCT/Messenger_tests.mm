@@ -12,7 +12,7 @@
     [super setUp];
     Messenger* m = &(Messenger::getInstance());
     std::queue<Message*>* q = new std::queue<Message*>;
-    m->init(q, 3400);
+    m->init(q, 3400, true);
 }
 
 - (void)tearDown {
@@ -29,7 +29,7 @@
 {
     Messenger* m = &(Messenger::getInstance());
     std::queue<Message*>* q = NULL;
-    int retval = m->init(q, 1028);
+    int retval = m->init(q, 1028, true);
     
     XCTAssertEqual(retval,NULL_QUEUE);
 }
@@ -38,8 +38,8 @@
 {
     Messenger* m = &(Messenger::getInstance());
     std::queue<Message*>* q = new std::queue<Message*>();
-    m->init(q, 3400);
-    int retval = m->init(q, 3400);
+    m->init(q, 3400,true);
+    int retval = m->init(q, 3400, true);
     XCTAssertEqual(retval,ALREADY_INITIALIZED);
 }
 
@@ -47,7 +47,7 @@
 {
     Messenger* m = &(Messenger::getInstance());
     std::queue<Message*>*q = new std::queue<Message*>();
-    m->init(q,3400);
+    m->init(q,3400,true);
     
     //-s -N is otherwise curl does not close the buffer correctly
     FILE* fp = popen("curl -s -N http://ipinfo.io/ip | xargs echo -n","r");
@@ -65,7 +65,7 @@
 {
     Messenger* m = &(Messenger::getInstance());
     std::queue<Message*>* q;
-    m->init(q,3400);
+    m->init(q,3400,true);
     XCTAssertEqual(m->getPort(),3400);
 }
 
@@ -134,9 +134,7 @@
 {
     Messenger* m = &(Messenger::getInstance());
     std::queue<Message*>* q;
-    m->init(q,3400);
-    q = m->getBindedQueue();
-    m->setPrivate();
+    m->init(q,3400,true);
     Message msg("Přijet pozdě");
     m->sendMessage(Node(m->getIp(), 3400), msg);
     sleep(1);
@@ -155,9 +153,8 @@
 {
     Messenger* m = &(Messenger::getInstance());
     std::queue<Message*>* q;
-    m->init(q,3400);
+    m->init(q,3400,true);
     m->setPrivate();
-    q = m->getBindedQueue();
     Message msg("Bořislavka");
     m->sendMessage(Node(m->getIp(), 3400), msg);
     sleep(1);

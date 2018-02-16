@@ -60,7 +60,9 @@ void rpc_store(const Key* key, const Kbucket* bucket, Performer* p)
 
     response.append((uint8_t*) value.c_str(), strlen(value.c_str()) + 1);
     response.setFlags(RPC_STORE);
-
+    std::cout<<"Storing the value: "<<value<<"in the following bucket:"
+             <<std::endl;
+    bucket->print();
     std::list<Node>::const_iterator it;
     for(it = bucket->getNodes()->begin(); it != bucket->getNodes()->end(); ++it)
     {
@@ -217,7 +219,7 @@ static void* execute(void* this_class)
                     //find closest nodes
                     Kbucket kbucket;
                     p->neighbours->findKClosestNodes(&key, &kbucket);
-                    kbucket.print();
+//                    kbucket.print();
                     Message msg = generate_find_node_answer(&key, &kbucket);
                     msg.setFlags(msg.getFlags()|(flags&~RPC_MASK));
                     messenger->sendMessage(sender, msg);
@@ -264,8 +266,8 @@ static void* execute(void* this_class)
                             Kbucket res;
                             sn->getAnswer(&res);
                             p->searchInProgress.erase(got);
-                            k.print();
-                            res.print();
+                            //k.print();
+                            //res.print();
                             if(flags&FLAG_STORE_REQUEST)
                             {
                                 //send the rpc_store to the node in the now

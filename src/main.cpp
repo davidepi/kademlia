@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
                 fprintf(stdout,"-i [char*] The ip to connect to on the remote host\n");
                 fprintf(stdout,"-p [ uint] The port to connect to on the remote host\n");
                 fprintf(stdout,"-P [ uint] The port to use on this host\n");
-                fprintf(stdout,"-x [     ] If gateway, use the private network\n");
+                fprintf(stdout,"-x [     ] Use a private network\n");
                 fprintf(stdout,"-h [     ] Print this wonderful help :)\n");
                 exit(EXIT_SUCCESS);
                 break;
@@ -64,25 +64,27 @@ int main(int argc, char* argv[])
     }
     else if(port_host <= 1024)
     {
-        fprintf(stderr, "%s\n", "Reserved port. Don't worry, you have almost 64512 free ports between 1024 and 65536 :^)");
+        fprintf(stderr, "%s\n", "Reserved port, use a port >1024 and <65537");
         exit(EXIT_FAILURE);
     }
 
     Node gatewaynode(gateway,port_dest);
     std::queue<Message*> a;
+    
 
-    //creating the thread that waits for incoming packets and passes them to the performer one
+    //creating the thread that waits for incoming packets and passes them to the
+    //performer
     Messenger* m = &(Messenger::getInstance());
     m->init(&a, port_host, private_net);
-    
+
     if(im_gateway) {
         if(private_net) {
             std::cout<<"Private network"<<std::endl;
-        } 
+        }
         else {
             std::cout<<"Public network"<<std::endl;
         }
-    } 
+    }
     else {
         if(gateway.isLocalhost() || port_dest == 0) {
             fprintf(stderr, "%s\n", "Missing gateway ip or port");
@@ -90,12 +92,12 @@ int main(int argc, char* argv[])
         }
         if (gateway.isPrivate()) {
             std::cout<<"Private network"<<std::endl;
-        }        
+        }
         else {
             std::cout<<"Public network"<<std::endl;
         }
     }
-    
+
     Performer p(&a);
     char myIp[16];
     m->getIp().toString(myIp);
