@@ -13,6 +13,7 @@ void Kbucket::addNode(const Node n)
         if (Kbucket::nodeList.size() < KBUCKET_SIZE)
         {
             mtx.lock();
+            //second check, concurrecy reasons
             if (Kbucket::nodeList.size() < KBUCKET_SIZE)
                 Kbucket::nodeList.push_front(n);
             mtx.unlock();
@@ -24,8 +25,7 @@ void Kbucket::addNode(const Node n)
             //check if last node is still alive
             Node lastActiveNode = Kbucket::nodeList.back();
             //this  manages the update bucket when it is full
-            Updater* updater = Updater::getInstance();
-            updater->checkUpdateBucket(lastActiveNode, n, this);
+            Updater::getInstance().checkUpdateBucket(lastActiveNode, n, this);
         }
     }
 

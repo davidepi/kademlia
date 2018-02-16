@@ -157,7 +157,7 @@ static void* execute(void* this_class)
                 else
                 {
                     std::cout << "The message is a pong" << std::endl;
-                    Updater::getInstance()->processPong(senderNode);
+                    Updater::getInstance().processPong(senderNode);
                 }
             }
                 break;
