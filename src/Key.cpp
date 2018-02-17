@@ -128,7 +128,7 @@ static void sha1(const uint8_t* input, uint8_t* output, uint64_t len)
         //fill remaining with 0s
         while(j<56)
             padded[j++] = 0;
-        //reset for next iteration
+        //reset for chunk creation
         j=0;
         //break message in 16 words
         for(int k=0;k<16;k++)
@@ -142,6 +142,8 @@ static void sha1(const uint8_t* input, uint8_t* output, uint64_t len)
         //extend the words to 80
         for(int k=16;k<80;k++)
             chunk[k] = rotl32(chunk[k-3]^chunk[k-8]^chunk[k-14]^chunk[k-16],1);
+        //reset for next iteration
+        j = 0;
         //apply the functions
         a = h0;
         b = h1;

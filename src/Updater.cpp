@@ -66,11 +66,11 @@ void* removeAfterTimeout(void* args)
     //if the pair oldNode and newNode matches
     if (mapIt != argStruct->map->end() && (*mapIt).second == argStruct->newNode)
     {
-        //removing
-        argStruct->map->erase(mapIt);
-
         //timeout expired, node replaced
         argStruct->kbucket->replaceNode(mapIt->first, mapIt->second);
+        
+        //removing
+        argStruct->map->erase(mapIt);
     }
 
     delete argStruct;
