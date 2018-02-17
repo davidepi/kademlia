@@ -1,6 +1,6 @@
 #include "Distance.hpp"
 #if !defined(LEFT_DISTANCE) and !defined(RIGHT_DISTANCE)
-#define RIGHT_DISTANCE
+#define LEFT_DISTANCE
 #endif
 //find the ith different bit
 static uint8_t calculate_distance(uint32_t byte);
@@ -135,7 +135,7 @@ static uint8_t calculate_distance(uint32_t byte)
     //and left-shifted by 8, otherwise the number of leading zeros is increased
     //by 8
     uint32_t retval = 0;
-    __asm__ __volatile__( "lzcntl %1, %0;"
+    __asm__ ( "lzcntl %1, %0;"
              :"=r"(retval)
              :"r"(byte << 24)
              :
@@ -182,7 +182,7 @@ static uint8_t calculate_distance(uint32_t byte)
     uint32_t retval = 0;
     //tzcntl counts the trailing zeros so there is no need to shift like with
     //the lzcntl
-    __asm__ __volatile__( "tzcntl %1, %0;"
+    __asm__ ( "tzcntl %1, %0;"
              :"=r"(retval)
              :"r"(byte)
              :
