@@ -80,4 +80,7 @@ private:
 
 };
 
+///Localhost in network order
+extern const uint32_t _LOCALHOST_NO_;
+
 #endif

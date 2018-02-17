@@ -1,6 +1,8 @@
 #include "Key.hpp"
 
 //used internally, max 500 byte len
+//WARNING!!!! If this changes, maybe also the distance variable inside
+//Distance.hpp should change, since it support hash with maximum 255 bits
 static void sha1(const uint8_t* input, uint8_t * output, uint64_t len);
 
 //left rotate, used for sha1 function

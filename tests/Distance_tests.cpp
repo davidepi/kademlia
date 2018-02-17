@@ -220,9 +220,11 @@ TEST(Distance,opGreaterThanOrEqual)
 
 TEST(Distance,opEqual)
 {
-    Key a("2Tv8cForS9J16ngkrpF9");
-    Key b("TqF3AFes5UniXGzhbPiX");
-    Key c("NyZO9NhCcluT0ueB5jwC");
+    Key a("2Xvj7hEv3yQsYTZsdseP");
+    Key b("fjTtJbNqV6yJdzoIjXpK");
+    Key c("41YBcDHd57gsaeK7Dw8Y");
+    Distance ab(a,b);
+    Distance ac(a,c);
     EXPECT_TRUE(Distance(a,b) == Distance(a,b));
     EXPECT_TRUE(Distance(a,b) >= Distance(a,b));
     EXPECT_TRUE(Distance(a,b) <= Distance(a,b));
@@ -231,53 +233,11 @@ TEST(Distance,opEqual)
 
 TEST(Distance,opNotEqual)
 {
-    Key a("2Tv8cForS9J16ngkrpF9");
-    Key b("TqF3AFes5UniXGzhbPiX");
-    Key c("NyZO9NhCcluT0ueB5jwC");
+    Key a("4heh1f9WepueKsGYJwh6");
+    Key b("8dtFkPTxBBzBznFldSel");
+    Key c("pHYGh0lVGL7LwdcM4n0G");
     EXPECT_FALSE(Distance(a,b) != Distance(a,b));
     EXPECT_TRUE(Distance(a,b) != Distance(a,c));
-}
-
-TEST(Distance,printDistanceSame)
-{
-    Key a("2Tv8cForS9J16ngkrpF9");
-    Key b("TqF3AFes5UniXGzhbPiX");
-
-    char out1[161];
-    char out2[161];
-    Distance(a,b).toString(out1);
-    Distance(a,b).toString(out2);
-
-    EXPECT_TRUE(strcmp(out1,out2)==0);
-}
-
-TEST(Distance,printDistanceZero)
-{
-    Key a("NyZO9NhCcluT0ueB5jwC");
-
-    char out1[161];
-    char out2[161];
-    Distance(a,a).toString(out1);
-    strcpy(out2,"0000000000000000000000000000000000000000");
-    strcat(out2,"0000000000000000000000000000000000000000");
-    strcat(out2,"0000000000000000000000000000000000000000");
-    strcat(out2,"0000000000000000000000000000000000000000");
-
-    EXPECT_TRUE(strcmp(out1,out2)==0);
-}
-
-TEST(Distance,printFixedInputs)
-{
-    Key a("ygLco4MF9PwbGxviiZ6y");
-    Key b("6m8CnZsYbNNV7d2wpRep");
-    Key c("lVRPeBoopsKPETBfIIXH");
-    Key d("pWtqntqKFh2KwUsk9GnH");
-    Key e("nNfoelJWY4nEmgCRq60O");
-    Key f("WENZjN7wiUJctEpKIN6C");
-    Key g("hK2jO7I93jpg7SGxJDrU");
-    Key h("ESMoN9aOT14T2X8bNO85");
-    Key i("7mP79ZNOVmNwApw1e1HQ");
-    Key l("C3RpDVaaWLOViSTcIqUz");
 }
 
 #else
@@ -501,48 +461,6 @@ TEST(Distance,opNotEqual)
     Key c("NyZO9NhCcluT0ueB5jwC");
     EXPECT_FALSE(Distance(a,b) != Distance(a,b));
     EXPECT_TRUE(Distance(a,b) != Distance(a,c));
-}
-
-TEST(Distance,printDistanceSame)
-{
-    Key a("2Tv8cForS9J16ngkrpF9");
-    Key b("TqF3AFes5UniXGzhbPiX");
-
-    char out1[161];
-    char out2[161];
-    Distance(a,b).toString(out1);
-    Distance(a,b).toString(out2);
-
-    EXPECT_TRUE(strcmp(out1,out2)==0);
-}
-
-TEST(Distance,printDistanceZero)
-{
-    Key a("NyZO9NhCcluT0ueB5jwC");
-
-    char out1[161];
-    char out2[161];
-    Distance(a,a).toString(out1);
-    strcpy(out2,"0000000000000000000000000000000000000000");
-    strcat(out2,"0000000000000000000000000000000000000000");
-    strcat(out2,"0000000000000000000000000000000000000000");
-    strcat(out2,"0000000000000000000000000000000000000000");
-
-    EXPECT_TRUE(strcmp(out1,out2)==0);
-}
-
-TEST(Distance,printFixedInputs)
-{
-    Key a("ygLco4MF9PwbGxviiZ6y");
-    Key b("6m8CnZsYbNNV7d2wpRep");
-    Key c("lVRPeBoopsKPETBfIIXH");
-    Key d("pWtqntqKFh2KwUsk9GnH");
-    Key e("nNfoelJWY4nEmgCRq60O");
-    Key f("WENZjN7wiUJctEpKIN6C");
-    Key g("hK2jO7I93jpg7SGxJDrU");
-    Key h("ESMoN9aOT14T2X8bNO85");
-    Key i("7mP79ZNOVmNwApw1e1HQ");
-    Key l("C3RpDVaaWLOViSTcIqUz");
 }
 
 #endif

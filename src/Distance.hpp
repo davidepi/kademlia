@@ -50,18 +50,7 @@ public:
      *  \return The distance between the two keys, represented as a number
      *  ranging from 0 to the number of bits in the key
      */
-    short getDistance()const;
-
-    /** \brief Return a string representing the distance
-     *
-     *  Represent the distance with a string of the XOR distance. Every bit is
-     *  represented as an ASCII char, so the string passed as input must have a
-     *  size of at least 8 times the size of the key, plus one bit for the
-     *  null terminating character
-     *
-     *  \param[out] The string representing the distance
-     */
-    void toString(char* out)const;
+    uint8_t getDistance()const;
 
     ///True if this distance is lesser than the one passed as input
     bool operator<(const Distance&)const;
@@ -77,8 +66,7 @@ public:
     bool operator!=(const Distance&)const;
 
 private:
-
-    uint8_t value[20];
+    uint8_t distance;
 
 };
 

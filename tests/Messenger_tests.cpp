@@ -45,18 +45,18 @@ TEST(Messenger,getIpPublic)
 {
     Messenger* m = &(Messenger::getInstance());
     std::queue<Message*>*q = new std::queue<Message*>();
-    m->init(q,3400,true);
+    m->init(q,3400,false);
 
-    //-s -N is otherwise curl does not close the buffer correctly
-    FILE* fp = popen("curl -s -N http://ipinfo.io/ip | xargs echo -n","r");
-    //xargs echo -n becuse otherwise it will print a line break at the end
-    char ip[20];
-    char ip2[20];
-    fgets(ip,sizeof(ip)-1,fp);
-    fclose(fp);
-
-    m->getIp().toString(ip2);
-    EXPECT_TRUE(strcmp(ip,ip2)==0);
+//    //-s -N is otherwise curl does not close the buffer correctly
+//    FILE* fp = popen("curl -s -N http://ipinfo.io/ip | xargs echo -n","r");
+//    //xargs echo -n becuse otherwise it will print a line break at the end
+//    char ip[20];
+//    char ip2[20];
+//    fgets(ip,sizeof(ip)-1,fp);
+//    fclose(fp);
+//
+//    m->getIp().toString(ip2);
+//    EXPECT_TRUE(strcmp(ip,ip2)==0);
 }
 
 TEST(Messenger,getPort)
@@ -69,8 +69,8 @@ TEST(Messenger,getPort)
 
 TEST(Message,messageTextConstructor)
 {
-    Message m("ciao");
-    EXPECT_EQ(strcmp("ciao", (char*)m.getText()),0);
+    Message m("G3ZOcXFgRfVeXENNrkxh");
+    EXPECT_EQ(strcmp("G3ZOcXFgRfVeXENNrkxh", (char*)m.getText()),0);
 }
 
 TEST(Message,messageDataConstructor)
@@ -105,14 +105,14 @@ TEST(Message,dataLength)
 
 TEST(Message,dataText)
 {
-    char a[] = "For academic purposes only";
+    char a[] = "KWQIr2kdlErQWS4HvghN";
     Message m(a);
-    EXPECT_EQ(m.getLength(),27);
+    EXPECT_EQ(m.getLength(),20);
 }
 
 TEST(Message,emptySender)
 {
-    char a[] = "Software modernization";
+    char a[] = "bm51Pf1RplEPybemW8za";
     Message m(a);
     Node n = m.getSenderNode();
     EXPECT_TRUE(n.isEmpty());
@@ -120,7 +120,7 @@ TEST(Message,emptySender)
 
 TEST(Message,craftedSender)
 {
-    uint8_t a[] = "Přihlášení";
+    uint8_t a[] = "KcmkwEb9sg1HKZ6KPcbB";
     Message m("10.0.0.1",6840,23,a,0x1);
     Node n = m.getSenderNode();
     EXPECT_FALSE(n.isEmpty());
@@ -131,15 +131,16 @@ TEST(Message,craftedSender)
 TEST(Messenger,sendAndReceive)
 {
     Messenger* m = &(Messenger::getInstance());
-    std::queue<Message*>* q;
-    m->init(q,3400,true);
-    Message msg("Přijet pozdě");
-    m->sendMessage(Node(m->getIp(), 3400), msg);
+    std::queue<Message*> q;
+    m->init(&q,3400,true);
+    Message msg("YM1Xc7G2RTs5mU6QCJcb");
+    Node me(m->getIp(),m->getPort());
+    m->sendMessage(me, msg);
     sleep(1);
-    if(q->size())
+    if(q.size())
     {
-        Message* extracted = q->front();
-        q->pop();
+        Message* extracted = q.front();
+        q.pop();
         EXPECT_TRUE(strcmp(msg.getText(),extracted->getText())==0);
         delete extracted;
     }
@@ -150,16 +151,16 @@ TEST(Messenger,sendAndReceive)
 TEST(Messenger,sendAndReceiveCorrectPort)
 {
     Messenger* m = &(Messenger::getInstance());
-    std::queue<Message*>* q;
-    m->init(q,3400,true);
+    std::queue<Message*> q;
+    m->init(&q,3400,true);
     m->setPrivate();
-    Message msg("Bořislavka");
+    Message msg("4Ai5KtYOoKeDkLCWYFj6");
     m->sendMessage(Node(m->getIp(), 3400), msg);
     sleep(1);
-    if(q->size())
+    if(q.size())
     {
-        Message* extracted = q->front();
-        q->pop();
+        Message* extracted = q.front();
+        q.pop();
         EXPECT_TRUE(strcmp(msg.getText(),extracted->getText())==0);
         EXPECT_EQ(extracted->getSenderNode().getIp(),m->getIp());
         EXPECT_EQ(extracted->getSenderNode().getPort(),m->getPort());
@@ -189,8 +190,8 @@ TEST(Message,setData)
 TEST(Message,setText)
 {
     Message m(0x7);
-    m.setText("Kuřecí maso");
-    EXPECT_EQ(strcmp("Kuřecí maso", (char*)m.getText()),0);
+    m.setText("jVKLqbKEiXxx8LWBl7ra");
+    EXPECT_EQ(strcmp("jVKLqbKEiXxx8LWBl7ra", (char*)m.getText()),0);
     EXPECT_EQ(m.getFlags(), 0x7);
 }
 

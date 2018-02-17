@@ -100,7 +100,7 @@ TEST(Kbucket,setNodes)
     }
 
     //set vals
-    k.setNodes(list);
+    k.setNodes(&list_copy);
 
     //retrieve nodes and assert them
     list = k.getNodes();

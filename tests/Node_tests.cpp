@@ -15,7 +15,7 @@ TEST(Node,creationEmpty)
 {
     Node n;
     const Key* k = n.getKey();
-    Key k2((uint32_t)0,0);
+    Key k2((uint32_t)_LOCALHOST_NO_,0);
     EXPECT_TRUE(*k==k2);
 }
 

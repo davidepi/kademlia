@@ -2,64 +2,99 @@
 #if !defined(LEFT_DISTANCE) and !defined(RIGHT_DISTANCE)
 #define RIGHT_DISTANCE
 #endif
+//find the ith different bit
+static uint8_t calculate_distance(uint32_t byte);
+//reverse distance is used because if the leading bit is different, the
+//distance is maximum. So i want a distance of NBYTE*8 - leading zeroes
+#define REVERSE_DISTANCE NBYTE*8
 
 Distance::Distance(const Key& k1, const Key& k2)
 {
     const uint8_t* key1 = k1.getKey();
     const uint8_t* key2 = k2.getKey();
-
-    Distance::value[ 0] = key1[ 0] ^ key2[ 0];
-    Distance::value[ 1] = key1[ 1] ^ key2[ 1];
-    Distance::value[ 2] = key1[ 2] ^ key2[ 2];
-    Distance::value[ 3] = key1[ 3] ^ key2[ 3];
-    Distance::value[ 4] = key1[ 4] ^ key2[ 4];
-    Distance::value[ 5] = key1[ 5] ^ key2[ 5];
-    Distance::value[ 6] = key1[ 6] ^ key2[ 6];
-    Distance::value[ 7] = key1[ 7] ^ key2[ 7];
-    Distance::value[ 8] = key1[ 8] ^ key2[ 8];
-    Distance::value[ 9] = key1[ 9] ^ key2[ 9];
-    Distance::value[10] = key1[10] ^ key2[10];
-    Distance::value[11] = key1[11] ^ key2[11];
-    Distance::value[12] = key1[12] ^ key2[12];
-    Distance::value[13] = key1[13] ^ key2[13];
-    Distance::value[14] = key1[14] ^ key2[14];
-    Distance::value[15] = key1[15] ^ key2[15];
-    Distance::value[16] = key1[16] ^ key2[16];
-    Distance::value[17] = key1[17] ^ key2[17];
-    Distance::value[18] = key1[18] ^ key2[18];
-    Distance::value[19] = key1[19] ^ key2[19];
+    uint8_t res = 0;
+#ifdef LEFT_DISTANCE
+    int i=0;
+    while(i<NBYTE)
+    {
+        res = key1[i] ^ key2[i];
+        if(res==0)
+            i++;
+        else
+            break;
+    }
+    if(i!=NBYTE)
+    {
+        uint8_t index = calculate_distance(res);
+        Distance::distance = REVERSE_DISTANCE-((8*i)+index);
+    }
+    else
+        Distance::distance = 0;
+#else
+    int i=NBYTE-1;
+    while(i>-1)
+    {
+        res = key1[i] ^ key2[i];
+        if(res==0)
+            i--;
+        else
+            break;
+    }
+    if(i!=-1)
+    {
+        uint8_t index = calculate_distance(res);
+        Distance::distance = REVERSE_DISTANCE-((8*(NBYTE-1-i))+index);
+    }
+    else
+        Distance::distance = 0;
+#endif
 }
 
 Distance::Distance(Node n1, Node n2)
 {
     const uint8_t* key1 = n1.getKey()->getKey();
     const uint8_t* key2 = n2.getKey()->getKey();
-
-    Distance::value[0] = key1[0] ^ key2[0];
-    Distance::value[1] = key1[1] ^ key2[1];
-    Distance::value[2] = key1[2] ^ key2[2];
-    Distance::value[3] = key1[3] ^ key2[3];
-    Distance::value[4] = key1[4] ^ key2[4];
-    Distance::value[5] = key1[5] ^ key2[5];
-    Distance::value[6] = key1[6] ^ key2[6];
-    Distance::value[7] = key1[7] ^ key2[7];
-    Distance::value[8] = key1[8] ^ key2[8];
-    Distance::value[9] = key1[9] ^ key2[9];
-    Distance::value[10] = key1[10] ^ key2[10];
-    Distance::value[11] = key1[11] ^ key2[11];
-    Distance::value[12] = key1[12] ^ key2[12];
-    Distance::value[13] = key1[13] ^ key2[13];
-    Distance::value[14] = key1[14] ^ key2[14];
-    Distance::value[15] = key1[15] ^ key2[15];
-    Distance::value[16] = key1[16] ^ key2[16];
-    Distance::value[17] = key1[17] ^ key2[17];
-    Distance::value[18] = key1[18] ^ key2[18];
-    Distance::value[19] = key1[19] ^ key2[19];
+    uint8_t res = 0;
+#ifdef LEFT_DISTANCE
+    int i=0;
+    while(i<NBYTE)
+    {
+        res = key1[i] ^ key2[i];
+        if(res==0)
+            i++;
+        else
+            break;
+    }
+    if(i!=NBYTE)
+    {
+        uint8_t index = calculate_distance(res);
+        Distance::distance = REVERSE_DISTANCE-((8*i)+index);
+    }
+    else
+        Distance::distance = 0;
+#else
+    int i=NBYTE-1;
+    while(i>-1)
+    {
+        res = key1[i] ^ key2[i];
+        if(res==0)
+            i--;
+        else
+            break;
+    }
+    if(i!=-1)
+    {
+        uint8_t index = calculate_distance(res);
+        Distance::distance = REVERSE_DISTANCE-((8*(NBYTE-1-i))+index);
+    }
+    else
+        Distance::distance = 0;
+#endif
 }
 
 bool Distance::operator<(const Distance& k)const
 {
-    return Distance::getDistance() < k.getDistance();
+    return Distance::distance < k.distance;
 }
 
 bool Distance::operator>(const Distance& k)const
@@ -79,26 +114,7 @@ bool Distance::operator>=(const Distance& k)const
 
 bool Distance::operator==(const Distance& k)const
 {
-    return Distance::value[ 0] == k.value[ 0] &&
-           Distance::value[ 1] == k.value[ 1] &&
-           Distance::value[ 2] == k.value[ 2] &&
-           Distance::value[ 3] == k.value[ 3] &&
-           Distance::value[ 4] == k.value[ 4] &&
-           Distance::value[ 5] == k.value[ 5] &&
-           Distance::value[ 6] == k.value[ 6] &&
-           Distance::value[ 7] == k.value[ 7] &&
-           Distance::value[ 8] == k.value[ 8] &&
-           Distance::value[ 9] == k.value[ 9] &&
-           Distance::value[10] == k.value[10] &&
-           Distance::value[11] == k.value[11] &&
-           Distance::value[12] == k.value[12] &&
-           Distance::value[13] == k.value[13] &&
-           Distance::value[14] == k.value[14] &&
-           Distance::value[15] == k.value[15] &&
-           Distance::value[16] == k.value[16] &&
-           Distance::value[17] == k.value[17] &&
-           Distance::value[18] == k.value[18] &&
-           Distance::value[19] == k.value[19];
+    return Distance::distance==k.distance;
 }
 
 bool Distance::operator!=(const Distance& k)const
@@ -106,130 +122,96 @@ bool Distance::operator!=(const Distance& k)const
     return !((*this) == k);
 }
 
-void Distance::toString(char* out) const
+uint8_t Distance::getDistance() const
 {
-    for(int i=0; i<20;i++)
-    {
-        out[0+i*8] = ((Distance::value[i]&0x80)>>7)==0?'0':'1';
-        out[1+i*8] = ((Distance::value[i]&0x40)>>6)==0?'0':'1';
-        out[2+i*8] = ((Distance::value[i]&0x20)>>5)==0?'0':'1';
-        out[3+i*8] = ((Distance::value[i]&0x10)>>4)==0?'0':'1';
-        out[4+i*8] = ((Distance::value[i]&0x08)>>3)==0?'0':'1';
-        out[5+i*8] = ((Distance::value[i]&0x04)>>2)==0?'0':'1';
-        out[6+i*8] = ((Distance::value[i]&0x02)>>1)==0?'0':'1';
-        out[7+i*8] = (Distance::value[i]&0x01)==0?'0':'1';
-    }
-    out[160] = '\0';
+    return Distance::distance;
 }
 
-short Distance::getDistance() const
+static uint8_t calculate_distance(uint32_t byte)
 {
-    //reverse distance is used because if the leading bit is different, the
-    //distance is maximum. So i want a distance of NBYTE*8 - leading zeroes
-#define REVERSE_DISTANCE NBYTE*8
-    uint8_t val=0;
-
 #ifdef LEFT_DISTANCE
-    uint8_t index=0;
-    while(index < NBYTE && val==0)
-        val = Distance::value[index++];
-    if(val == 0) //equal keys
-        return 0;
-    index--;
 #ifdef __BMI__
     //lzcnt does not exists for  uint8_t, so everything is casted to uint16_t
     //and left-shifted by 8, otherwise the number of leading zeros is increased
     //by 8
-    uint32_t retval = 0, vall = val;
+    uint32_t retval = 0;
     __asm__ __volatile__( "lzcntl %1, %0;"
              :"=r"(retval)
-             :"r"(vall << 24)
+             :"r"(byte << 24)
              :
              );
-    return REVERSE_DISTANCE-((8*index)+(retval)+1);
+    return retval+1; //+1 because I want it 1-based
 #else
     //lzcnt but not in assembly. If BMI is not supported calling LZCNT/TZCNT
     //calls instead BSR/BSF functions. However the latter are completely
     //different from lzcnt/tzcnt and the result is wrong. Hence the reason of
     //this implementation
 
-    if((val & 0xF0) > 0)//first different bit is between 1 and 4
-        if((val & 0xC0) > 0)//first different bit is 1 or 2
-            if((val & 0x80) > 0)//key is 1xxxxxxx
-                return REVERSE_DISTANCE-((8*index)+1);
+    if((byte & 0xF0) > 0)//first different bit is between 1 and 4
+        if((byte & 0xC0) > 0)//first different bit is 1 or 2
+            if((byte & 0x80) > 0)//key is 1xxxxxxx
+                return 1;
             else//key is 01xxxxxx
-                return REVERSE_DISTANCE-((8*index)+2);
+                return 2;
         else//first different bit is 3 or 4
-            if((val & 0x20) > 0)//key is 001xxxxx
-                return REVERSE_DISTANCE-((8*index)+3);
+            if((byte & 0x20) > 0)//key is 001xxxxx
+                return 3;
             else//key is 0001xxxx
-                return REVERSE_DISTANCE-((8*index)+4);
+                return 4;
     else//first different bit is between 5 and 8
-        if((val & 0x0C) > 0)//first different bit is 5 or 6
-            if((val & 0x08) > 0)//key is 00001xxx
-                return REVERSE_DISTANCE-((8*index)+5);
+        if((byte & 0x0C) > 0)//first different bit is 5 or 6
+            if((byte & 0x08) > 0)//key is 00001xxx
+                return 5;
             else//key is 000001xx
-                return REVERSE_DISTANCE-((8*index)+6);
+                return 6;
         else//first different bit is 7 or 8
-            if((val & 0x02) > 0) //key is 0000001x
-                return REVERSE_DISTANCE-((8*index)+7);
+            if((byte & 0x02) > 0) //key is 0000001x
+                return 7;
             else//key is 00000001
-                return REVERSE_DISTANCE-((8*index)+8);
+                return 8;
 
     //less efficient solution (not divide et impera)
     //but way more readable
     //  - - - v
-        //while((val&0xFF)>>(7-i) == 0)i++;
-        //return REVERSE_DISTANCE-((8*index)+i);
+        //while((byte&0xFF)>>(7-i) == 0)i++;
+        //return i;
 #endif
 #else
-
-    int index=NBYTE-1;
-    while(index >=0 && val==0)
-        val = Distance::value[index--];
-
-    if(val == 0) //equal keys
-        return 0;
-
-    index++; //due to the previous lines, index is decremented even if the
-             //correct value is found
-    index = NBYTE-1-index;
-
 #ifdef __BMI__
 
-    uint32_t retval = 0, vall = val;
+    uint32_t retval = 0;
     //tzcntl counts the trailing zeros so there is no need to shift like with
     //the lzcntl
     __asm__ __volatile__( "tzcntl %1, %0;"
              :"=r"(retval)
-             :"r"(vall)
+             :"r"(byte)
              :
              );
-    return REVERSE_DISTANCE-((8*index)+(retval)+1);
+    return retval+1;
 #else
 
-    if((val & 0xF) > 0)//first different bit is between 5 and 8
-        if((val & 0x3) > 0)//first different bit is 7 or 8
-            if((val & 0x1) > 0)//the key is xxxxxxx1
-                return REVERSE_DISTANCE-(8*index+1);
+    if((byte & 0xF) > 0)//first different bit is between 5 and 8
+        if((byte & 0x3) > 0)//first different bit is 7 or 8
+            if((byte & 0x1) > 0)//the key is xxxxxxx1
+                return 1;
             else//the key is xxxxxx10
-                return REVERSE_DISTANCE-(8*index+2);
+                return 2;
         else//first different bit is 5 or 6
-            if((val & 0x4)>0)//the key is xxxxx100
-                return REVERSE_DISTANCE-(8*index+3);
+            if((byte & 0x4)>0)//the key is xxxxx100
+                return 3;
             else//the key is xxxx1000
-                return REVERSE_DISTANCE-(8*index+4);
+                return 4;
     else//first different bit is between 1 and 4
-        if((val & 0x30) > 0)//first different bit is 3 or 4
-            if((val & 0x10) > 0)//the key is xxx10000
-                return REVERSE_DISTANCE-(8*index+5);
+        if((byte & 0x30) > 0)//first different bit is 3 or 4
+            if((byte & 0x10) > 0)//the key is xxx10000
+                return 5;
             else//the key is xx100000
-                return REVERSE_DISTANCE-(8*index+6);
+                return 6;
         else//first different bit is 1 or 2
-            if((val & 0x40) > 0)//the key is x1000000
-                return REVERSE_DISTANCE-(8*index+7);
+            if((byte & 0x40) > 0)//the key is x1000000
+                return 7;
             else//the key is 10000000
-                return REVERSE_DISTANCE-(8*index+8);
+                return 8;
 #endif
 #endif
 }
