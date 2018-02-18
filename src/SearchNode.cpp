@@ -54,7 +54,7 @@ void SearchNode::addAnswer(const Node whoanswer, const Kbucket* a)
 {
     mtx.lock();//to avoid processing the answer while clean() is running
                //merge askme and reserve in a single list
-    askme.splice(askme.end(), reserve,reserve.begin(),reserve.end());
+    askme.splice(askme.end(), reserve);
     reserve.clear();
     bool found = false;
     for(std::list<pnode>::iterator it=askme.begin();it!=askme.end();it++)
