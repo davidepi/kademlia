@@ -7,6 +7,8 @@
 #include <set>
 #include <cstring> //strncpy
 #include <utility> //std::pair
+#include <pthread.h>
+#include <signal.h>
 #include "Messenger.hpp"
 #include "Node.hpp"
 #include "Kbucket.hpp"

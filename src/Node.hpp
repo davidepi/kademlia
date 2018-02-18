@@ -10,11 +10,7 @@
 /** \brief Class used to define a tuple <Ip,port,Key>
  *
  *  This class generates a pair <Ip,port> and then append to it the
- *  corresponding Key. Keys are immutable and efficiently copied in constant
- *  time, despite their length.
- *
- *  \warning Undefined behaviour and stack overflow if the number of concurrent
- *  active nodes is higher than QUEUE_LENGTH
+ *  corresponding Key.
  */
 class Node
 {
@@ -36,14 +32,8 @@ public:
      */
     Node(Ip ip, uint16_t port_ho);
     
-    ///Copy-cosntructor
-    Node(const Node& copied);
-    
-    ///Assignment-constructor
-    Node& operator=(const Node& copied);
-    
     ///Default destructor
-    ~Node();
+    ~Node() = default;
     
     /** \brief Return the IP of this node
      *
@@ -83,11 +73,9 @@ public:
     bool operator!=(const Node&)const;
 
 private:
-    //used for RAII count
-    uint8_t* reference;
     Ip my_ip;
     uint16_t port_ho;
-    Key* id;
+    Key id;
 };
 
 std::ostream& operator<<(std::ostream &strm, const Node& n);

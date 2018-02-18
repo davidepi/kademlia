@@ -33,11 +33,8 @@ void Updater::checkUpdateBucket(Node oldNode, Node newNode, Kbucket* kbucket)
 {
     //ping least recently seen node
     rpc_ping(oldNode);
-    Logger::getInstance().logFile("ssns", LOGGER_UPDATER, "Sent ping to ",
+    Logger::getInstance().logBoth("ssns", LOGGER_UPDATER, "Sent ping to ",
                                     &oldNode, " to check if it is alive");
-#ifndef NDEBUG
-    std::cout<<"Sent ping to "<<&oldNode<<" to check if it is alive"<<std::endl;
-#endif
     //store the new node to add iff the older node does not answer
     vars.updateNodesMap.insert(std::pair<Node, Node>(oldNode, newNode));
 
@@ -68,10 +65,8 @@ void* removeAfterTimeout(void* args)
     //if the pair oldNode and newNode matches
     if (mapIt != argStruct->map->end() && (*mapIt).second == argStruct->newNode)
     {
-#ifndef NDEBUG
-        std::cout << "End timeout "<< mapIt->first << " removed and "
-                  << mapIt->second << " inserted"  << std::endl;
-#endif
+        Logger::getInstance().logStdout("snsns","End timeout ",&(mapIt->first),
+                                " removed and ",&(mapIt->second)," inserted");
         //timeout expired, node replaced
         argStruct->kbucket->replaceNode(mapIt->first, mapIt->second);
         //removing
@@ -99,11 +94,8 @@ void* scan_queue(void* args)
         argStruct->queue.pop();
         char myIp[16];
         aliveNode.getIp().toString(myIp);
-        Logger::getInstance().logFile("ssn", LOGGER_UPDATER,
+        Logger::getInstance().logBoth("ssn", LOGGER_UPDATER,
                                         "Received pong from ", &aliveNode);
-#ifndef NDEBUG
-        std::cout <<"Received pong from " << &aliveNode << std::endl;
-#endif
 
         //find the node who sent the PONG in the map end remove the entry
         std::map<Node, Node>::iterator it;
