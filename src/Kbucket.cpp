@@ -12,11 +12,11 @@ void Kbucket::addNode(const Node n)
         //if not in queue, add it
         if (Kbucket::nodeList.size() < KBUCKET_SIZE)
         {
-            mtx.lock();
+            spinlock.lock();
             //second check, concurrecy reasons
             if (Kbucket::nodeList.size() < KBUCKET_SIZE)
                 Kbucket::nodeList.push_front(n);
-            mtx.unlock();
+            spinlock.unlock();
             Logger::getInstance().logFormat("ssn",LOGGER_KBUCKET,
                                             "Added",&n);
         }
@@ -39,14 +39,18 @@ void Kbucket::deleteNode(const Node n)
     {
         if(n == *it)
         {
-            Kbucket::mtx.lock();
+            spinlock.lock();
+            bool done = false;
             if(n == *it)
             {
                 Kbucket::nodeList.remove(*it);
+                done = true;
+            }
+            spinlock.unlock();
+            //this if is used to avoid unnecessary operat. with spinlock locked
+            if(done)
                 Logger::getInstance().logFormat("ssn", LOGGER_KBUCKET,
                                                 "Removed", &n);
-            }
-            Kbucket::mtx.unlock();
             return;
         }
     }
@@ -60,16 +64,18 @@ bool Kbucket::replaceNode(const Node oldNode, const Node newNode)
     {
         if(oldNode == *it)
         {
-            Kbucket::mtx.lock();
+            spinlock.lock();
             if(oldNode == *it)
             {
                 Kbucket::nodeList.remove(*it);
                 Kbucket::nodeList.push_front(newNode);
-                Logger::getInstance().logFormat("ssnsn", LOGGER_KBUCKET,
-                                 "Replaced", &oldNode, "with", &newNode);
                 retval = true;
             }
-            Kbucket::mtx.unlock();
+            spinlock.unlock();
+            //this if is used to avoid unnecessary operat. with spinlock locked
+            if(retval)
+                Logger::getInstance().logFormat("ssnsn", LOGGER_KBUCKET,
+                                        "Replaced", &oldNode, "with", &newNode);
             break;
         }
     }

@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <mutex>
+#include "Spinlock.hpp"
 #include "Node.hpp"
 #include "settings.h"
 
@@ -122,7 +123,7 @@ public:
 
 private:
     std::list<Node> nodeList;
-    std::mutex mtx;
+    Spinlock spinlock;
 };
 
 #endif
