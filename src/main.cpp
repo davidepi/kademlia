@@ -25,7 +25,8 @@ int main(int argc, char* argv[])
     Ip gateway;
     bool im_gateway = true;
     bool private_net = false;
-    while((c = getopt(argc,argv,"hxi:p:P:")) != -1)
+    int log_level = LOG_STDOUT;
+    while((c = getopt(argc,argv,"hxi:p:P:l:")) != -1)
     {
         switch(c)
         {
@@ -40,6 +41,12 @@ int main(int argc, char* argv[])
                         "The port to use on this host\n");
                 fprintf(stdout,"-x [     ] "
                         "Use a private network\n");
+                fprintf(stdout,"-l [ uint] "
+                        "Set the log level:\n"
+                        "\t0 - Log nothing\n"
+                        "\t1 - Log only to stdout <default>\n"
+                        "\t2 - Log only to file\n"
+                        "\t3 - Log everywhere\n");
                 fprintf(stdout,"-h [     ] "
                         "Print this wonderful help :)\n");
                 exit(EXIT_SUCCESS);
@@ -49,6 +56,7 @@ int main(int argc, char* argv[])
             case 'p': port_dest = atoi(optarg);break;
             case 'i': gateway = Ip(optarg); im_gateway = false;break;
             case 'P': port_host = atoi(optarg);break;
+            case 'l': log_level = atoi(optarg);break;
             case '?':
             {
                 if(optopt=='i' || optopt=='p' || optopt=='P')
@@ -61,6 +69,10 @@ int main(int argc, char* argv[])
             }
         }
     }
+    
+    if(log_level>3)
+        log_level = 3;
+    Logger::getInstance().setLogLevel(log_level);
     
     if(port_host == 0)
     {
@@ -108,8 +120,8 @@ int main(int argc, char* argv[])
     m->getIp().toString(myIp);
     Key myKey(m->getIp(),m->getPort());
     std::cout << "My ip: "   << myIp         << std::endl
-    << "My port: " << m->getPort() << std::endl
-    << "My key: "  << myKey        << std::endl;
+              << "My port: " << m->getPort() << std::endl
+              << "My key: "  << myKey        << std::endl;
     if(!im_gateway)
     {
         Kbucket gatewayBucket;

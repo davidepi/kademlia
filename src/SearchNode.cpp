@@ -237,7 +237,7 @@ void SearchNode::clean()
         if(it->probed==PENDING &&
            duration_cast<seconds>(now-it->queryTime).count()>TIMEOUT)
         {
-            Logger::getInstance().logFormat("ssn",LOGGER_SEARCHNODE,
+            Logger::getInstance().logFile("ssn",LOGGER_SEARCHNODE,
                                             "Erased node",&(it->node));
             it = SearchNode::askme.erase(it);
             erased = true;
@@ -251,7 +251,7 @@ void SearchNode::clean()
     //none will ever answer me
     if(erased && pending==0)
     {
-        Logger::getInstance().logFormat("ss",LOGGER_SEARCHNODE,
+        Logger::getInstance().logFile("ss",LOGGER_SEARCHNODE,
                   "Sending empty Kbucket because every pending node timed out");
         Node me(Messenger::getInstance().getIp(),
                 Messenger::getInstance().getPort());

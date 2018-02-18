@@ -126,4 +126,7 @@ private:
     Spinlock spinlock;
 };
 
+//used to print the string with std::cout
+std::ostream& operator<<(std::ostream& strm, const Kbucket& k);
+
 #endif

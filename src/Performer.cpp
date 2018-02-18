@@ -60,9 +60,8 @@ void rpc_store(const Key* key, const Kbucket* bucket, Performer* p)
 
     response.append((uint8_t*) value.c_str(), strlen(value.c_str()) + 1);
     response.setFlags(RPC_STORE);
-    std::cout<<"Storing the value: "<<value<<"in the following bucket:"
-             <<std::endl;
-    bucket->print();
+    Logger::getInstance().logBoth("ssst","Storing the value: ",value.c_str(),
+                                  "in the following bucket: ",bucket);
     std::list<Node>::const_iterator it;
     for(it = bucket->getNodes()->begin(); it != bucket->getNodes()->end(); ++it)
     {
@@ -154,8 +153,9 @@ static void* execute(void* this_class)
         bool isAnswer = flags & FLAG_ANSWER;
         if(sender!=me)
         {
-            logger->logFormat("ssnsf", LOGGER_INCOMING,
+            logger->logFile("ssnsf", LOGGER_INCOMING,
             "Message from", &sender, "with flags:", &flags);
+            logger->logStdout("sn","Received a message from", &sender);
         }
         else
             //waiting for pending nodes
@@ -166,19 +166,19 @@ static void* execute(void* this_class)
             {
                 if(!isAnswer)
                 {
-                    std::cout << "The message is a ping" << std::endl;
+                    logger->logStdout("s","Received a ping");
                     rpc_pong(sender);
                 }
                 else
                 {
-                    std::cout << "The message is a pong" << std::endl;
+                    logger->logStdout("s","Received a pong");
                     Updater::getInstance().processPong(sender);
                 }
             }
                 break;
             case RPC_STORE :
             {
-                std::cout << "The message is a store " << std::endl;
+                logger->logStdout("s","Received a store");
 
                 Key key;
                 key.craft(top->getData());
@@ -190,7 +190,7 @@ static void* execute(void* this_class)
                 }
                 if(p->filesMap.insert(std::make_pair(key,text)).second == false)
                 {
-                    logger->logFormat("s","ERROR: key already inserted");
+                    logger->logBoth("s","ERROR: key already inserted");
                 }
             }
                 break;
@@ -201,6 +201,7 @@ static void* execute(void* this_class)
                     Key key;
                     key.craft(top->getData());
                     //find closest nodes
+                    logger->logStdout("sk","Somebody asked Kbucket of :",&key);
                     if(flags & FLAG_FIND_VALUE)
                     {
                         std::unordered_map<Key,const char*>::iterator got =
@@ -228,6 +229,8 @@ static void* execute(void* this_class)
                 {
                     Key k;
                     k.craft(top->getData());
+                    if(sender!=me)
+                        logger->logStdout("sk","Received answer for key: ",&k);
                     SearchNode* sn = NULL;
                     std::unordered_map<Key,SearchNode>::iterator got =
                     p->searchInProgress.find(k);
@@ -240,10 +243,8 @@ static void* execute(void* this_class)
                         //value found, the find value can terminate
                         if(flags&FLAG_VALUE_FOUND)
                         {
-                            logger->logFormat("sksss", "Found value  - Key:",&k,
+                            logger->logBoth("sksss", "Found value  - Key:",&k,
                                               "Value:",top->getData()+NBYTE);
-                            std::cout << "Found value: " << top->getData()+NBYTE
-                                      << std::endl;
                             p->searchInProgress.erase(k);
                             break;
                         }
@@ -266,8 +267,8 @@ static void* execute(void* this_class)
                             Kbucket res;
                             sn->getAnswer(&res);
                             p->searchInProgress.erase(got);
-                            //k.print();
-                            //res.print();
+                            logger->logStdout("skst","KBucket for key ",
+                                              &k," result: ",&res);
                             if(flags&FLAG_STORE_REQUEST)
                             {
                                 //send the rpc_store to the node in the now
@@ -306,6 +307,7 @@ static void* pendingNodesCleaner(void* data)
         it = searchInProgress->begin();
         while(it!=searchInProgress->end())
         {
+            std::cout<<"???"<<std::endl;
             target = &(it->second);
             target->clean();
             it++;

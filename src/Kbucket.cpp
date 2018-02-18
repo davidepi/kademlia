@@ -17,7 +17,7 @@ void Kbucket::addNode(const Node n)
             if (Kbucket::nodeList.size() < KBUCKET_SIZE)
                 Kbucket::nodeList.push_front(n);
             spinlock.unlock();
-            Logger::getInstance().logFormat("ssn",LOGGER_KBUCKET,
+            Logger::getInstance().logFile("ssn",LOGGER_KBUCKET,
                                             "Added",&n);
         }
         else
@@ -49,7 +49,7 @@ void Kbucket::deleteNode(const Node n)
             spinlock.unlock();
             //this if is used to avoid unnecessary operat. with spinlock locked
             if(done)
-                Logger::getInstance().logFormat("ssn", LOGGER_KBUCKET,
+                Logger::getInstance().logFile("ssn", LOGGER_KBUCKET,
                                                 "Removed", &n);
             return;
         }
@@ -74,7 +74,7 @@ bool Kbucket::replaceNode(const Node oldNode, const Node newNode)
             spinlock.unlock();
             //this if is used to avoid unnecessary operat. with spinlock locked
             if(retval)
-                Logger::getInstance().logFormat("ssnsn", LOGGER_KBUCKET,
+                Logger::getInstance().logFile("ssnsn", LOGGER_KBUCKET,
                                         "Replaced", &oldNode, "with", &newNode);
             break;
         }
@@ -157,6 +157,18 @@ void Kbucket::print()const
         i->getIp().toString(ipstring);
         std::cout<<"<"<<ipstring<<","<<i->getPort()<<">"<<std::endl;
     }
+}
+
+std::ostream& operator<<(std::ostream& strm, const Kbucket& k)
+{
+    char ipstring[16];
+    std::list<Node>::const_iterator i;
+    for(i=k.getNodes()->begin();i!=k.getNodes()->end();++i)
+    {
+        i->getIp().toString(ipstring);
+        strm<<"<"<<ipstring<<","<<i->getPort()<<">";
+    }
+    return strm;
 }
 
 const std::list<Node>* Kbucket::getNodes()const
