@@ -3,6 +3,7 @@
 
 #include "Ip.hpp"
 #include "Key.hpp"
+#include "Spinlock.hpp"
 #include <arpa/inet.h>  //htons, htonl,  etc.
 #include <sstream>
 
@@ -11,6 +12,9 @@
  *  This class generates a pair <Ip,port> and then append to it the
  *  corresponding Key. Keys are immutable and efficiently copied in constant
  *  time, despite their length.
+ *
+ *  \warning Undefined behaviour and stack overflow if the number of concurrent
+ *  active nodes is higher than QUEUE_LENGTH
  */
 class Node
 {
