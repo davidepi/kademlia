@@ -307,7 +307,6 @@ static void* pendingNodesCleaner(void* data)
         it = searchInProgress->begin();
         while(it!=searchInProgress->end())
         {
-            std::cout<<"???"<<std::endl;
             target = &(it->second);
             target->clean();
             it++;
@@ -337,6 +336,8 @@ const pthread_t Performer::getThreadID()const
 
 Performer::~Performer()
 {
+    pthread_kill(Performer::cleaner_id,0);
+    pthread_kill(Performer::thread_id,0);
     delete neighbours;
 }
 
